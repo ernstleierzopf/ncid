@@ -1,0 +1,1 @@
+''' This is the interface of the cipher implementations.'''
