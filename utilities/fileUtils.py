@@ -3,19 +3,23 @@ import os
 FOLDER_STRUCTURE = ('gutenberg', 'common')
 
 def write_ciphertexts_with_keys_to_file(filename, ciphertexts, keys, cipherImplementation) :
-    with open(filename,'w') as file :
+    with open(filename,'wb') as file :
         for i in range(0,len(ciphertexts)) :
+            if isinstance(ciphertexts[i], str):
+                ciphertexts[i] = ciphertexts[i].encode()
             file.write(ciphertexts[i] + ',' + cipherImplementation.mapNumbersIntoTextspace(keys[i]))
             file.write('\n')
 
 def write_txt_list_to_file(filename, texts) :
-    with open(filename,'w') as file :
+    with open(filename,'wb') as file :
         for line in texts :
+            if isinstance(line, str):
+                line = line.encode()
             file.write(line)
             file.write('\n')
 
 def read_txt_list_from_file(filename):
-    with open(filename,'r') as file:
+    with open(filename,'rb') as file:
         return file.readlines()
 
 '''
@@ -53,7 +57,7 @@ def find_textfiles(path, folder_structure, restructure_folder_flag) :
         os.removedirs(path)
     return txt_files
 
-def restructure_folder_and_write_caches(restructure_folder_flag, txt_files, path, cache_file):
+def restructure_folder_and_write_caches(restructure_folder_flag, txt_files, path):
     if restructure_folder_flag:
         restructured_txt_files = []
         for file in txt_files:
@@ -68,8 +72,6 @@ def restructure_folder_and_write_caches(restructure_folder_flag, txt_files, path
                 dir = os.path.dirname(dir)
         txt_files = restructured_txt_files
 
-    if cache_file is not None:
-        write_txt_list_to_file(cache_file, txt_files)
     return txt_files
 
 def unpack_zip_folders(path):
@@ -85,18 +87,20 @@ def unpack_zip_folders(path):
 def remove_disclaimer_from_file(file):
     with open(file, 'rb') as f:
         txt = f.read()
-    txt.replace(b'\r\n', b'\n')
-    with open(file, 'wb') as f:
-        f.write(txt)
-
-    with open(file, 'r', encoding='ascii') as f:
-        txt = f.read()
-    pos = txt.find('*** START')
+    old = txt
+    txt = txt.replace(b'\r\n', b'\n')
+    while txt.find(b'\n\n\n') != -1:
+        txt = txt.replace(b'\n\n\n', b'\n\n')
+    pos = txt.find(b'*** START OF THIS PROJECT')
     if pos < 0:
-        pos = txt.find('***START')
-        if pos < 0:
-            print('No disclaimer found in %s'%file)
-            return
-    txt = txt[pos:]
-    with open(file, 'w', encoding='ascii') as f:
-        f.write(txt)
+        pos = txt.find(b'***START OF THIS PROJECT')
+    if pos > -1:
+        txt = txt[pos:]
+        pos = txt.find(b'\n')
+        txt = txt[pos:]
+    while txt.find(b'\n') == 0:
+        txt = txt[1:]
+
+    if old != txt:
+        with open(file, 'wb') as f:
+            f.write(txt)

@@ -49,15 +49,21 @@ This project contains code for the detection and classification of ciphers to cl
 
 ### Generate Plaintexts
 
-If you'd like to create your own plaintexts, you can use the `generatePlainTextFiles.py` script.  For further description read the help by using the `--help` parameter. Example usage:
+If you'd like to create your own plaintexts, you can use the `generatePlainTextFiles.py` script. Therefore you first need to download some texts, for example the Gutenberg Library. You can do that by using following command, which downloads all English e-books compressed with zip.  Note that this script can take a while and dumps about 7gb of files into `./data/plaintexts`.
+
+```shell
+wget -m -H -nd "http://www.gutenberg.org/robot/harvest?filetypes[]=txt&langs[]=en" -e use_proxy=yes -e http_proxy=46.101.1.221:80 > /tmp/wget-log 2>&1
+```
+
+The `generatePlainTextFiles.py` script automatically unpacks the zips, with the parameter `--restructure_input_folder`.  Every line in a plaintext is seperated by a '\n', so be sure to save it in the right format or use the `generatePlainTextFiles.py` script to reformat all files from '\r\n' to '\n'. For further description read the help by using the `--help` parameter. Example usage:
 
 ```
-python3 generatePlainTextFiles.py --input=../../gutenberg_en --output=../../plaintexts/gutenberg_en_plaintexts.txt split_size=10
+python3 generatePlainTextFiles.py --input_folder=../../gutenberg_en --save_folder=../../plaintexts/
 ```
 
 ### Generate Ciphertexts
 
-If you'd like to create your own ciphertexts, you can download plaintexts extracted from the Gutenberg project and made available by us or create own plaintexts like described above. Every plaintext is seperated by the new line seperator of the operating system, so be sure to save it in the right format. Note that this script will take a while and dump xxxxgb of files into `./data/plaintexts`.
+If you'd like to create your own ciphertexts, you can download plaintexts extracted from the Gutenberg project and made available by us **here** or create own plaintexts like described above.
 
 ```
 sh data/scripts/plaintexts.sh
@@ -66,7 +72,7 @@ sh data/scripts/plaintexts.sh
 After the plaintexts were downloaded or generated, run the `generateCipherTextFiles.py` script to generate ciphertexts. Example usage:
 
 ``` 
-python3 generateCipherTextFiles.py --input=../../plaintexts/plaintexts.txt --output=../../mtc3_cipher_id/
+python3 generateCipherTextFiles.py --input_folder=../../plaintexts/ ----save_folder=../../mtc3_cipher_id/
 ```
 
 There are many more parameters, which you can read about by using `--help`.
