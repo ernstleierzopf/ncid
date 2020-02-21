@@ -55,10 +55,10 @@ If you'd like to create your own plaintexts, you can use the `generatePlainTextF
 wget -m -H -nd "http://www.gutenberg.org/robot/harvest?filetypes[]=txt&langs[]=en" -e use_proxy=yes -e http_proxy=46.101.1.221:80 > /tmp/wget-log 2>&1
 ```
 
-The `generatePlainTextFiles.py` script automatically unpacks the zips, with the parameter `--restructure_input_folder`.  Every line in a plaintext is seperated by a '\n', so be sure to save it in the right format or use the `generatePlainTextFiles.py` script to reformat all files from '\r\n' to '\n'. For further description read the help by using the `--help` parameter. Example usage:
+The `generatePlainTextFiles.py` script automatically unpacks the zips, with the parameter `--restructure_directory`.  Every line in a plaintext is seperated by a '\n', so be sure to save it in the right format or use the `generatePlainTextFiles.py` script to reformat all files from '\r\n' to '\n'. For further description read the help by using the `--help` parameter. Example usage:
 
 ```
-python3 generatePlainTextFiles.py --input_folder=../../gutenberg_en --save_folder=../../plaintexts/
+python3 generatePlainTextFiles.py --directory=../../gutenberg_en --restructure_directory=true
 ```
 
 ### Generate Ciphertexts
@@ -69,10 +69,10 @@ If you'd like to create your own ciphertexts, you can download plaintexts extrac
 sh data/scripts/plaintexts.sh
 ```
 
-After the plaintexts were downloaded or generated, run the `generateCipherTextFiles.py` script to generate ciphertexts. Example usage:
+After the plaintexts were downloaded or generated, run the `generateCipherTextFiles.py` script to generate ciphertexts. Be careful, this script takes a multiple of the plaintext storage, depending on how many cipher types should be generated! Example usage:
 
 ``` 
-python3 generateCipherTextFiles.py --input_folder=../../plaintexts/ ----save_folder=../../mtc3_cipher_id/
+python3 generateCipherTextFiles.py --input_folder=../../gutenberg_en --save_folder=../../mtc3_cipher_id/
 ```
 
 There are many more parameters, which you can read about by using `--help`.
