@@ -19,16 +19,16 @@ def encrypt_file_with_all_cipher_types(filename, save_folder, cipher_types, appe
         path = os.path.join(save_folder, cipher_type)
         if not os.path.exists(path):
             Path(path).mkdir(parents=True, exist_ok=True)
-        index = cipherImpl.Cipher = cipherImpl.cipher.CIPHER_TYPES.index(cipher_type)
+        index = cipherImpl.Cipher = cipherImpl.CIPHER_TYPES.index(cipher_type)
         if index > -1:
             print(index)
-            cipher = cipherImpl.cipher.CIPHER_IMPLEMENTATIONS[index]
-            key_length = cipherImpl.cipher.KEY_LENGTHS[index]
+            cipher = cipherImpl.CIPHER_IMPLEMENTATIONS[index]
+            key_length = cipherImpl.KEY_LENGTHS[index]
             for plaintext in plaintexts:
                 if (not min_line_length is None and len(plaintext) < min_line_length) or (not max_line_length is None and len(plaintext) > max_line_length):
                     continue
                 if not keep_unknown_symbols:
-                    plaintext = text_utils.remove_unknown_symbols(plaintext, cipher.alphabet)
+                    plaintext = cipher.filter(plaintext)
                     if plaintext == b'':
                         continue
                 key = cipher.generate_random_key(key_length)
@@ -87,13 +87,13 @@ if __name__ == "__main__":
     args.save_folder = os.path.abspath(args.save_folder)
     args.ciphers = args.ciphers.lower()
     cipher_types = args.ciphers.split(',')
-    if cipher.MTC3 in cipher_types:
-        del cipher_types[cipher_types.index(cipher.MTC3)]
-        cipher_types.append(cipher.CIPHER_TYPES[0])
-        cipher_types.append(cipher.CIPHER_TYPES[1])
-        cipher_types.append(cipher.CIPHER_TYPES[2])
-        cipher_types.append(cipher.CIPHER_TYPES[3])
-        cipher_types.append(cipher.CIPHER_TYPES[4])
+    if cipherImpl.MTC3 in cipher_types:
+        del cipher_types[cipher_types.index(cipherImpl.MTC3)]
+        cipher_types.append(cipherImpl.CIPHER_TYPES[0])
+        cipher_types.append(cipherImpl.CIPHER_TYPES[1])
+        cipher_types.append(cipherImpl.CIPHER_TYPES[2])
+        cipher_types.append(cipherImpl.CIPHER_TYPES[3])
+        cipher_types.append(cipherImpl.CIPHER_TYPES[4])
     if not os.path.exists(args.save_folder):
         Path(args.save_folder).mkdir(parents=True, exist_ok=True)
 
