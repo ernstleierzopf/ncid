@@ -3,43 +3,51 @@ import os
 from pathlib import Path
 import sys
 import cipherImplementations as cipherImpl
-import cipherImplementations.cipher as cipher
 
 sys.path.append("../../../")
-from utilities import file_utils, text_utils
+from util import file_utils, text_utils
 
 def str2bool(v):
     return v.lower() in ("yes", "true", "t", "1")
 
 def encrypt_file_with_all_cipher_types(filename, save_folder, cipher_types, append_key, keep_unknown_symbols, min_line_length, max_line_length):
     plaintexts = file_utils.read_txt_list_from_file(filename)
-    ciphertexts = []
-    keys = []
     for cipher_type in cipher_types:
         path = os.path.join(save_folder, cipher_type)
         if not os.path.exists(path):
             Path(path).mkdir(parents=True, exist_ok=True)
         index = cipherImpl.Cipher = cipherImpl.CIPHER_TYPES.index(cipher_type)
         if index > -1:
-            print(index)
             cipher = cipherImpl.CIPHER_IMPLEMENTATIONS[index]
             key_length = cipherImpl.KEY_LENGTHS[index]
+            ciphertexts = []
+            keys = []
             for plaintext in plaintexts:
                 if (not min_line_length is None and len(plaintext) < min_line_length) or (not max_line_length is None and len(plaintext) > max_line_length):
                     continue
-                if not keep_unknown_symbols:
-                    plaintext = cipher.filter(plaintext)
-                    if plaintext == b'':
-                        continue
+                plaintext = cipher.filter(plaintext, keep_unknown_symbols)
+                if plaintext == b'':
+                    continue
                 key = cipher.generate_random_key(key_length)
                 keys.append(key)
-                ciphertext = cipher.encrypt(
-                    text_utils.mapTextIntoNumberspace(plaintext, cipher.alphabet, cipher.unknown_symbol_number),
-                    text_utils.mapTextIntoNumberspace(key, cipher.alphabet, cipher.unknown_symbol_number))
-                ciphertexts.append(text_utils.mapNumbersIntoTextspace(ciphertext, cipher.alphabet, cipher.unknown_symbol))
+                plaintext_numberspace = text_utils.map_text_into_numberspace(plaintext, cipher.alphabet, cipher.unknown_symbol_number)
+                if isinstance(key, bytes):
+                    key = text_utils.map_text_into_numberspace(key, cipher.alphabet, cipher.unknown_symbol_number)
+
+                ciphertexts.append(text_utils.map_numbers_into_textspace(cipher.encrypt(plaintext_numberspace,key),
+                    cipher.alphabet, cipher.unknown_symbol))
+
+                #check if decryption works
+                # c = cipher.encrypt(plaintext_numberspace, key)
+                # c = text_utils.map_numbers_into_textspace(cipher.decrypt(c, key), cipher.alphabet, cipher.unknown_symbol)
+                # if plaintext != c:
+                #     print("plaintext: %s"%plaintext)
+                #     print()
+                #     print("ciphertext: %s"%c)
+                #     print("error %d"%index)
             path = os.path.join(path, os.path.basename(filename))
             if append_key:
-                file_utils.write_ciphertexts_with_keys_to_file(path, ciphertexts, keys)
+                file_utils.write_ciphertext_with_keys_to_file(path, ciphertexts, keys)
             else:
                 file_utils.write_txt_list_to_file(path, ciphertexts)
         else:
@@ -101,8 +109,15 @@ if __name__ == "__main__":
     for arg in vars(args):
         print("%s = %s"%(arg, vars(args)[arg]))
 
+    total_file_count = 0
+    for root, dirs, files in os.walk(args.input_folder):
+        total_file_count += len(files)
+
     dir = os.listdir(args.input_folder)
+    file_counter = 0
     for name in dir:
         if os.path.isfile(os.path.join(args.input_folder, name)):
+            file_counter += 1
             encrypt_file_with_all_cipher_types(os.path.join(args.input_folder, name), args.save_folder, cipher_types,
                 args.append_key, args.keep_unknown_symbols, args.min_line_length, args.max_line_length)
+            file_utils.print_progress('Encrypting files: [', file_counter, total_file_count, name)

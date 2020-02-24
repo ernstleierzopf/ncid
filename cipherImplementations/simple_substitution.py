@@ -4,9 +4,9 @@ from cipherImplementations.cipher import Cipher
 import sys
 
 sys.path.append("../../../")
-from utilities import text_utils
+from util import text_utils
 
-class Monoalphabetic_substitution(Cipher):
+class Simple_substitution(Cipher):
     def __init__(self, alphabet, unknown_symbol, unknown_symbol_number):
         self.alphabet = alphabet
         self.unknown_symbol = unknown_symbol
@@ -33,5 +33,15 @@ class Monoalphabetic_substitution(Cipher):
             ciphertext.append(c)
         return np.array(ciphertext)
 
-    def filter(self, plaintext):
-        return text_utils.remove_unknown_symbols(plaintext, self.alphabet)
+    def decrypt(self, ciphertext, key):
+        plaintext = []
+        for position in range(0, len(ciphertext)):
+            c = ciphertext[position]
+            if (c > len(self.alphabet)):
+                plaintext.append(self.unknown_symbol_number)
+                continue
+            p = key[c]
+            while p < 0:
+                p = p + len(self.alphabet)
+            plaintext.append(p)
+        return np.array(plaintext)

@@ -3,7 +3,7 @@ import os
 import sys
 
 sys.path.append("../../../")
-from utilities import file_utils
+from util import file_utils
 
 def str2bool(v):
     return v.lower() in ("yes", "true", "t", "1")
@@ -31,16 +31,7 @@ def find_textfiles(path, restructure_folder_flag, total_file_count) :
             if os.path.exists(os.path.join(path, name)):
                 os.remove(os.path.join(path, name))
                 total_file_count -= 1
-        # console output for % of read files
-        if file_counter % 10 == 0 or file_counter == total_file_count:
-            percentage = int(float(file_counter) / float(total_file_count) * 100)
-            output = 'Collecting files: ['
-            for i in range(0, int(percentage * 0.2)):
-                output += '#'
-            for i in range(int(percentage * 0.2), 20):
-                output += '.'
-            output = output + '] ' + str(file_counter) + ' from ' + str(path) + ' (' + str(percentage) + "%)"
-            print(output)
+        file_utils.print_progress('Collecting files: [', file_counter, total_file_count, name)
     if os.path.exists(path) and len(os.listdir(path)) == 0 and restructure_folder_flag:
         os.removedirs(path)
     return txt_files

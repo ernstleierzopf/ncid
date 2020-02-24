@@ -1,10 +1,28 @@
+import random
+import sys
+
+sys.path.append("../../../")
+from util import text_utils
+
 ''' This is the interface of the cipher implementations.'''
 class Cipher:
-    def generate_random_key(self, alphabet, length):
+    def generate_random_key(self, length):
+        if length < 0:
+            raise ValueError('The length of a key must be greater than 0.')
+        key = b''
+        for i in range(length):
+            char = bytes([self.alphabet[int(random.randrange(0, len(self.alphabet) - 1))]])
+            key = key + char
+        return key
+
+    def encrypt(self, plaintext, key):
         raise Exception('Interface method called')
 
-    def encrypt (self, plaintext, key):
+    def decrypt(self, ciphertext, key):
         raise Exception('Interface method called')
 
-    def filter(self):
-        raise Exception('Interface method called')
+    def filter(self, plaintext, keep_unknown_symbols=True):
+        plaintext = plaintext.lower()
+        if not keep_unknown_symbols:
+            return text_utils.remove_unknown_symbols(plaintext, self.alphabet)
+        return plaintext

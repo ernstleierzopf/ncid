@@ -47,3 +47,15 @@ def remove_disclaimer_from_file(file):
     if old != txt:
         with open(file, 'wb') as f:
             f.write(txt)
+
+def print_progress(output_str, file_counter, total_file_count, filename):
+    # console output for % of read files
+    if file_counter % 1 == 0 or file_counter == total_file_count:
+        percentage = int(float(file_counter) / float(total_file_count) * 100)
+        output = output_str
+        for i in range(0, int(percentage * 0.2)):
+            output += '#'
+        for i in range(int(percentage * 0.2), 20):
+            output += '.'
+        output = output + '] ' + str(file_counter) + '/' + str(total_file_count) + ' (' + str(percentage) + "%) " + filename
+        print(output)
