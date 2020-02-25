@@ -75,10 +75,12 @@ class Playfair(Cipher):
         return np.array(plaintext)
 
     def filter(self, plaintext, keep_unknown_symbols=True):
+        plaintext = plaintext.lower().replace(b'j', b'i')
         plaintext = super().filter(bytes(plaintext), keep_unknown_symbols)
-        plaintext = plaintext.replace(b'j', b'i')
+        if len(plaintext) % 2 != 0:
+            plaintext = bytes(plaintext) + bytes(b'x')
         output = bytearray()
-        for position in range(1, len(plaintext)-1, 2):
+        for position in range(1, len(plaintext), 2):
             p0, p1 = plaintext[position-1], plaintext[position]
             if p0 != p1:
                 output.append(p0)
@@ -87,8 +89,6 @@ class Playfair(Cipher):
                 output.append(p0)
                 output.append(120) # 120 = 'x'
         plaintext = bytes(output)
-        if len(plaintext) % 2 != 0:
-            plaintext += bytes([b'x'])
         return plaintext
 
     def get_right_neighbor(self, index):

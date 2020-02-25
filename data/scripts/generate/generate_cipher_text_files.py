@@ -18,6 +18,7 @@ def encrypt_file_with_all_cipher_types(filename, save_folder, cipher_types, appe
             Path(path).mkdir(parents=True, exist_ok=True)
         index = cipherImpl.Cipher = cipherImpl.CIPHER_TYPES.index(cipher_type)
         if index > -1:
+            print(index)
             cipher = cipherImpl.CIPHER_IMPLEMENTATIONS[index]
             key_length = cipherImpl.KEY_LENGTHS[index]
             ciphertexts = []
@@ -59,8 +60,6 @@ if __name__ == "__main__":
         description='CANN Ciphertext Generator Script')
     parser.add_argument('--input_folder', default='../../gutenberg_test', type=str,
                         help='Input folder of the plaintexts.')
-    parser.add_argument('--dataset_workers', default=4, type=str,
-                        help='The number of parallel workers for reading the input files.')
     parser.add_argument('--save_folder', default='../../mtc3_cipher_id',
                         help='Directory for saving generated ciphertexts.'\
                              'For every cipher type a new subdirectory with'\

@@ -50,7 +50,7 @@ def remove_disclaimer_from_file(file):
 
 def print_progress(output_str, file_counter, total_file_count, filename):
     # console output for % of read files
-    if file_counter % 1 == 0 or file_counter == total_file_count:
+    if file_counter % 10 == 0 or file_counter == total_file_count:
         percentage = int(float(file_counter) / float(total_file_count) * 100)
         output = output_str
         for i in range(0, int(percentage * 0.2)):
