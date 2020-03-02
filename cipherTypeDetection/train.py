@@ -19,10 +19,15 @@ def calculate_unigram_frequencies(text):
     for c in text:
         frequencies[c] = frequencies[c] + 1
     for f in range(0, len(frequencies)):
+        if len(text) == 0:
+            frequencies[f] = 0
+            continue
         frequencies[f] = frequencies[f] / len(text)
     return frequencies
 
 def calculate_bigram_frequencies(text):
+    if len(text) == 0:
+        return 0
     frequencies = []
     for i in range(0, 676):
         frequencies.append(0)
@@ -34,6 +39,8 @@ def calculate_bigram_frequencies(text):
     return frequencies
 
 def calculateTrigramFrequencies(text):
+    if len(text) == 0:
+        return 0
     frequencies = []
     for i in range(0, 17576):
         frequencies.append(0)
@@ -45,6 +52,8 @@ def calculateTrigramFrequencies(text):
     return frequencies
 
 def calculate_index_of_coincedence(text):
+    if len(text) == 0:
+        return 0
     n = []
     for i in range(0, 26):
         n.append(0)
@@ -59,6 +68,8 @@ def calculate_index_of_coincedence(text):
     return coindex
 
 def calculate_index_of_coincedence_bigrams(text):
+    if len(text) == 0:
+        return 0
     n = []
     for i in range(0, 26 * 26):
         n.append(0)
@@ -148,20 +159,27 @@ def calculateAutocorrelation(text) :
 def labeler(example, index):
     return example, tf.cast(index, tf.int8)
 
+def calculate_statistics_map_fn(example, label):
+    data = tf.py_function(calculate_statistics, inp=[example], Tout=tf.float32)
+    data.set_shape([None])
+    label.set_shape([])
+    return data, label
+
 def calculate_statistics(datum):
     impl = cipherImpl.CIPHER_IMPLEMENTATIONS[index]
-    numbers = text_utils.map_text_into_numberspace(datum, impl.alphabet, impl.unknown_symbol_number)
+    numbers = text_utils.map_text_into_numberspace(datum.numpy(), impl.alphabet, impl.unknown_symbol_number)
     unigram_frequencies = calculate_unigram_frequencies(numbers)
     unigram_ioc = calculate_index_of_coincedence(numbers)
     bigram_frequencies = calculate_bigram_frequencies(numbers)
     bigram_ioc = calculate_index_of_coincedence_bigrams(numbers)
     autocorrelation = calculateAutocorrelation(numbers)
-    # texts.append([unigram_ioc] +
-    #             [bigram_ioc] +
-    #             # [autocorrelation] +
-    #             unigram_frequencies +
-    #             bigram_frequencies)
     return [unigram_ioc], [bigram_ioc], [autocorrelation], unigram_frequencies, bigram_frequencies
+
+def m(example, index, c):
+    example.set_shape([])
+    index.set_shape([])
+    c.set_shape([])
+    return example, index, c
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
@@ -204,7 +222,6 @@ if __name__ == "__main__":
                 path = os.path.join(sub_dir, name)
                 if os.path.isfile(path):
                     lines_dataset = tf.data.TextLineDataset(path, num_parallel_reads=args.dataset_workers)
-                    labeled_dataset = lines_dataset.map(lambda ex: labeler(ex, index))
                     labeled_test_data_sets.append(labeled_dataset)
         else:
             print("error: %s not found"%sub_dir)
@@ -215,25 +232,24 @@ if __name__ == "__main__":
     all_labeled_train_data = labeled_train_data_sets[0]
     for labeled_dataset in labeled_train_data_sets[1:]:
         all_labeled_train_data = all_labeled_train_data.concatenate(labeled_dataset)
-    all_labeled_train_data = all_labeled_train_data.shuffle(10000, reshuffle_each_iteration=False)
+    all_labeled_train_data = all_labeled_train_data.shuffle(1, reshuffle_each_iteration=False)
     #all_labeled_data = all_labeled_data.shuffle(50000, reshuffle_each_iteration=False)
     all_labeled_test_data = labeled_test_data_sets[0]
     for labeled_dataset in labeled_test_data_sets[1:]:
         all_labeled_test_data = all_labeled_test_data.concatenate(labeled_dataset)
-    all_labeled_test_data = all_labeled_test_data.shuffle(10000, reshuffle_each_iteration=False)
+    all_labeled_test_data = all_labeled_test_data.shuffle(1, reshuffle_each_iteration=False)
     print("Data shuffled.\n")
 
-    #l = list(all_labeled_data.as_numpy_iterator())
-    for ex in all_labeled_train_data.take(5):
-        print(ex[0].numpy())
+    all_labeled_train_data = all_labeled_train_data.map(calculate_statistics_map_fn)
+    all_labeled_test_data = all_labeled_test_data.map(calculate_statistics_map_fn)
 
     print('Creating model...')
     # for activation functions see: https://www.tensorflow.org/api_docs/python/tf/keras/activations
     # for keras layers see: https://keras.io/layers/core/
 
     # sizes for layers
-    input_layer_size = 1 + 1 + 26 + 676
-    # input_layer_size = 100
+    #input_layer_size = 1 + 1 + 26 + 676
+    input_layer_size = 1
     output_layer_size = 5
     hidden_layer_size = 2 * (input_layer_size / 3) + output_layer_size
 
@@ -253,26 +269,8 @@ if __name__ == "__main__":
     print('Model created.\n')
 
     print('Training model...')
-    counter = 0
-    for ex in all_labeled_train_data.take(1):
-        train_dataset = calculate_statistics(ex[0].numpy())
-    for datum in all_labeled_train_data:
-        tensors = calculate_statistics(datum[0].numpy())
-        train_dataset = zip(train_dataset, tf.data.Dataset.from_tensors(tensors))
-        if counter % 10000 == 0:
-            print(counter)
-        counter += 1
-    counter = 0
-    for ex in all_labeled_test_data.take(1):
-        test_dataset = calculate_statistics(ex[0].numpy())
-    for datum in all_labeled_test_data:
-        tensors = calculate_statistics(datum[0].numpy())
-        test_dataset = zip(test_dataset, tf.data.Dataset.from_tensors(tensors))
-        if counter % 10000 == 0:
-            print(counter)
-        counter += 1
 
-    history = model.fit(train_dataset, validation_data=test_dataset, epochs=20, batch_size=32)
+    history = model.fit(all_labeled_test_data, validation_data=all_labeled_train_data, epochs=20)#, batch_size=32
     print('Model trained.\n')
 
     print('Saving model...')
