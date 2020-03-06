@@ -43,7 +43,9 @@ def restructure_folder(restructure_folder_flag, txt_files, path):
             restructured_path = os.path.join(path, os.path.basename(file))
             if restructured_path != file and os.path.exists(restructured_path):
                 print('Path \'%s\' already exists!'%restructured_path)
-            os.rename(file, restructured_path)
+            if file != restructured_path:
+                os.rename(file, restructured_path)
+            file_utils.print_progress('Restructuring files: [', txt_files.index(file), total_file_count, file)
             restructured_txt_files.append(restructured_path)
             dir = os.path.dirname(file)
             while len(os.listdir(dir)) == 0:

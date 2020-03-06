@@ -19,12 +19,18 @@ def read_txt_list_from_file(filename):
 
 def unpack_zip_folders(path):
     import zipfile
+    if not os.path.isdir(path):
+        return
     dir = os.listdir(path)
     for name in dir:
         if name.lower().endswith('.zip') and '-' not in name:
-            with zipfile.ZipFile(os.path.join(path, name), 'r') as zip_ref:
+            full_path = os.path.join(path, name)
+            if os.path.exists(full_path.split('.zip')[0]):
+                os.remove(full_path.split('.zip')[0])
+            with zipfile.ZipFile(full_path, 'r') as zip_ref:
+                print("extracting %s"%name)
                 zip_ref.extractall(path)
-            if os.path.exists(os.path.join(path, name)):
+            if os.path.exists(full_path):
                 os.remove(os.path.join(path, name))
 
 def remove_disclaimer_from_file(file):
@@ -50,7 +56,7 @@ def remove_disclaimer_from_file(file):
 
 def print_progress(output_str, file_counter, total_file_count, filename):
     # console output for % of read files
-    if file_counter % 10 == 0 or file_counter == total_file_count:
+    if file_counter % 100 == 0 or file_counter == total_file_count:
         percentage = int(float(file_counter) / float(total_file_count) * 100)
         output = output_str
         for i in range(0, int(percentage * 0.2)):
