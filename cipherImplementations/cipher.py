@@ -4,8 +4,9 @@ import sys
 sys.path.append("../../../")
 from util import text_utils
 
-''' This is the interface of the cipher implementations.'''
+
 class Cipher:
+    ''' This is the interface of the cipher implementations.'''
     def generate_random_key(self, length):
         if length < 0:
             raise ValueError('The length of a key must be greater than 0.')

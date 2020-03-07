@@ -6,6 +6,37 @@ import random
 sys.path.append("../../../")
 from util import text_utils
 
+
+def get_right_neighbor(index):
+    if index % 5 < 4:
+        return index + 1
+    elif index % 5 == 4:
+        return index - 4
+    else:
+        return -1
+
+
+def get_lower_neighbour(index):
+    return (index + 5) % 25
+
+
+def get_substitute(row, col):
+    return 5 * row + col
+
+
+def get_left_neighbor(index):
+    if index % 5 > 0:
+        return index - 1
+    elif index % 5 == 0:
+        return index + 4
+    else:
+        return -1
+
+
+def get_upper_neighbour(index):
+    return (index - 5) % 25
+
+
 class Playfair(Cipher):
     def __init__(self, alphabet, unknown_symbol, unknown_symbol_number):
         self.alphabet = alphabet
@@ -39,14 +70,14 @@ class Playfair(Cipher):
             col_p0 = index0 % 5;
             col_p1 = index1 % 5;
             if row_p0 == row_p1:
-                index0 = self.get_right_neighbor(index0)
-                index1 = self.get_right_neighbor(index1)
+                index0 = get_right_neighbor(index0)
+                index1 = get_right_neighbor(index1)
             elif col_p0 == col_p1:
-                index0 = self.get_lower_neighbour(index0)
-                index1 = self.get_lower_neighbour(index1)
+                index0 = get_lower_neighbour(index0)
+                index1 = get_lower_neighbour(index1)
             else:
-                index0 = self.get_substitute(row_p0, col_p1)
-                index1 = self.get_substitute(row_p1, col_p0)
+                index0 = get_substitute(row_p0, col_p1)
+                index1 = get_substitute(row_p1, col_p0)
             ciphertext.append(key[int(index0)])
             ciphertext.append(key[int(index1)])
         return np.array(ciphertext)
@@ -62,14 +93,14 @@ class Playfair(Cipher):
             col_p0 = index0 % 5;
             col_p1 = index1 % 5;
             if row_p0 == row_p1:
-                index0 = self.get_left_neighbor(index0)
-                index1 = self.get_left_neighbor(index1)
+                index0 = get_left_neighbor(index0)
+                index1 = get_left_neighbor(index1)
             elif col_p0 == col_p1:
-                index0 = self.get_upper_neighbour(index0)
-                index1 = self.get_upper_neighbour(index1)
+                index0 = get_upper_neighbour(index0)
+                index1 = get_upper_neighbour(index1)
             else:
-                index0 = self.get_substitute(row_p0, col_p1)
-                index1 = self.get_substitute(row_p1, col_p0)
+                index0 = get_substitute(row_p0, col_p1)
+                index1 = get_substitute(row_p1, col_p0)
             plaintext.append(key[int(index0)])
             plaintext.append(key[int(index1)])
         return np.array(plaintext)
@@ -90,28 +121,3 @@ class Playfair(Cipher):
                 output.append(120) # 120 = 'x'
         plaintext = bytes(output)
         return plaintext
-
-    def get_right_neighbor(self, index):
-        if index % 5 < 4:
-            return index + 1
-        elif index % 5 == 4:
-            return index - 4
-        else:
-            return -1
-
-    def get_lower_neighbour(self, index):
-        return (index + 5) % 25
-
-    def get_substitute(self, row, col):
-        return 5 * row + col
-
-    def get_left_neighbor(self, index):
-        if index % 5 > 0:
-            return index - 1
-        elif index % 5 == 0:
-            return index + 4
-        else:
-            return -1
-
-    def get_upper_neighbour(self, index):
-        return (index - 5) % 25

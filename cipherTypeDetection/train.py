@@ -1,3 +1,5 @@
+from pathlib import Path
+
 import numpy as np
 import tensorflow as tf
 import tensorflow_datasets as tfds
@@ -6,9 +8,12 @@ import os
 import sys
 sys.path.append("../")
 import cipherImplementations as cipherImpl
+from cipherTypeDetection.TextLine2CipherStatisticsDataset import TextLine2CipherStatisticsDataset
 import math
 from sklearn.model_selection import train_test_split
 from util import text_utils
+
+os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
 
 def str2bool(v):
     return v.lower() in ("yes", "true", "t", "1")
@@ -233,6 +238,8 @@ if __name__ == "__main__":
                         help='Input folder of the plaintexts.')
     parser.add_argument('--dataset_workers', default=None, type=str,
                         help='The number of parallel workers for reading the input files.')
+    parser.add_argument('--download_dataset', default=True, type=str2bool,
+                        help='Download the dataset automatically.')
     parser.add_argument('--save_folder', default='weights/',
                         help='Directory for saving generated models.' \
                              'When interrupting, the current model is saved as'\
@@ -244,13 +251,11 @@ if __name__ == "__main__":
                              '- mtc3 (contains the ciphers Monoalphabetic Substitution, Vigenere, ' \
                              'Columnar Transposition, Plaifair and Hill)\n' \
                              '- aca (contains all currently implemented ciphers from https://www.cryptogram.org/resource-area/cipher-types/)\n' \
-                             '- monoalphabetic_substitution\n' \
+                             '- simple_substitution\n' \
                              '- vigenere' \
                              '- columnar_transposition' \
                              '- playfair' \
                              '- hill')
-    parser.add_argument('--append_key', default=False, type=str2bool,
-                        help='Append the encryption key at the end of every line.')
     parser.add_argument('--keep_unknown_symbols', default=False, type=str2bool,
                         help='Keep unknown symbols in the plaintexts. Known symbols are defined' \
                              'in the alphabet of the cipher.')
@@ -276,6 +281,22 @@ if __name__ == "__main__":
         cipher_types.append(cipherImpl.CIPHER_TYPES[3])
         cipher_types.append(cipherImpl.CIPHER_TYPES[4])
 
+    if args.download_dataset and not os.path.exists(args.input_folder):
+        print("Downloading Datsets...")
+        tfds.download.add_checksums_dir('../data/checksums/')
+        download_manager = tfds.download.download_manager.DownloadManager(download_dir='../data/', extract_dir=args.input_folder)
+        download_manager.download_and_extract('https://docs.google.com/uc?export=download&id=1sM5CcFLGSM2rIdAhkE3JEqVUnpfF7NL0')
+        path = os.path.join(args.input_folder, 'ZIP.docs.google.com_ucexport_download_id_1sM5CcFLGPb1Brti0shLywar5-Vkxr1X-tcr91JYuUqYFc6-FL54', os.path.basename(args.input_folder))
+        dir = os.listdir(path)
+        for name in dir:
+            p = Path(os.path.join(path, name))
+            parent_dir = p.parents[2]
+            p.rename(parent_dir / p.name)
+        os.rmdir(path)
+        os.rmdir(os.path.dirname(path))
+        print("Datasets Downloaded.")
+
+    print("Loading Datasets...")
     plaintext_files = []
     dir = os.listdir(args.input_folder)
     for name in dir:
@@ -283,40 +304,48 @@ if __name__ == "__main__":
         if os.path.isfile(path):
             plaintext_files.append(path)
     train, test = train_test_split(plaintext_files, test_size=0.1, random_state=42, shuffle=True)
-    train_data_sets = []
-    test_data_sets = []
 
-    global keep_unknown_symbols
-    keep_unknown_symbols = args.keep_unknown_symbols
+    train_dataset = TextLine2CipherStatisticsDataset(train, args.keep_unknown_symbols, args.dataset_workers, args)
+    test_dataset = TextLine2CipherStatisticsDataset(test, args.keep_unknown_symbols, args.dataset_workers, args)
 
-    for path in train:
-        train_data_sets.append(tf.data.TextLineDataset(path, num_parallel_reads=args.dataset_workers))
+
+
+    # train_data_sets = []
+    # test_data_sets = []
+    #
+    # global keep_unknown_symbols
+    # keep_unknown_symbols = args.keep_unknown_symbols
+    #
+    # for path in train:
+        # train_data_sets.append(tf.data.TextLineDataset(path, num_parallel_reads=args.dataset_workers))
         # for cipher_type in cipher_types:
         #     index = cipherImpl.CIPHER_TYPES.index(cipher_type)
         #     labeled_dataset = lines_dataset.map(lambda ex: labeler(ex, index), num_parallel_calls=tf.data.experimental.AUTOTUNE)
         #     encrypted_lines_dataset = labeled_dataset.map(encrypt_map_fn, num_parallel_calls=tf.data.experimental.AUTOTUNE)
         #     encrypted_lines_dataset = encrypted_lines_dataset.filter(filter_fn)
         #     labeled_train_data_sets.append(encrypted_lines_dataset)
-    for path in test:
-        test_data_sets.append(tf.data.TextLineDataset(path, num_parallel_reads=args.dataset_workers))
+    # for path in test:
+    #     test_data_sets.append(tf.data.TextLineDataset(path, num_parallel_reads=args.dataset_workers))
         # for cipher_type in cipher_types:
         #     index = cipherImpl.CIPHER_TYPES.index(cipher_type)
         #     labeled_dataset = lines_dataset.map(lambda ex: labeler(ex, index), num_parallel_calls=tf.data.experimental.AUTOTUNE)
         #     encrypted_lines_dataset = labeled_dataset.map(encrypt_map_fn, num_parallel_calls=tf.data.experimental.AUTOTUNE)
         #     encrypted_lines_dataset = encrypted_lines_dataset.filter(filter_fn)
         #     labeled_test_data_sets.append(encrypted_lines_dataset)
-    print("Data loaded.\n")
+    print("Datasets loaded.\n")
 
     print("Shuffling data...")
-    all_train_data = train_data_sets[0]
-    for dataset in train_data_sets[1:]:
-        all_train_data = all_train_data.concatenate(dataset)
-    all_train_data = all_train_data.shuffle(50000, reshuffle_each_iteration=True)
-    #all_labeled_data = all_labeled_data.shuffle(50000, reshuffle_each_iteration=False)
-    all_test_data = test_data_sets[0]
-    for dataset in test_data_sets[1:]:
-        all_test_data = all_test_data.concatenate(dataset)
-    all_test_data = all_test_data.shuffle(50000, reshuffle_each_iteration=True)
+    train_dataset = train_dataset.shuffle(50000, seed=42, reshuffle_each_iteration=True)
+    test_dataset = test_dataset.shuffle(50000, seed=42, reshuffle_each_iteration=True)
+    # all_train_data = train_data_sets[0]
+    # for dataset in train_data_sets[1:]:
+    #     all_train_data = all_train_data.concatenate(dataset)
+    # all_train_data = all_train_data.shuffle(50000, reshuffle_each_iteration=True)
+    # #all_labeled_data = all_labeled_data.shuffle(50000, reshuffle_each_iteration=False)
+    # all_test_data = test_data_sets[0]
+    # for dataset in test_data_sets[1:]:
+    #     all_test_data = all_test_data.concatenate(dataset)
+    # all_test_data = all_test_data.shuffle(50000, reshuffle_each_iteration=True)
     print("Data shuffled.\n")
 
     #all_train_data = all_train_data.map(calculate_statistics_map_fn)
@@ -359,7 +388,7 @@ if __name__ == "__main__":
     labels = []
     iteration = 0
     epoch = 0
-    args.max_iter = 1
+    args.max_iter = 30000
     while iteration < args.max_iter:
         for data in all_train_data:
             for cipher_type in cipher_types:
@@ -370,7 +399,7 @@ if __name__ == "__main__":
                 labels.append(index)
             iteration += 1
             if iteration % args.batch_size == 0:
-                history = model.fit(batch, labels)
+                history = model.fit(batch, labels, batch_size=args.batch_size)
                 batch = []
                 labels = []
                 print("Epoch: %d, Iteration: %d"%(epoch, iteration))
@@ -410,7 +439,7 @@ if __name__ == "__main__":
             batch.append(statistics)
             labels.append(index)
         iteration += 1
-    prediction = model.predict(batch)
+    prediction = model.predict(batch, batch_size=args.batch_size)
     batch = []
     correct_0 = 0
     total_0 = 0

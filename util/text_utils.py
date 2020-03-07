@@ -1,7 +1,6 @@
 import numpy as np
 
-#maps a given string into number space, i.e. a number array
-#using the defined alphabet
+
 def map_text_into_numberspace(text, alphabet, unknown_symbol_number) :
     array = []
     for c in text:
@@ -11,8 +10,7 @@ def map_text_into_numberspace(text, alphabet, unknown_symbol_number) :
             array.append(unknown_symbol_number)
     return np.array(array)
 
-#maps a given number array into text space, i.e. a string
-#using the defined alphabet
+
 def map_numbers_into_textspace(numbers, alphabet, unknown_symbol) :
     output = b''
     for n in numbers :
@@ -22,6 +20,7 @@ def map_numbers_into_textspace(numbers, alphabet, unknown_symbol) :
             output = output + bytes([alphabet[n]])
     return output
 
+
 def remove_unknown_symbols(text, alphabet):
     i = 0
     while i < len(text):
@@ -30,6 +29,7 @@ def remove_unknown_symbols(text, alphabet):
         else:
             i += 1
     return text
+
 
 def num_index_of(array, value):
     for position in range(0, len(array)):

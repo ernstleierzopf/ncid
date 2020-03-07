@@ -1,9 +1,11 @@
 import os
 
+
 def write_ciphertexts_with_keys_to_file(filename, ciphertexts, keys) :
     for i in range(0, len(ciphertexts)):
         ciphertexts[i] += ',' + keys[i]
     write_txt_list_to_file(filename, ciphertexts)
+
 
 def write_txt_list_to_file(filename, texts) :
     with open(filename,'wb') as file :
@@ -13,9 +15,11 @@ def write_txt_list_to_file(filename, texts) :
             file.write(line)
             file.write(b'\n')
 
+
 def read_txt_list_from_file(filename):
     with open(filename,'rb') as file:
         return file.readlines()
+
 
 def unpack_zip_folders(path):
     import zipfile
@@ -32,6 +36,7 @@ def unpack_zip_folders(path):
                 zip_ref.extractall(path)
             if os.path.exists(full_path):
                 os.remove(os.path.join(path, name))
+
 
 def remove_disclaimer_from_file(file):
     with open(file, 'rb') as f:
@@ -53,6 +58,7 @@ def remove_disclaimer_from_file(file):
     if old != txt:
         with open(file, 'wb') as f:
             f.write(txt)
+
 
 def print_progress(output_str, file_counter, total_file_count, filename):
     # console output for % of read files
