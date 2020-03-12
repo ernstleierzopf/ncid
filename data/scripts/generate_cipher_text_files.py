@@ -58,9 +58,9 @@ def encrypt_file_with_all_cipher_types(filename, save_folder, cipher_types, appe
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description='CANN Ciphertext Generator Script')
-    parser.add_argument('--input_folder', default='../../gutenberg_test', type=str,
+    parser.add_argument('--input_folder', default='../gutenberg_en', type=str,
                         help='Input folder of the plaintexts.')
-    parser.add_argument('--save_folder', default='../../mtc3_cipher_id',
+    parser.add_argument('--save_folder', default='../mtc3_cipher_id',
                         help='Directory for saving generated ciphertexts.'\
                              'For every cipher type a new subdirectory with'\
                              ' it\'s name is created.')

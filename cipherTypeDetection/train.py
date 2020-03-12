@@ -19,7 +19,7 @@ def str2bool(v):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description='CANN Ciphertype Detection Neuronal Network Training Script')
-    parser.add_argument('--batch_size', default=32, type=int,
+    parser.add_argument('--batch_size', default=1024, type=int,
                         help='Batch size for training.')
     parser.add_argument('--input_folder', default='../data/gutenberg_test', type=str,
                         help='Input folder of the plaintexts.')
@@ -32,7 +32,7 @@ if __name__ == "__main__":
                              'When interrupting, the current model is saved as'\
                              'interrupted_...')
     parser.add_argument('--model_name', default='model.h5', type=str,
-                        help='Name of the output model file.')
+                        help='Name of the output model file. The file must have the .h5 extension.')
     parser.add_argument('--ciphers', default='mtc3', type=str,
                         help='A comma seperated list of the ciphers to be created. ' \
                              'Be careful to not use spaces or use \' to define the string.'
@@ -51,6 +51,10 @@ if __name__ == "__main__":
     parser.add_argument('--max_iter', default=1000000, type=int,
                         help='the maximal number of iterations before stopping training.')
     args = parser.parse_args()
+    m = os.path.splitext(args.model_name)
+    if len(os.path.splitext(args.model_name)) != 2 or os.path.splitext(args.model_name)[1] != '.h5':
+        print('The model name must have the ".h5" extension!', file=sys.stderr)
+        exit(1)
     args.input_folder = os.path.abspath(args.input_folder)
     args.ciphers = args.ciphers.lower()
     cipher_types = args.ciphers.split(',')
@@ -115,16 +119,16 @@ if __name__ == "__main__":
     hidden_layer_size = 2 * (input_layer_size / 3) + output_layer_size
 
     model = tf.keras.Sequential()
-    model.add(tf.keras.layers.Flatten(input_shape=(input_layer_size,)))
-    for i in range(0, 5):
-        model.add(tf.keras.layers.Dense((int(hidden_layer_size)), activation="relu", use_bias=True))
-        print("creating hidden layer", i)
-    model.add(tf.keras.layers.Dense(output_layer_size, activation='softmax'))
-    model.compile(optimizer="adam", loss="sparse_categorical_crossentropy", metrics=["accuracy"])
+    # model.add(tf.keras.layers.Flatten(input_shape=(input_layer_size,)))
+    # for i in range(0, 5):
+    #     model.add(tf.keras.layers.Dense((int(hidden_layer_size)), activation="relu", use_bias=True))
+    #     print("creating hidden layer", i)
+    # model.add(tf.keras.layers.Dense(output_layer_size, activation='softmax'))
+    # model.compile(optimizer="adam", loss="sparse_categorical_crossentropy", metrics=["accuracy"])
 
     # logistic regression baseline
-    # model.add(tf.keras.layers.Dense(output_layer_size, input_dim=input_layer_size, activation='softmax', use_bias=True))
-    # model.compile(optimizer='sgd', loss="sparse_categorical_crossentropy", metrics=["accuracy"])
+    model.add(tf.keras.layers.Dense(output_layer_size, input_dim=input_layer_size, activation='softmax', use_bias=True))
+    model.compile(optimizer='sgd', loss="sparse_categorical_crossentropy", metrics=["accuracy"])
     print('Model created.\n')
 
     print('Training model...')
@@ -133,7 +137,7 @@ if __name__ == "__main__":
     labels = []
     iteration = 0
     epoch = 0
-    args.max_iter = 1000
+    args.max_iter = 10
     ###### --batch_size=1024 ????
     while iteration < args.max_iter:
         for b, l in train_dataset:
@@ -152,7 +156,7 @@ if __name__ == "__main__":
     print('Model trained.\n')
 
     print('Saving model...')
-    model.save(args.model_name)
+    model.save(os.path.join(args.save_folder, args.model_name))
     print('Model saved.\n')
 
     print('predicting test data')

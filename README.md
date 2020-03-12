@@ -1,4 +1,5 @@
 # cann
+
 A neuronal network to detect and analyse ciphers from historical texts.
 
 # CANN - Crypto Analysis with Neuronal Networks
@@ -13,43 +14,17 @@ This project contains code for the detection and classification of ciphers to cl
   cd cann
   ```
 
-- TODO: Set up the environment using one of the following methods:
-   - Using [Anaconda](https://www.anaconda.com/distribution/)
-     
-     - Run `conda env create -f environment.yml`
-   - Manually with pip
-     - Set up a Python3 environment (e.g., using virtenv).
-     - Install [Pytorch](http://pytorch.org/) 1.0.1 (or higher) and TorchVision.
-     - Install some other packages:
-       ```Shell
-       # Cython needs to be installed before pycocotools
-       pip install cython
-       pip install opencv-python pillow pycocotools matplotlib 
-       ```
-   
-- Before running any bash script you have to add permissions for execution by running the following command:
+- Set up the environment with the following method:
+   - Set up a Python3.7 or higher environment (e.g., using virtenv).
+   - Install all needed packages:
+     ```Shell
+     pip3 install tensorflow tensorflow_datasets numpy scikit_learn
+     ```
 
-   ```shell
-   chmod +x -R data/scripts/downloads
-   ```
 
-- If you would like to train CANN, download the basic mtc3_cipher_id dataset or the extended dataset by using `-e` or `--extended_download`. Note that this script will take a while and dump xxxxgb or respectively xxxxgb of files into `./data/mtc3_cipher_id`.
+## Generate Plaintexts (Optional)
 
-   ```bash
-   sh data/scripts/downloads/mtc3_cipher_id.sh
-   ```
-
-- If you'd like to evaluate or showcase CANN on `test-dev`, download `test-dev` with this script.
-
-  ```bash
-  sh data/scripts/downloads/mtc3_cipher_id_test.sh
-  ```
-
-## Generate own data
-
-### Generate Plaintexts
-
-If you'd like to create your own plaintexts, you can use the `generatePlainTextFiles.py` script. Therefore you first need to download some texts, for example the Gutenberg Library. You can do that by using following command, which downloads all English e-books compressed with zip.  Note that this script can take a while and dumps about 7gb of files into `./data/plaintexts`.
+If you'd like to create your own plaintexts, you can use the `generatePlainTextFiles.py` script. Therefore you first need to download some texts, for example the Gutenberg Library. You can do that by using following command, which downloads all English e-books compressed with zip.  Note that this script can take a while and dumps about 14gb of files into `./data/plaintexts`.
 
 ```shell
 wget -m -H -nd "http://www.gutenberg.org/robot/harvest?filetypes[]=txt&langs[]=en" -e use_proxy=yes -e http_proxy=46.101.1.221:80 > /tmp/wget-log 2>&1
@@ -58,28 +33,18 @@ wget -m -H -nd "http://www.gutenberg.org/robot/harvest?filetypes[]=txt&langs[]=e
 The `generatePlainTextFiles.py` script automatically unpacks the zips, with the parameter `--restructure_directory`.  Every line in a plaintext is seperated by a '\n', so be sure to save it in the right format or use the `generatePlainTextFiles.py` script to reformat all files from '\r\n' to '\n'. For further description read the help by using the `--help` parameter. Example usage:
 
 ```
-python3 generatePlainTextFiles.py --directory=../../gutenberg_en --restructure_directory=true
+python3 generatePlainTextFiles.py --directory=../gutenberg_en --restructure_directory=true
 ```
-
-### Generate Ciphertexts
-
-If you'd like to create your own ciphertexts, you can download plaintexts extracted from the Gutenberg project and made available by us **here** or create own plaintexts like described above.
-
-```
-sh data/scripts/plaintexts.sh
-```
-
-After the plaintexts were downloaded or generated, run the `generateCipherTextFiles.py` script to generate ciphertexts. Be careful, this script takes a multiple of the plaintext storage, depending on how many cipher types should be generated! Example usage:
-
-``` 
-python3 generateCipherTextFiles.py --input_folder=../../gutenberg_en --save_folder=../../mtc3_cipher_id/
-```
-
-There are many more parameters, which you can read about by using `--help`.
 
 # TODO: Evaluation
 
-Here are our CANN models (released on April 5th, 2019) along with their FPS on a Titan Xp and mAP on `test-dev`:
+Here are our CANN models (released on April 5th, 2019) along with their evaluations per second on the DGX-1 and the results on random data:
+
+| Model                                       | evaluations / second | cipher \| accuracy rate matrix on 100k lines of plaintexts   |
+| ------------------------------------------- | -------------------- | ------------------------------------------------------------ |
+| mtc3_model.h5 (Link)                        | 22.03                | simple_substitution\| accuracy rate1 <br />vigenere\| <br />columnar_transposition\| <br />playfair\| <br />hill\| |
+| mtc3_logistic_regression_baseline.h5 (Link) | 24                   | simple_substitution\| accuracy rate1 <br />vigenere\| <br />columnar_transposition\| <br />playfair\| <br />hill\  |
+|                                             |                      |                                                              |
 
 To evalute the model, put the corresponding weights file in the `./weights` directory and run one of the following commands. The name of each config is everything before the numbers in the file name (e.g., `yolact_base` for `yolact_base_54_800000.pth`).
 
@@ -97,11 +62,29 @@ To see all options of `eval.py`, run the `--help` or `-h` command.
 python3 eval.py --help
 ```
 
-# TODO: Training
+# Training
 
-By default we train ciphers of the MysteryTwister C3 Challenge "Cipher ID".  Make sure to download the entire dataset using the commands above.
+By default we train ciphers of the MysteryTwister C3 Challenge "Cipher ID".  By Default the already filtered plaintexts are downloaded in the train.py script.  You can turn off this behavior by setting `--download_dataset=False`. 
 
-Example Commands
+To see all options of `train.py`, run the `--help` or `-h` command.
+
+```
+python3 train.py --help
+```
+
+## Example Commands
+
+- ```
+  python3 train.py --batch_size=4096
+  ```
+
+- ```
+  python3 train.py --model_name=mtc3_model.h5 --ciphers=mtc3
+  ```
+
+- ```
+  python3 train.py --model_name=custom_model_200k.h5 --ciphers=vigenere,hill --max_iter=200000 
+  ```
 
 ## Multi-GPU Support
 

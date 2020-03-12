@@ -57,7 +57,7 @@ def restructure_folder(restructure_folder_flag, txt_files, path):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description='CANN Plaintext Generator Script')
-    parser.add_argument('--directory', default='../../gutenberg_test', type=str,
+    parser.add_argument('--directory', default='../gutenberg_en', type=str,
                         help='Input and save folder of the plaintexts to be extracted.')
     parser.add_argument('--restructure_directory', default=False, type=str2bool,
                         help='Deletes all unneeded files from the --directory recursively '\
