@@ -11,6 +11,8 @@ import cipherImplementations as cipherImpl
 from cipherTypeDetection.TextLine2CipherStatisticsDataset import TextLine2CipherStatisticsDataset
 from sklearn.model_selection import train_test_split
 
+tf.debugging.set_log_device_placement(enabled=False)
+
 
 def str2bool(v):
     return v.lower() in ("yes", "true", "t", "1")
@@ -21,9 +23,9 @@ if __name__ == "__main__":
         description='CANN Ciphertype Detection Neuronal Network Training Script')
     parser.add_argument('--batch_size', default=1024, type=int,
                         help='Batch size for training.')
-    parser.add_argument('--input_folder', default='../data/gutenberg_test', type=str,
+    parser.add_argument('--input_folder', default='../data/gutenberg_en', type=str,
                         help='Input folder of the plaintexts.')
-    parser.add_argument('--dataset_workers', default=None, type=str,
+    parser.add_argument('--dataset_workers', default=1, type=int,
                         help='The number of parallel workers for reading the input files.')
     parser.add_argument('--download_dataset', default=True, type=str2bool,
                         help='Download the dataset automatically.')
@@ -84,6 +86,7 @@ if __name__ == "__main__":
     print("Loading Datasets...")
     plaintext_files = []
     dir = os.listdir(args.input_folder)
+    dir = ['2.txt','3.txt','4.txt','5.txt']
     for name in dir:
         path = os.path.join(args.input_folder, name)
         if os.path.isfile(path):
@@ -92,11 +95,11 @@ if __name__ == "__main__":
 
     #############################################################
     # experimental
-    args.dataset_workers = tf.data.experimental.AUTOTUNE
+    #args.dataset_workers = tf.data.experimental.AUTOTUNE
     #############################################################
 
-    train_dataset = TextLine2CipherStatisticsDataset(train, cipher_types, args.keep_unknown_symbols, args.dataset_workers)
-    test_dataset = TextLine2CipherStatisticsDataset(test, cipher_types, args.keep_unknown_symbols, args.dataset_workers)
+    train_dataset = TextLine2CipherStatisticsDataset(train, cipher_types, args.batch_size, args.keep_unknown_symbols, args.dataset_workers)
+    test_dataset = TextLine2CipherStatisticsDataset(test, cipher_types, args.batch_size, args.keep_unknown_symbols, args.dataset_workers)
     print("Datasets loaded.\n")
 
     print("Shuffling data...")
@@ -118,7 +121,8 @@ if __name__ == "__main__":
     output_layer_size = 5
     hidden_layer_size = 2 * (input_layer_size / 3) + output_layer_size
 
-    model = tf.keras.Sequential()
+
+    # model = tf.keras.Sequential()
     # model.add(tf.keras.layers.Flatten(input_shape=(input_layer_size,)))
     # for i in range(0, 5):
     #     model.add(tf.keras.layers.Dense((int(hidden_layer_size)), activation="relu", use_bias=True))
@@ -127,6 +131,13 @@ if __name__ == "__main__":
     # model.compile(optimizer="adam", loss="sparse_categorical_crossentropy", metrics=["accuracy"])
 
     # logistic regression baseline
+    # strategy = tf.distribute.MirroredStrategy()
+    # with strategy.scope():
+    #     model = tf.keras.Sequential()
+    #     model.add(tf.keras.layers.Dense(output_layer_size, input_dim=input_layer_size, activation='softmax', use_bias=True))
+    #     model.compile(optimizer='sgd', loss="sparse_categorical_crossentropy", metrics=["accuracy"])
+
+    model = tf.keras.Sequential()
     model.add(tf.keras.layers.Dense(output_layer_size, input_dim=input_layer_size, activation='softmax', use_bias=True))
     model.compile(optimizer='sgd', loss="sparse_categorical_crossentropy", metrics=["accuracy"])
     print('Model created.\n')
@@ -137,21 +148,46 @@ if __name__ == "__main__":
     labels = []
     iteration = 0
     epoch = 0
-    args.max_iter = 10
-    ###### --batch_size=1024 ????
     while iteration < args.max_iter:
-        for b, l in train_dataset:
-            batch.append(b)
-            labels.append(l)
-            iteration += 1
-            if iteration % args.batch_size == 0:
+        # for b, l in train_dataset:
+        #     batch.append(b)
+        #     labels.append(l)
+        #     iteration += 1
+        #     if iteration % args.batch_size == 0:
+        #         batch = tf.convert_to_tensor(batch)
+        #         labels = tf.convert_to_tensor(labels)
+        #         history = model.fit(batch, labels, batch_size=args.batch_size, workers=args.dataset_workers)
+        #         batch = []
+        #         labels = []
+        #         print("Epoch: %d, Iteration: %d"%(epoch, iteration))
+        #     if iteration >= args.max_iter:
+        #         break
+
+        # for batch, labels in train_dataset:
+        #     iteration += args.batch_size
+        #     if iteration >= args.max_iter:
+        #         break
+        #     #import time
+        #     #t = time.time()
+        #     history = model.fit(batch, labels, batch_size=args.batch_size, workers=args.dataset_workers)
+        #     #print(time.time() - t)
+        #     print("Epoch: %d, Iteration: %d" % (train_dataset.epoch, train_dataset.iteration))
+
+        for run in train_dataset:
+            for batch, labels in run:
+                if train_dataset.iteration >= args.max_iter:
+                    break
+                #import time
+                #t = time.time()
                 history = model.fit(batch, labels, batch_size=args.batch_size, workers=args.dataset_workers)
-                batch = []
-                labels = []
-                print("Epoch: %d, Iteration: %d"%(epoch, iteration))
-            if iteration >= args.max_iter:
-                break
-        epoch += 1
+                #print(time.time() - t)
+            print("Epoch: %d, Iteration: %d" % (train_dataset.epoch, train_dataset.iteration))
+
+        # batch, labels = train_dataset.batch(args.batch_size)
+        # iteration += args.batch_size
+        # if iteration >= args.max_iter:
+        #     break
+        # history = model.fit(batch, labels, batch_size=args.batch_size, workers=args.dataset_workers)
 
     print('Model trained.\n')
 

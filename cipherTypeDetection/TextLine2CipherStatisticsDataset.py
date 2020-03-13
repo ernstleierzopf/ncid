@@ -5,6 +5,8 @@ sys.path.append("../")
 from util import text_utils
 import copy
 import math
+import multiprocessing
+import time
 
 
 def calculate_unigram_frequencies(text):
@@ -170,6 +172,7 @@ def encrypt(example, label, keep_unknown_symbols):
     cipher = cipherImpl.CIPHER_IMPLEMENTATIONS[label]
     key_length = cipherImpl.KEY_LENGTHS[label]
     plaintext = example.numpy()
+
     plaintext = cipher.filter(plaintext, keep_unknown_symbols)
     key = cipher.generate_random_key(key_length)
     plaintext_numberspace = text_utils.map_text_into_numberspace(plaintext, cipher.alphabet, cipher.unknown_symbol_number)
@@ -191,10 +194,13 @@ def calculate_statistics(datum):
 
 class TextLine2CipherStatisticsDataset(object):
 
-    def __init__(self, paths, cipher_types, keep_unknown_symbols=False, dataset_workers=None):
+    def __init__(self, paths, cipher_types, batch_size, keep_unknown_symbols=False, dataset_workers=None):
         self.keep_unknown_symbols = keep_unknown_symbols
         self.dataset_workers = dataset_workers
         self.cipher_types = cipher_types
+        self.batch_size = batch_size
+        self.epoch = 0
+        self.iteration = 0
 
         datasets = []
         for path in paths:
@@ -202,7 +208,7 @@ class TextLine2CipherStatisticsDataset(object):
 
         self.dataset = datasets[0]
         for dataset in datasets[1:]:
-            self.dataset = self.dataset.concatenate(dataset)
+            self.dataset = self.dataset.zip(dataset)
 
     def shuffle(self, buffer_size, seed=None, reshuffle_each_iteration=None):
         new_dataset = copy.copy(self)
@@ -216,8 +222,32 @@ class TextLine2CipherStatisticsDataset(object):
         return self
 
     def __next__(self):
-        global cipher_t
-        global data
+        start_time = time.time()
+        processes = []
+        manager = multiprocessing.Manager()
+        result_list = manager.list()
+        for i in range(self.dataset_workers):
+            d = []
+            for j in range(int(self.batch_size / len(self.cipher_types))):
+                try:
+                    data = self.iter.__next__()
+                    d.append(data)
+                except:
+                    self.epoch += 1
+                    self.__iter__()
+                    data = self.iter.__next__()
+                    d.append(data)
+            process = multiprocessing.Process(target=self.batch, args=[d, result_list])
+            process.start()
+            processes.append(process)
+            self.iteration += self.batch_size
+        for process in processes:
+            process.join()
+        print(time.time() - start_time)
+        return result_list
+        #global cipher_t
+        #global data
+
         i = self.cipher_types.index(cipher_t)
         if i == 0:
             data = self.iter.__next__()
@@ -229,3 +259,21 @@ class TextLine2CipherStatisticsDataset(object):
         else:
             cipher_t = self.cipher_types[i+1]
         return statistics, index
+
+    def batch(self, data, result):
+        batch = []
+        labels = []
+        for d in data:
+            for cipher_t in self.cipher_types:
+                index = cipherImpl.CIPHER_TYPES.index(cipher_t)
+                ciphertext = encrypt(d, index, self.keep_unknown_symbols)
+                statistics = calculate_statistics(ciphertext)
+                batch.append(statistics)
+                labels.append(index)
+        result.append((tf.convert_to_tensor(batch), tf.convert_to_tensor(labels)))
+
+    def e(self, data, index, keep_unknown_symbols, result):
+        ciphertext = encrypt(data, index, keep_unknown_symbols)
+        statistics = calculate_statistics(ciphertext)
+        result.append((statistics, index))
+
