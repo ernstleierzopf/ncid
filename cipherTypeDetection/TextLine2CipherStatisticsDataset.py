@@ -1,12 +1,11 @@
 import tensorflow as tf
 import cipherImplementations as cipherImpl
 import sys
-sys.path.append("../")
 from util import text_utils
 import copy
 import math
 import multiprocessing
-import time
+sys.path.append("../")
 
 
 def calculate_unigram_frequencies(text):
@@ -193,7 +192,6 @@ def calculate_statistics(datum):
 
 
 class TextLine2CipherStatisticsDataset(object):
-
     def __init__(self, paths, cipher_types, batch_size, keep_unknown_symbols=False, dataset_workers=None):
         self.keep_unknown_symbols = keep_unknown_symbols
         self.dataset_workers = dataset_workers
@@ -201,11 +199,9 @@ class TextLine2CipherStatisticsDataset(object):
         self.batch_size = batch_size
         self.epoch = 0
         self.iteration = 0
-
         datasets = []
         for path in paths:
             datasets.append(tf.data.TextLineDataset(path, num_parallel_reads=dataset_workers))
-
         self.dataset = datasets[0]
         for dataset in datasets[1:]:
             self.dataset = self.dataset.zip(dataset)
@@ -222,9 +218,9 @@ class TextLine2CipherStatisticsDataset(object):
         return self
 
     def __next__(self):
-        start_time = time.time()
         processes = []
         manager = multiprocessing.Manager()
+        # debugging does not work here!
         result_list = manager.list()
         for i in range(self.dataset_workers):
             d = []
@@ -237,30 +233,15 @@ class TextLine2CipherStatisticsDataset(object):
                     self.__iter__()
                     data = self.iter.__next__()
                     d.append(data)
-            process = multiprocessing.Process(target=self.batch, args=[d, result_list])
+            process = multiprocessing.Process(target=self._worker, args=[d, result_list])
             process.start()
             processes.append(process)
             self.iteration += self.batch_size
         for process in processes:
             process.join()
-        print(time.time() - start_time)
         return result_list
-        #global cipher_t
-        #global data
 
-        i = self.cipher_types.index(cipher_t)
-        if i == 0:
-            data = self.iter.__next__()
-        index = cipherImpl.CIPHER_TYPES.index(cipher_t)
-        ciphertext = encrypt(data, index, self.keep_unknown_symbols)
-        statistics = calculate_statistics(ciphertext)
-        if i+1 == len(self.cipher_types):
-            cipher_t = self.cipher_types[0]
-        else:
-            cipher_t = self.cipher_types[i+1]
-        return statistics, index
-
-    def batch(self, data, result):
+    def _worker(self, data, result):
         batch = []
         labels = []
         for d in data:
@@ -271,9 +252,3 @@ class TextLine2CipherStatisticsDataset(object):
                 batch.append(statistics)
                 labels.append(index)
         result.append((tf.convert_to_tensor(batch), tf.convert_to_tensor(labels)))
-
-    def e(self, data, index, keep_unknown_symbols, result):
-        ciphertext = encrypt(data, index, keep_unknown_symbols)
-        statistics = calculate_statistics(ciphertext)
-        result.append((statistics, index))
-

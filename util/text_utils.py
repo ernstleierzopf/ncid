@@ -21,7 +21,6 @@ def map_numbers_into_textspace(numbers, alphabet, unknown_symbol) :
     return output
 
 
-
 def remove_unknown_symbols(text, alphabet):
     i = 0
     while i < len(text):
