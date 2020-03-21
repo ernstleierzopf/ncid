@@ -57,6 +57,8 @@ if __name__ == "__main__":
     parser.add_argument('--max_iter', default=1000000, type=int,
                         help='the maximal number of iterations before stopping training.')
     args = parser.parse_args()
+    for arg in vars(args):
+        print("{:23s}= {:s}".format(arg, str(getattr(args, arg))))
     m = os.path.splitext(args.model_name)
     if len(os.path.splitext(args.model_name)) != 2 or os.path.splitext(args.model_name)[1] != '.h5':
         print('ERROR: The model name must have the ".h5" extension!', file=sys.stderr)
@@ -113,38 +115,43 @@ if __name__ == "__main__":
     print("Data shuffled.\n")
 
     print('Creating model...')
-    # for activation functions see: https://www.tensorflow.org/api_docs/python/tf/keras/activations
-    # for keras layers see: https://keras.io/layers/core/
-
-    # for optimizers see: https://www.tensorflow.org/api_docs/python/tf/keras/optimizers
-    # for loss function see: https://www.tensorflow.org/api_docs/python/tf/losses
-    # for metrics see: https://www.tensorflow.org/api_docs/python/tf/metrics
-    # for layers see: https://www.tensorflow.org/api_docs/python/tf/keras/layers
 
     # sizes for layers
     input_layer_size = 1 + 1 + 26 + 676
     output_layer_size = 5
     hidden_layer_size = 2 * (input_layer_size / 3) + output_layer_size
+    gpu_count = len(tf.config.list_physical_devices('GPU'))
 
+    if gpu_count > 1:
+        strategy = tf.distribute.MirroredStrategy()
+        with strategy.scope():
+            # logistic regression baseline
+            model = tf.keras.Sequential()
+            model.add(tf.keras.layers.Dense(output_layer_size, input_dim=input_layer_size, activation='softmax', use_bias=True))
+            model.compile(optimizer='sgd', loss="sparse_categorical_crossentropy", metrics=["accuracy"])
 
-    # model = tf.keras.Sequential()
-    # model.add(tf.keras.layers.Flatten(input_shape=(input_layer_size,)))
-    # for i in range(0, 5):
-    #     model.add(tf.keras.layers.Dense((int(hidden_layer_size)), activation="relu", use_bias=True))
-    #     print("creating hidden layer", i)
-    # model.add(tf.keras.layers.Dense(output_layer_size, activation='softmax'))
-    # model.compile(optimizer="adam", loss="sparse_categorical_crossentropy", metrics=["accuracy"])
+            # model = tf.keras.Sequential()
+            # model.add(tf.keras.layers.Flatten(input_shape=(input_layer_size,)))
+            # for i in range(0, 5):
+            #     model.add(tf.keras.layers.Dense((int(hidden_layer_size)), activation="relu", use_bias=True))
+            #     print("creating hidden layer", i)
+            # model.add(tf.keras.layers.Dense(output_layer_size, activation='softmax'))
+            # model.compile(optimizer="adam", loss="sparse_categorical_crossentropy", metrics=["accuracy"])
+        model.summary()
+    else:
+        # logistic regression baseline
+        model = tf.keras.Sequential()
+        model.add(tf.keras.layers.Dense(output_layer_size, input_dim=input_layer_size, activation='softmax', use_bias=True))
+        model.compile(optimizer='sgd', loss="sparse_categorical_crossentropy", metrics=["accuracy"])
 
-    # logistic regression baseline
-    # strategy = tf.distribute.MirroredStrategy()
-    # with strategy.scope():
-    #     model = tf.keras.Sequential()
-    #     model.add(tf.keras.layers.Dense(output_layer_size, input_dim=input_layer_size, activation='softmax', use_bias=True))
-    #     model.compile(optimizer='sgd', loss="sparse_categorical_crossentropy", metrics=["accuracy"])
+        # model = tf.keras.Sequential()
+        # model.add(tf.keras.layers.Flatten(input_shape=(input_layer_size,)))
+        # for i in range(0, 5):
+        #     model.add(tf.keras.layers.Dense((int(hidden_layer_size)), activation="relu", use_bias=True))
+        #     print("creating hidden layer", i)
+        # model.add(tf.keras.layers.Dense(output_layer_size, activation='softmax'))
+        # model.compile(optimizer="adam", loss="sparse_categorical_crossentropy", metrics=["accuracy"])
 
-    model = tf.keras.Sequential()
-    model.add(tf.keras.layers.Dense(output_layer_size, input_dim=input_layer_size, activation='softmax', use_bias=True))
-    model.compile(optimizer='sgd', loss="sparse_categorical_crossentropy", metrics=["accuracy"])
     print('Model created.\n')
 
     print('Training model...')
@@ -163,6 +170,8 @@ if __name__ == "__main__":
                 print("Epoch: %d, Iteration: %d" % (epoch, iteration))
             if train_dataset.iteration >= args.max_iter:
                 break
+        if train_dataset.iteration >= args.max_iter:
+            break
     elapsed_training_time = datetime.fromtimestamp(time.time()) - datetime.fromtimestamp(start_time)
     print('Finished training in %d days %d hours %d minutes %d seconds with %d iterations and %d epochs.\n' %
            (elapsed_training_time.days, elapsed_training_time.seconds // 3600, (elapsed_training_time.seconds // 60) % 60,
@@ -172,16 +181,21 @@ if __name__ == "__main__":
     model.save(os.path.join(args.save_folder, args.model_name))
     print('Model saved.\n')
 
-    print('Predicting test data...')
+    print('Predicting test data...\n')
     start_time = time.time()
     correct = [0]*len(cipherImpl.CIPHER_TYPES)
     total = [0]*len(cipherImpl.CIPHER_TYPES)
     correct_all = 0
     total_len_prediction = 0
-    while test_dataset.iteration < args.max_iter / 10:
+
+    prediction_dataset_factor = 10
+    while test_dataset.dataset_workers * test_dataset.batch_size > args.max_iter / prediction_dataset_factor:
+        prediction_dataset_factor -= 1
+    args.max_iter /= prediction_dataset_factor
+    while test_dataset.iteration < args.max_iter:
         for run in test_dataset:
             for batch, labels in run:
-                if test_dataset.iteration >= args.max_iter / 10:
+                if test_dataset.iteration >= args.max_iter:
                     break
                 prediction = model.predict(batch, batch_size=args.batch_size, workers=args.dataset_workers)
                 for i in range(0, len(prediction)):
@@ -190,12 +204,13 @@ if __name__ == "__main__":
                         correct[labels[i]] += 1
                     total[labels[i]] += 1
                 total_len_prediction += len(prediction)
-                print("Prediction Epoch: %d, Iteration: %d / %d" % (test_dataset.epoch, test_dataset.iteration, args.max_iter / 10))
-            if test_dataset.iteration >= args.max_iter / 10:
+                print("Prediction Epoch: %d, Iteration: %d / %d" % (test_dataset.epoch, test_dataset.iteration, args.max_iter))
+            if test_dataset.iteration >= args.max_iter:
                 break
     elapsed_prediction_time = datetime.fromtimestamp(time.time()) - datetime.fromtimestamp(start_time)
 
-    total_len_prediction -= total_len_prediction%args.train_dataset_size
+    if total_len_prediction > args.train_dataset_size:
+        total_len_prediction -= total_len_prediction%args.train_dataset_size
     print('\ntest data predicted: %d ciphertexts'%total_len_prediction)
     for i in range(0, len(total)):
         if total[i] == 0:
