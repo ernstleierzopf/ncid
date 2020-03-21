@@ -3,9 +3,6 @@ from cipherImplementations.cipher import Cipher
 import sys
 import random
 
-sys.path.append("../../../")
-from util import text_utils
-
 
 class Hill(Cipher):
     def __init__(self, alphabet, unknown_symbol, unknown_symbol_number):

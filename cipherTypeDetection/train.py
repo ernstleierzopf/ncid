@@ -11,7 +11,7 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 import tensorflow as tf
 import tensorflow_datasets as tfds
 sys.path.append("../")
-import cipherImplementations as cipherImpl
+import cipherTypeDetection.config as config
 from cipherTypeDetection.textLine2CipherStatisticsDataset import TextLine2CipherStatisticsDataset
 tf.debugging.set_log_device_placement(enabled=False)
 
@@ -66,15 +66,13 @@ if __name__ == "__main__":
     args.input_folder = os.path.abspath(args.input_folder)
     args.ciphers = args.ciphers.lower()
     cipher_types = args.ciphers.split(',')
-    if cipherImpl.MTC3 in cipher_types:
-        del cipher_types[cipher_types.index(cipherImpl.MTC3)]
-        cipher_types.append(cipherImpl.CIPHER_TYPES[0])
-        cipher_types.append(cipherImpl.CIPHER_TYPES[1])
-        cipher_types.append(cipherImpl.CIPHER_TYPES[2])
-        cipher_types.append(cipherImpl.CIPHER_TYPES[3])
-        cipher_types.append(cipherImpl.CIPHER_TYPES[4])
-    if args.train_dataset_size % len(cipher_types) != 0:
-        print("WARNING: the --batch_size parameter must be dividable by the amount of --ciphers.", file=sys.stderr)
+    if config.MTC3 in cipher_types:
+        del cipher_types[cipher_types.index(config.MTC3)]
+        cipher_types.append(config.CIPHER_TYPES[0])
+        cipher_types.append(config.CIPHER_TYPES[1])
+        cipher_types.append(config.CIPHER_TYPES[2])
+        cipher_types.append(config.CIPHER_TYPES[3])
+        cipher_types.append(config.CIPHER_TYPES[4])
     if args.train_dataset_size * args.dataset_workers > args.max_iter:
         print("ERROR: --train_dataset_size * --dataset_workers must not be bigger than --max_iter. "
               "In this case it was %d > %d" % (args.train_dataset_size * args.dataset_workers, args.max_iter), file=sys.stderr)
@@ -107,6 +105,9 @@ if __name__ == "__main__":
 
     train_dataset = TextLine2CipherStatisticsDataset(train, cipher_types, args.train_dataset_size, args.keep_unknown_symbols, args.dataset_workers)
     test_dataset = TextLine2CipherStatisticsDataset(test, cipher_types, args.train_dataset_size, args.keep_unknown_symbols, args.dataset_workers)
+    if args.train_dataset_size % train_dataset.key_lengths_count != 0:
+        print("WARNING: the --train_dataset_size parameter must be dividable by the amount of --ciphers "
+              " and the length configured KEY_LENGTHS in config.py. The current key_lengths_count is %d" % train_dataset.key_lengths_count, file=sys.stderr)
     print("Datasets loaded.\n")
 
     print("Shuffling data...")
@@ -148,7 +149,6 @@ if __name__ == "__main__":
         # model.add(tf.keras.layers.Flatten(input_shape=(input_layer_size,)))
         # for i in range(0, 5):
         #     model.add(tf.keras.layers.Dense((int(hidden_layer_size)), activation="relu", use_bias=True))
-        #     print("creating hidden layer", i)
         # model.add(tf.keras.layers.Dense(output_layer_size, activation='softmax'))
         # model.compile(optimizer="adam", loss="sparse_categorical_crossentropy", metrics=["accuracy"])
 
@@ -166,7 +166,9 @@ if __name__ == "__main__":
                 history = model.fit(batch, labels, batch_size=args.batch_size, workers=args.dataset_workers)
                 cntr += 1
                 iteration = args.train_dataset_size * cntr
-                epoch = iteration // (train_dataset.iteration / train_dataset.epoch)
+                epoch = train_dataset.epoch
+                if epoch > 0:
+                    epoch = iteration // (train_dataset.iteration / train_dataset.epoch)
                 print("Epoch: %d, Iteration: %d" % (epoch, iteration))
             if train_dataset.iteration >= args.max_iter:
                 break
@@ -185,10 +187,13 @@ if __name__ == "__main__":
 
     print('Predicting test data...\n')
     start_time = time.time()
-    correct = [0]*len(cipherImpl.CIPHER_TYPES)
-    total = [0]*len(cipherImpl.CIPHER_TYPES)
+    correct = [0]*len(config.CIPHER_TYPES)
+    total = [0]*len(config.CIPHER_TYPES)
     correct_all = 0
     total_len_prediction = 0
+    incorrect = []
+    for i in range(len(config.CIPHER_TYPES)):
+        incorrect += [[0]*len(config.CIPHER_TYPES)]
 
     prediction_dataset_factor = 10
     while test_dataset.dataset_workers * test_dataset.batch_size > args.max_iter / prediction_dataset_factor:
@@ -204,6 +209,10 @@ if __name__ == "__main__":
                     if labels[i] == np.argmax(prediction[i]):
                         correct_all += 1
                         correct[labels[i]] += 1
+                    else:
+                        # print("Prediction: %s, Correct: %s" % (np.argmax(prediction[i]), labels[i].numpy()))
+                        incorrect[labels[i]][np.argmax(prediction[i])] += 1
+                        # print(incorrect)
                     total[labels[i]] += 1
                 total_len_prediction += len(prediction)
                 print("Prediction Epoch: %d, Iteration: %d / %d" % (test_dataset.epoch, test_dataset.iteration, args.max_iter))
@@ -212,12 +221,12 @@ if __name__ == "__main__":
     elapsed_prediction_time = datetime.fromtimestamp(time.time()) - datetime.fromtimestamp(start_time)
 
     if total_len_prediction > args.train_dataset_size:
-        total_len_prediction -= total_len_prediction%args.train_dataset_size
-    print('\ntest data predicted: %d ciphertexts'%total_len_prediction)
+        total_len_prediction -= total_len_prediction % args.train_dataset_size
+    print('\ntest data predicted: %d ciphertexts' % total_len_prediction)
     for i in range(0, len(total)):
         if total[i] == 0:
             continue
-        print('%s correct: %d/%d = %f'%(cipherImpl.CIPHER_TYPES[i], correct[i], total[i], correct[i] / total[i]))
+        print('%s correct: %d/%d = %f'%(config.CIPHER_TYPES[i], correct[i], total[i], correct[i] / total[i]))
     if total_len_prediction == 0:
         t = 'N/A'
     else:
@@ -229,3 +238,5 @@ if __name__ == "__main__":
     print('Prediction time: %d days %d hours %d minutes %d seconds with %d iterations and %d epochs.' %(
           elapsed_prediction_time.days, elapsed_prediction_time.seconds // 3600, (elapsed_prediction_time.seconds // 60) % 60,
           (elapsed_prediction_time.seconds) % 60, test_dataset.iteration, test_dataset.epoch))
+
+    print("Incorrect prediction counts: %s" % incorrect)

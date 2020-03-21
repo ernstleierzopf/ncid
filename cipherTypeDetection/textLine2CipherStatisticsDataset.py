@@ -1,5 +1,5 @@
 import tensorflow as tf
-import cipherImplementations as cipherImpl
+import cipherTypeDetection.config as config
 import sys
 from util import text_utils
 import copy
@@ -167,9 +167,8 @@ def calculateAutocorrelation(text) :
     return index
 
 
-def encrypt(example, label, keep_unknown_symbols):
-    cipher = cipherImpl.CIPHER_IMPLEMENTATIONS[label]
-    key_length = cipherImpl.KEY_LENGTHS[label]
+def encrypt(example, label, key_length, keep_unknown_symbols):
+    cipher = config.CIPHER_IMPLEMENTATIONS[label]
     plaintext = example.numpy()
 
     plaintext = cipher.filter(plaintext, keep_unknown_symbols)
@@ -205,6 +204,14 @@ class TextLine2CipherStatisticsDataset(object):
         self.dataset = datasets[0]
         for dataset in datasets[1:]:
             self.dataset = self.dataset.zip(dataset)
+        count = 0
+        for cipher_t in self.cipher_types:
+            index = config.CIPHER_TYPES.index(cipher_t)
+            if isinstance(config.KEY_LENGTHS[index], list):
+                count += len(config.KEY_LENGTHS[index])
+            else:
+                count += 1
+        self.key_lengths_count = count
 
     def shuffle(self, buffer_size, seed=None, reshuffle_each_iteration=None):
         new_dataset = copy.copy(self)
@@ -224,7 +231,7 @@ class TextLine2CipherStatisticsDataset(object):
         result_list = manager.list()
         for i in range(self.dataset_workers):
             d = []
-            for j in range(int(self.batch_size / len(self.cipher_types))):
+            for j in range(int(self.batch_size / self.key_lengths_count)):
                 try:
                     data = self.iter.__next__()
                     d.append(data)
@@ -246,9 +253,14 @@ class TextLine2CipherStatisticsDataset(object):
         labels = []
         for d in data:
             for cipher_t in self.cipher_types:
-                index = cipherImpl.CIPHER_TYPES.index(cipher_t)
-                ciphertext = encrypt(d, index, self.keep_unknown_symbols)
-                statistics = calculate_statistics(ciphertext)
-                batch.append(statistics)
-                labels.append(index)
+                index = config.CIPHER_TYPES.index(cipher_t)
+                if isinstance(config.KEY_LENGTHS[index], list):
+                    key_lengths = config.KEY_LENGTHS[index]
+                else:
+                    key_lengths = [config.KEY_LENGTHS[index]]
+                for key_length in key_lengths:
+                    ciphertext = encrypt(d, index, key_length, self.keep_unknown_symbols)
+                    statistics = calculate_statistics(ciphertext)
+                    batch.append(statistics)
+                    labels.append(index)
         result.append((tf.convert_to_tensor(batch), tf.convert_to_tensor(labels)))
