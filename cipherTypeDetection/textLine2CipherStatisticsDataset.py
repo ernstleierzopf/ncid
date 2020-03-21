@@ -220,8 +220,6 @@ class TextLine2CipherStatisticsDataset(object):
 
     def __iter__(self):
         self.iter = self.dataset.__iter__()
-        global cipher_t
-        cipher_t = self.cipher_types[0]
         return self
 
     def __next__(self):

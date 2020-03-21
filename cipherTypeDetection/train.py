@@ -161,15 +161,15 @@ if __name__ == "__main__":
     while train_dataset.iteration < args.max_iter:
         for run in train_dataset:
             for batch, labels in run:
-                if train_dataset.iteration >= args.max_iter:
-                    break
                 history = model.fit(batch, labels, batch_size=args.batch_size, workers=args.dataset_workers)
                 cntr += 1
                 iteration = args.train_dataset_size * cntr
                 epoch = train_dataset.epoch
                 if epoch > 0:
-                    epoch = iteration // (train_dataset.iteration / train_dataset.epoch)
+                    epoch = iteration // (train_dataset.iteration // train_dataset.epoch)
                 print("Epoch: %d, Iteration: %d" % (epoch, iteration))
+                if iteration >= args.max_iter:
+                    break
             if train_dataset.iteration >= args.max_iter:
                 break
         if train_dataset.iteration >= args.max_iter:
@@ -199,11 +199,10 @@ if __name__ == "__main__":
     while test_dataset.dataset_workers * test_dataset.batch_size > args.max_iter / prediction_dataset_factor:
         prediction_dataset_factor -= 1
     args.max_iter /= prediction_dataset_factor
+    cntr = 0
     while test_dataset.iteration < args.max_iter:
         for run in test_dataset:
             for batch, labels in run:
-                if test_dataset.iteration >= args.max_iter:
-                    break
                 prediction = model.predict(batch, batch_size=args.batch_size, workers=args.dataset_workers)
                 for i in range(0, len(prediction)):
                     if labels[i] == np.argmax(prediction[i]):
@@ -215,9 +214,18 @@ if __name__ == "__main__":
                         # print(incorrect)
                     total[labels[i]] += 1
                 total_len_prediction += len(prediction)
-                print("Prediction Epoch: %d, Iteration: %d / %d" % (test_dataset.epoch, test_dataset.iteration, args.max_iter))
+                cntr += 1
+                iteration = args.train_dataset_size * cntr
+                epoch = test_dataset.epoch
+                if epoch > 0:
+                    epoch = iteration // (test_dataset.iteration // test_dataset.epoch)
+                print("Prediction Epoch: %d, Iteration: %d / %d" % (epoch, iteration, args.max_iter))
+                if iteration >= args.max_iter:
+                    break
             if test_dataset.iteration >= args.max_iter:
                 break
+        if test_dataset.iteration >= args.max_iter:
+            break
     elapsed_prediction_time = datetime.fromtimestamp(time.time()) - datetime.fromtimestamp(start_time)
 
     if total_len_prediction > args.train_dataset_size:
