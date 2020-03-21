@@ -178,7 +178,9 @@ if __name__ == "__main__":
            (elapsed_training_time.seconds) % 60, train_dataset.iteration, train_dataset.epoch))
 
     print('Saving model...')
-    model.save(os.path.join(args.save_folder, args.model_name))
+    date = datetime.now()
+    date = date.strftime("%Y%m%d%H%M")
+    model.save(os.path.join(args.save_folder, args.model_name.split('.')[0] + date + '.h5'))
     print('Model saved.\n')
 
     print('Predicting test data...\n')
