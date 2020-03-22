@@ -158,17 +158,19 @@ if __name__ == "__main__":
     import time
     start_time = time.time()
     cntr = 0
+    train_iter = 0
+    train_epoch = 0
     while train_dataset.iteration < args.max_iter:
         for run in train_dataset:
             for batch, labels in run:
                 history = model.fit(batch, labels, batch_size=args.batch_size, workers=args.dataset_workers)
                 cntr += 1
-                iteration = args.train_dataset_size * cntr
-                epoch = train_dataset.epoch
-                if epoch > 0:
-                    epoch = iteration // (train_dataset.iteration // train_dataset.epoch)
-                print("Epoch: %d, Iteration: %d" % (epoch, iteration))
-                if iteration >= args.max_iter:
+                train_iter = args.train_dataset_size * cntr
+                train_epoch = train_dataset.epoch
+                if train_epoch > 0:
+                    train_epoch = train_iter // (train_dataset.iteration // train_dataset.epoch)
+                print("Epoch: %d, Iteration: %d" % (train_epoch, train_iter))
+                if train_iter >= args.max_iter:
                     break
             if train_dataset.iteration >= args.max_iter:
                 break
@@ -177,7 +179,7 @@ if __name__ == "__main__":
     elapsed_training_time = datetime.fromtimestamp(time.time()) - datetime.fromtimestamp(start_time)
     print('Finished training in %d days %d hours %d minutes %d seconds with %d iterations and %d epochs.\n' %
            (elapsed_training_time.days, elapsed_training_time.seconds // 3600, (elapsed_training_time.seconds // 60) % 60,
-           (elapsed_training_time.seconds) % 60, train_dataset.iteration, train_dataset.epoch))
+           (elapsed_training_time.seconds) % 60, train_iter, train_epoch))
 
     print('Saving model...')
     date = datetime.now()
@@ -200,6 +202,8 @@ if __name__ == "__main__":
         prediction_dataset_factor -= 1
     args.max_iter /= prediction_dataset_factor
     cntr = 0
+    test_iter = 0
+    test_epoch = 0
     while test_dataset.iteration < args.max_iter:
         for run in test_dataset:
             for batch, labels in run:
@@ -215,12 +219,12 @@ if __name__ == "__main__":
                     total[labels[i]] += 1
                 total_len_prediction += len(prediction)
                 cntr += 1
-                iteration = args.train_dataset_size * cntr
-                epoch = test_dataset.epoch
-                if epoch > 0:
-                    epoch = iteration // (test_dataset.iteration // test_dataset.epoch)
-                print("Prediction Epoch: %d, Iteration: %d / %d" % (epoch, iteration, args.max_iter))
-                if iteration >= args.max_iter:
+                test_iter = args.train_dataset_size * cntr
+                test_epoch = test_dataset.epoch
+                if test_epoch > 0:
+                    test_epoch = test_iter // (test_dataset.iteration // test_dataset.epoch)
+                print("Prediction Epoch: %d, Iteration: %d / %d" % (test_epoch, test_iter, args.max_iter))
+                if test_iter >= args.max_iter:
                     break
             if test_dataset.iteration >= args.max_iter:
                 break
@@ -240,11 +244,11 @@ if __name__ == "__main__":
     else:
         t = str(correct_all / total_len_prediction)
     print('Total: %s\n'%t)
-    print('Training time: %d days %d hours %d minutes %d seconds with %d iterations and %d epochs.' %(
-          elapsed_training_time.days, elapsed_training_time.seconds // 3600, (elapsed_training_time.seconds // 60) % 60,
-          (elapsed_training_time.seconds) % 60, train_dataset.iteration, train_dataset.epoch))
+    print('Finished training in %d days %d hours %d minutes %d seconds with %d iterations and %d epochs.\n' %
+           (elapsed_training_time.days, elapsed_training_time.seconds // 3600, (elapsed_training_time.seconds // 60) % 60,
+           (elapsed_training_time.seconds) % 60, train_iter, train_epoch))
     print('Prediction time: %d days %d hours %d minutes %d seconds with %d iterations and %d epochs.' %(
           elapsed_prediction_time.days, elapsed_prediction_time.seconds // 3600, (elapsed_prediction_time.seconds // 60) % 60,
-          (elapsed_prediction_time.seconds) % 60, test_dataset.iteration, test_dataset.epoch))
+          (elapsed_prediction_time.seconds) % 60, test_iter, test_epoch))
 
     print("Incorrect prediction counts: %s" % incorrect)
