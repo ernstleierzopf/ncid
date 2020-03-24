@@ -15,16 +15,11 @@ def calculate_unigram_frequencies(text):
     for c in text:
         frequencies[c] = frequencies[c] + 1
     for f in range(0, len(frequencies)):
-        if len(text) == 0:
-            frequencies[f] = 0
-            continue
         frequencies[f] = frequencies[f] / len(text)
     return frequencies
 
 
 def calculate_bigram_frequencies(text):
-    if len(text) == 0:
-        return [0]*676
     frequencies = []
     for i in range(0, 676):
         frequencies.append(0)
@@ -37,8 +32,6 @@ def calculate_bigram_frequencies(text):
 
 
 def calculateTrigramFrequencies(text):
-    if len(text) == 0:
-        return []*17576
     frequencies = []
     for i in range(0, 17576):
         frequencies.append(0)
@@ -51,8 +44,6 @@ def calculateTrigramFrequencies(text):
 
 
 def calculate_index_of_coincedence(text):
-    if len(text) == 0:
-        return 0
     n = []
     for i in range(0, 26):
         n.append(0)
@@ -62,14 +53,11 @@ def calculate_index_of_coincedence(text):
     for i in range(0, 26):
         coindex = coindex + n[i] * (n[i] - 1)
     coindex = coindex / len(text)
-    if len(text) - 1 > 0:
-        coindex = coindex / (len(text) - 1)
+    coindex = coindex / (len(text) - 1)
     return coindex
 
 
 def calculate_index_of_coincedence_bigrams(text):
-    if len(text) == 0:
-        return 0
     n = []
     for i in range(0, 26 * 26):
         n.append(0)
@@ -150,18 +138,18 @@ def calculateEntropy(text):
     return entropy
 
 
-def calculateAutocorrelation(text) :
+def calculateAutocorrelation(text):
     values = []
     for shift in range(1, len(text)):
         same = 0
-        for pos in range(1,len(text) - shift) :
-            if text[pos] == text[pos + shift] :
+        for pos in range(1,len(text) - shift):
+            if text[pos] == text[pos + shift]:
                 same = same + 1
         values.append(same)
     value = 0
     index = 0
-    for i in range(1,len(values)) :
-        if values[i] > value :
+    for i in range(1,len(values)):
+        if values[i] > value:
             value = values[i]
             index = i
     return index
@@ -191,11 +179,12 @@ def calculate_statistics(datum):
 
 
 class TextLine2CipherStatisticsDataset(object):
-    def __init__(self, paths, cipher_types, batch_size, keep_unknown_symbols=False, dataset_workers=None):
+    def __init__(self, paths, cipher_types, batch_size, min_len_text_size, keep_unknown_symbols=False, dataset_workers=None):
         self.keep_unknown_symbols = keep_unknown_symbols
         self.dataset_workers = dataset_workers
         self.cipher_types = cipher_types
         self.batch_size = batch_size
+        self.min_len_text_size = min_len_text_size
         self.epoch = 0
         self.iteration = 0
         datasets = []
@@ -232,11 +221,15 @@ class TextLine2CipherStatisticsDataset(object):
             for j in range(int(self.batch_size / self.key_lengths_count)):
                 try:
                     data = self.iter.__next__()
+                    while len(data.numpy()) < self.min_len_text_size:
+                        data = self.iter.__next__()
                     d.append(data)
                 except:
                     self.epoch += 1
                     self.__iter__()
                     data = self.iter.__next__()
+                    while len(data.numpy()) < self.min_len_text_size:
+                        data = self.iter.__next__()
                     d.append(data)
             process = multiprocessing.Process(target=self._worker, args=[d, result_list])
             process.start()

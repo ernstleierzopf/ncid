@@ -56,6 +56,10 @@ if __name__ == "__main__":
                              'in the alphabet of the cipher.')
     parser.add_argument('--max_iter', default=1000000, type=int,
                         help='the maximal number of iterations before stopping training.')
+    parser.add_argument('--min_train_text_size', default=50, type=int,
+                        help='The minimum length of a plaintext to be encrypted in training.')
+    parser.add_argument('--min_test_text_size', default=50, type=int,
+                        help='The minimum length of a plaintext to be encrypted in testing.')
     args = parser.parse_args()
     for arg in vars(args):
         print("{:23s}= {:s}".format(arg, str(getattr(args, arg))))
@@ -103,16 +107,16 @@ if __name__ == "__main__":
             plaintext_files.append(path)
     train, test = train_test_split(plaintext_files, test_size=0.1, random_state=42, shuffle=True)
 
-    train_dataset = TextLine2CipherStatisticsDataset(train, cipher_types, args.train_dataset_size, args.keep_unknown_symbols, args.dataset_workers)
-    test_dataset = TextLine2CipherStatisticsDataset(test, cipher_types, args.train_dataset_size, args.keep_unknown_symbols, args.dataset_workers)
+    train_dataset = TextLine2CipherStatisticsDataset(train, cipher_types, args.train_dataset_size, args.min_train_text_size, args.keep_unknown_symbols, args.dataset_workers)
+    test_dataset = TextLine2CipherStatisticsDataset(test, cipher_types, args.train_dataset_size, args.min_test_text_size, args.keep_unknown_symbols, args.dataset_workers)
     if args.train_dataset_size % train_dataset.key_lengths_count != 0:
         print("WARNING: the --train_dataset_size parameter must be dividable by the amount of --ciphers "
               " and the length configured KEY_LENGTHS in config.py. The current key_lengths_count is %d" % train_dataset.key_lengths_count, file=sys.stderr)
     print("Datasets loaded.\n")
 
     print("Shuffling data...")
-    train_dataset = train_dataset.shuffle(50000, seed=42, reshuffle_each_iteration=True)
-    test_dataset = test_dataset.shuffle(50000, seed=42, reshuffle_each_iteration=True)
+    train_dataset = train_dataset.shuffle(50000, seed=42, reshuffle_each_iteration=False)
+    test_dataset = test_dataset.shuffle(50000, seed=42, reshuffle_each_iteration=False)
     print("Data shuffled.\n")
 
     print('Creating model...')
@@ -163,7 +167,7 @@ if __name__ == "__main__":
     while train_dataset.iteration < args.max_iter:
         for run in train_dataset:
             for batch, labels in run:
-                history = model.fit(batch, labels, batch_size=args.batch_size, workers=args.dataset_workers)
+                history = model.fit(batch, labels, batch_size=args.batch_size)
                 cntr += 1
                 train_iter = args.train_dataset_size * cntr
                 train_epoch = train_dataset.epoch
@@ -207,15 +211,13 @@ if __name__ == "__main__":
     while test_dataset.iteration < args.max_iter:
         for run in test_dataset:
             for batch, labels in run:
-                prediction = model.predict(batch, batch_size=args.batch_size, workers=args.dataset_workers)
+                prediction = model.predict(batch, batch_size=args.batch_size)
                 for i in range(0, len(prediction)):
                     if labels[i] == np.argmax(prediction[i]):
                         correct_all += 1
                         correct[labels[i]] += 1
                     else:
-                        # print("Prediction: %s, Correct: %s" % (np.argmax(prediction[i]), labels[i].numpy()))
                         incorrect[labels[i]][np.argmax(prediction[i])] += 1
-                        # print(incorrect)
                     total[labels[i]] += 1
                 total_len_prediction += len(prediction)
                 cntr += 1
