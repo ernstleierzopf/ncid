@@ -125,7 +125,7 @@ if __name__ == "__main__":
     # sizes for layers
     # input_layer_size = 1 + 1 + 26 + 676
     total_frequencies_size = 0
-    for i in range(1, 4):
+    for i in range(1, 3):
         total_frequencies_size += math.pow(26, i)
     total_frequencies_size = int(total_frequencies_size)
 
