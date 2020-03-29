@@ -8,39 +8,40 @@ import multiprocessing
 sys.path.append("../")
 
 
-def calculate_unigram_frequencies(text):
+def calculate_frequencies(text, size, recursive=True):
+    before = []
+    if recursive is True and size > 1:
+        before = calculate_frequencies(text, size-1, recursive)
     frequencies = []
-    for i in range(0, 26):
+    frequencies_size = int(math.pow(26, size))
+    for i in range(0, frequencies_size):
         frequencies.append(0)
-    for c in text:
-        frequencies[c] = frequencies[c] + 1
+    for p in range(0, len(text) - size - 1):
+        pos = 0
+        for i in range(0, size):
+            pos += text[p + i]
+        frequencies[pos] += 1
     for f in range(0, len(frequencies)):
         frequencies[f] = frequencies[f] / len(text)
-    return frequencies
+    return before + frequencies
 
 
-def calculate_bigram_frequencies(text):
+def calculate_ny_gram_frequencies(text, size, interval, recursive=True):
+    before = []
+    if recursive is True and size > 2:
+        before = calculate_ny_gram_frequencies(text, size-1, interval, recursive)
     frequencies = []
-    for i in range(0, 676):
+    frequencies_size = int(math.pow(26, size))
+    for i in range(0, frequencies_size):
         frequencies.append(0)
-    for p in range(0, len(text) - 1):
-        l0, l1 = text[p], text[p + 1]
-        frequencies[l0 * 26 + l1] = frequencies[l0 * 26 + l1] + 1
+    for p in range(0, len(text) - (size-1) * interval):
+        pos = 0
+        for i in range(0, size):
+            pos += text[p + i*interval]
+        frequencies[pos] += 1
     for f in range(0, len(frequencies)):
         frequencies[f] = frequencies[f] / len(text)
-    return frequencies
-
-
-def calculateTrigramFrequencies(text):
-    frequencies = []
-    for i in range(0, 17576):
-        frequencies.append(0)
-    for p in range(0, len(text) - 2):
-        l0, l1, l2 = text[p], text[p + 1], text[p + 2]
-        frequencies[l0 * 676 + l1 * 26 + l2] = frequencies[l0 * 676 + l1 * 26 + l2] + 1
-    for f in range(0, len(frequencies)):
-        frequencies[f] = frequencies[f] / len(text)
-    return frequencies
+    return before + frequencies
 
 
 def calculate_index_of_coincedence(text):
@@ -170,12 +171,14 @@ def encrypt(example, label, key_length, keep_unknown_symbols):
 
 def calculate_statistics(datum):
     numbers = datum
-    unigram_frequencies = calculate_unigram_frequencies(numbers)
     unigram_ioc = calculate_index_of_coincedence(numbers)
-    bigram_frequencies = calculate_bigram_frequencies(numbers)
     bigram_ioc = calculate_index_of_coincedence_bigrams(numbers)
     # autocorrelation = calculateAutocorrelation(numbers)
-    return [unigram_ioc] + [bigram_ioc] + unigram_frequencies + bigram_frequencies
+    frequencies = calculate_frequencies(numbers, 2, recursive=True)
+    ny_gram_frequencies = []
+    for i in range(2, 3):
+        ny_gram_frequencies += calculate_ny_gram_frequencies(numbers, 2, interval=i, recursive=False)
+    return [unigram_ioc] + [bigram_ioc] + frequencies + ny_gram_frequencies
 
 
 class TextLine2CipherStatisticsDataset(object):
