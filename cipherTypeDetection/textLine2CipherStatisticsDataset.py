@@ -175,9 +175,18 @@ def calculate_statistics(datum):
     bigram_ioc = calculate_index_of_coincedence_bigrams(numbers)
     # autocorrelation = calculateAutocorrelation(numbers)
     frequencies = calculate_frequencies(numbers, 2, recursive=True)
-    ny_gram_frequencies = []
-    for i in range(2, 3):
-        ny_gram_frequencies += calculate_ny_gram_frequencies(numbers, 2, interval=i, recursive=False)
+    #ny_gram_frequencies = []
+    #for i in range(2, 17):
+    #    ny_gram_frequencies += calculate_ny_gram_frequencies(numbers, 2, interval=i, recursive=False)
+
+    # average ny_gram_frequencies
+    ny_gram_frequencies = [0]*676
+    for i in range(2, 17):
+        freq = calculate_ny_gram_frequencies(numbers, 2, interval=i, recursive=False)
+        for j in range(0, 676):
+            ny_gram_frequencies[j] += freq[j]
+    for i in range(0, 676):
+        ny_gram_frequencies[i] = ny_gram_frequencies[i] / 15
     return [unigram_ioc] + [bigram_ioc] + frequencies + ny_gram_frequencies
 
 
