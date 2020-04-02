@@ -137,7 +137,7 @@ if __name__ == "__main__":
         total_frequencies_size += math.pow(26, i)
     total_frequencies_size = int(total_frequencies_size)
 
-    #total_ny_gram_frequencies_size = int(math.pow(26, 2)) * 15
+    #total_ny_gram_frequencies_size = int(math.pow(26, 2)) * 14
     total_ny_gram_frequencies_size = int(math.pow(26, 2))
 
     input_layer_size = 1 + 1 + total_frequencies_size + total_ny_gram_frequencies_size
@@ -156,7 +156,7 @@ if __name__ == "__main__":
             model = tf.keras.Sequential()
             model.add(tf.keras.layers.Flatten(input_shape=(input_layer_size,)))
             for i in range(0, 5):
-                model.add(tf.keras.layers.Dense((int(hidden_layer_size)), activation="relu", use_bias=True))
+                model.add(tf.keras.layers.Dense(hidden_layer_size, activation="relu", use_bias=True))
             model.add(tf.keras.layers.Dense(output_layer_size, activation='softmax'))
             model.compile(optimizer="adam", loss="sparse_categorical_crossentropy", metrics=["accuracy"])
         model.summary()
@@ -169,7 +169,7 @@ if __name__ == "__main__":
         model = tf.keras.Sequential()
         model.add(tf.keras.layers.Flatten(input_shape=(input_layer_size,)))
         for i in range(0, 5):
-            model.add(tf.keras.layers.Dense((int(hidden_layer_size)), activation="relu", use_bias=True))
+            model.add(tf.keras.layers.Dense(hidden_layer_size, activation="relu", use_bias=True))
         model.add(tf.keras.layers.Dense(output_layer_size, activation='softmax'))
         model.compile(optimizer="adam", loss="sparse_categorical_crossentropy", metrics=["accuracy"])
 

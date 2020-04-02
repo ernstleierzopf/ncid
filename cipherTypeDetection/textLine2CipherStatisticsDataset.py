@@ -1,5 +1,6 @@
 import tensorflow as tf
 import cipherTypeDetection.config as config
+from cipherImplementations.simpleSubstitution import SimpleSubstitution
 import sys
 from util import text_utils
 import copy
@@ -180,12 +181,12 @@ def calculate_statistics(datum):
 
     # average ny_gram_frequencies
     ny_gram_frequencies = [0]*676
-    for i in range(2, 17):
+    for i in range(2, 16):
         freq = calculate_ny_gram_frequencies(numbers, 2, interval=i, recursive=False)
         for j in range(0, 676):
             ny_gram_frequencies[j] += freq[j]
     for i in range(0, 676):
-        ny_gram_frequencies[i] = ny_gram_frequencies[i] / 15
+        ny_gram_frequencies[i] = ny_gram_frequencies[i] / 14
     return [unigram_ioc] + [bigram_ioc] + frequencies + ny_gram_frequencies
 
 
@@ -226,16 +227,18 @@ class TextLine2CipherStatisticsDataset(object):
     def __next__(self):
         processes = []
         manager = multiprocessing.Manager()
+        c = SimpleSubstitution(config.ALPHABET, config.UNKNOWN_SYMBOL, config.UNKNOWN_SYMBOL_NUMBER)
         # debugging does not work here!
         result_list = manager.list()
         for i in range(self.dataset_workers):
             d = []
             for j in range(int(self.batch_size / self.key_lengths_count)):
                 try:
-                    data = self.iter.__next__().numpy()
+                    # use the basic prefilter to get the most accurate text length
+                    data = c.filter(self.iter.__next__().numpy(), self.keep_unknown_symbols)
                     while len(data) < self.min_text_len:
                         # add the new data to the existing to speed up the searching process.
-                        data += self.iter.__next__().numpy()
+                        data += c.filter(self.iter.__next__().numpy(), self.keep_unknown_symbols)
                     if len(data) > self.max_text_len:
                         d.append(data[:self.max_text_len])
                     else:
@@ -243,10 +246,13 @@ class TextLine2CipherStatisticsDataset(object):
                 except:
                     self.epoch += 1
                     self.__iter__()
-                    data = self.iter.__next__()
-                    while len(data.numpy()) < self.min_text_len:
-                        data = self.iter.__next__()
-                    d.append(data)
+                    data = c.filter(self.iter.__next__().numpy(), self.keep_unknown_symbols)
+                    while len(data) < self.min_text_len:
+                        data += c.filter(self.iter.__next__().numpy(), self.keep_unknown_symbols)
+                    if len(data) > self.max_text_len:
+                        d.append(data[:self.max_text_len])
+                    else:
+                        d.append(data)
             process = multiprocessing.Process(target=self._worker, args=[d, result_list])
             process.start()
             processes.append(process)
