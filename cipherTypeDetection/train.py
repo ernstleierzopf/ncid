@@ -57,10 +57,18 @@ if __name__ == "__main__":
                              'in the alphabet of the cipher.')
     parser.add_argument('--max_iter', default=1000000, type=int,
                         help='the maximal number of iterations before stopping training.')
-    parser.add_argument('--min_train_text_size', default=50, type=int,
-                        help='The minimum length of a plaintext to be encrypted in training.')
-    parser.add_argument('--min_test_text_size', default=50, type=int,
-                        help='The minimum length of a plaintext to be encrypted in testing.')
+    parser.add_argument('--min_train_len', default=50, type=int,
+                        help='The minimum length of a plaintext to be encrypted in training.'
+                             'If this argument is set to -1 no lower limit is used.')
+    parser.add_argument('--min_test_len', default=50, type=int,
+                        help='The minimum length of a plaintext to be encrypted in testing.'
+                             'If this argument is set to -1 no lower limit is used.')
+    parser.add_argument('--max_train_len', default=-1, type=int,
+                        help='The maximum length of a plaintext to be encrypted in training.'
+                             'If this argument is set to -1 no upper limit is used.')
+    parser.add_argument('--max_test_len', default=-1, type=int,
+                        help='The maximum length of a plaintext to be encrypted in testing.'
+                             'If this argument is set to -1 no upper limit is used.')
     args = parser.parse_args()
     for arg in vars(args):
         print("{:23s}= {:s}".format(arg, str(getattr(args, arg))))
@@ -108,8 +116,8 @@ if __name__ == "__main__":
             plaintext_files.append(path)
     train, test = train_test_split(plaintext_files, test_size=0.1, random_state=42, shuffle=True)
 
-    train_dataset = TextLine2CipherStatisticsDataset(train, cipher_types, args.train_dataset_size, args.min_train_text_size, args.keep_unknown_symbols, args.dataset_workers)
-    test_dataset = TextLine2CipherStatisticsDataset(test, cipher_types, args.train_dataset_size, args.min_test_text_size, args.keep_unknown_symbols, args.dataset_workers)
+    train_dataset = TextLine2CipherStatisticsDataset(train, cipher_types, args.train_dataset_size, args.min_train_len, args.max_train_len, args.keep_unknown_symbols, args.dataset_workers)
+    test_dataset = TextLine2CipherStatisticsDataset(test, cipher_types, args.train_dataset_size, args.min_test_len, args.max_test_len, args.keep_unknown_symbols, args.dataset_workers)
     if args.train_dataset_size % train_dataset.key_lengths_count != 0:
         print("WARNING: the --train_dataset_size parameter must be dividable by the amount of --ciphers "
               " and the length configured KEY_LENGTHS in config.py. The current key_lengths_count is %d" % train_dataset.key_lengths_count, file=sys.stderr)

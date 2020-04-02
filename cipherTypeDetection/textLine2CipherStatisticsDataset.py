@@ -156,9 +156,8 @@ def calculateAutocorrelation(text):
     return index
 
 
-def encrypt(example, label, key_length, keep_unknown_symbols):
+def encrypt(plaintext, label, key_length, keep_unknown_symbols):
     cipher = config.CIPHER_IMPLEMENTATIONS[label]
-    plaintext = example.numpy()
 
     plaintext = cipher.filter(plaintext, keep_unknown_symbols)
     key = cipher.generate_random_key(key_length)
@@ -191,12 +190,13 @@ def calculate_statistics(datum):
 
 
 class TextLine2CipherStatisticsDataset(object):
-    def __init__(self, paths, cipher_types, batch_size, min_len_text_size, keep_unknown_symbols=False, dataset_workers=None):
+    def __init__(self, paths, cipher_types, batch_size, min_text_len, max_text_len, keep_unknown_symbols=False, dataset_workers=None):
         self.keep_unknown_symbols = keep_unknown_symbols
         self.dataset_workers = dataset_workers
         self.cipher_types = cipher_types
         self.batch_size = batch_size
-        self.min_len_text_size = min_len_text_size
+        self.min_text_len = min_text_len
+        self.max_text_len = max_text_len
         self.epoch = 0
         self.iteration = 0
         datasets = []
@@ -232,15 +232,19 @@ class TextLine2CipherStatisticsDataset(object):
             d = []
             for j in range(int(self.batch_size / self.key_lengths_count)):
                 try:
-                    data = self.iter.__next__()
-                    while len(data.numpy()) < self.min_len_text_size:
-                        data = self.iter.__next__()
-                    d.append(data)
+                    data = self.iter.__next__().numpy()
+                    while len(data) < self.min_text_len:
+                        # add the new data to the existing to speed up the searching process.
+                        data += self.iter.__next__().numpy()
+                    if len(data) > self.max_text_len:
+                        d.append(data[:self.max_text_len])
+                    else:
+                        d.append(data)
                 except:
                     self.epoch += 1
                     self.__iter__()
                     data = self.iter.__next__()
-                    while len(data.numpy()) < self.min_len_text_size:
+                    while len(data.numpy()) < self.min_text_len:
                         data = self.iter.__next__()
                     d.append(data)
             process = multiprocessing.Process(target=self._worker, args=[d, result_list])
