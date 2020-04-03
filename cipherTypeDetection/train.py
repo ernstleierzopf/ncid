@@ -184,7 +184,8 @@ if __name__ == "__main__":
     while train_dataset.iteration < args.max_iter:
         for run in train_dataset:
             for batch, labels in run:
-                history = model.fit(batch, labels, batch_size=args.batch_size)
+                history = model.fit(batch[:-(int(len(batch)/10))], labels[:-(int(len(labels)/10))], batch_size=args.batch_size,
+                    validation_data=(batch[-(int(len(batch)/10)):], labels[-(int(len(labels)/10)):]))
                 cntr += 1
                 train_iter = args.train_dataset_size * cntr
                 train_epoch = train_dataset.epoch
