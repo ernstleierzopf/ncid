@@ -23,51 +23,53 @@ def str2bool(v):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
-        description='CANN Ciphertype Detection Neuronal Network Training Script')
+        description='CANN Ciphertype Detection Neuronal Network Training Script', formatter_class=argparse.RawTextHelpFormatter)
     parser.add_argument('--batch_size', default=16, type=int,
                         help='Batch size for training.')
     parser.add_argument('--train_dataset_size', default=16000, type=int,
-                        help='Dataset size per fit. This argument should be dividable by the amount of --ciphers.')
+                        help='Dataset size per fit. This argument should be dividable \n'
+                             'by the amount of --ciphers.')
     parser.add_argument('--dataset_workers', default=1, type=int,
-                        help='The number of parallel workers for reading the input files.')
+                        help='The number of parallel workers for reading the \ninput files.')
     parser.add_argument('--input_folder', default='../data/gutenberg_en', type=str,
                         help='Input folder of the plaintexts.')
     parser.add_argument('--download_dataset', default=True, type=str2bool,
                         help='Download the dataset automatically.')
     parser.add_argument('--save_folder', default='weights/',
-                        help='Directory for saving generated models.' \
-                             'When interrupting, the current model is saved as'\
-                             'interrupted_...')
+                        help='Directory for saving generated models. \n'
+                             'When interrupting, the current model is \n'
+                             'saved as interrupted_...')
     parser.add_argument('--model_name', default='model.h5', type=str,
-                        help='Name of the output model file. The file must have the .h5 extension.')
+                        help='Name of the output model file. The file must \nhave the .h5 extension.')
     parser.add_argument('--ciphers', default='mtc3', type=str,
-                        help='A comma seperated list of the ciphers to be created. ' \
-                             'Be careful to not use spaces or use \' to define the string.'
+                        help='A comma seperated list of the ciphers to be created.\n'
+                             'Be careful to not use spaces or use \' to define the string.\n'
                              'Possible values are:\n'
-                             '- mtc3 (contains the ciphers Monoalphabetic Substitution, Vigenere, ' \
-                             'Columnar Transposition, Plaifair and Hill)\n' \
-                             '- aca (contains all currently implemented ciphers from https://www.cryptogram.org/resource-area/cipher-types/)\n' \
-                             '- simple_substitution\n' \
-                             '- vigenere' \
-                             '- columnar_transposition' \
-                             '- playfair' \
+                             '- mtc3 (contains the ciphers Monoalphabetic Substitution, Vigenere,\n'
+                             '        Columnar Transposition, Plaifair and Hill)\n'
+                             '- aca (contains all currently implemented ciphers from \n'
+                             '       https://www.cryptogram.org/resource-area/cipher-types/)\n'
+                             '- simple_substitution\n'
+                             '- vigenere\n'
+                             '- columnar_transposition\n'
+                             '- playfair\n'
                              '- hill')
     parser.add_argument('--keep_unknown_symbols', default=False, type=str2bool,
-                        help='Keep unknown symbols in the plaintexts. Known symbols are defined' \
-                             'in the alphabet of the cipher.')
+                        help='Keep unknown symbols in the plaintexts. Known \n'
+                             'symbols are defined in the alphabet of the cipher.')
     parser.add_argument('--max_iter', default=1000000, type=int,
                         help='the maximal number of iterations before stopping training.')
     parser.add_argument('--min_train_len', default=50, type=int,
-                        help='The minimum length of a plaintext to be encrypted in training.'
+                        help='The minimum length of a plaintext to be encrypted in training. \n'
                              'If this argument is set to -1 no lower limit is used.')
     parser.add_argument('--min_test_len', default=50, type=int,
-                        help='The minimum length of a plaintext to be encrypted in testing.'
+                        help='The minimum length of a plaintext to be encrypted in testing. \n'
                              'If this argument is set to -1 no lower limit is used.')
     parser.add_argument('--max_train_len', default=-1, type=int,
-                        help='The maximum length of a plaintext to be encrypted in training.'
+                        help='The maximum length of a plaintext to be encrypted in training. \n'
                              'If this argument is set to -1 no upper limit is used.')
     parser.add_argument('--max_test_len', default=-1, type=int,
-                        help='The maximum length of a plaintext to be encrypted in testing.'
+                        help='The maximum length of a plaintext to be encrypted in testing. \n'
                              'If this argument is set to -1 no upper limit is used.')
     args = parser.parse_args()
     for arg in vars(args):
