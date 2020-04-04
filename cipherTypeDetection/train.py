@@ -16,6 +16,8 @@ from cipherTypeDetection.textLine2CipherStatisticsDataset import TextLine2Cipher
 tf.debugging.set_log_device_placement(enabled=False)
 import math
 
+for device in tf.config.list_physical_devices('GPU'):
+    tf.config.experimental.set_memory_growth(device, True)
 
 def str2bool(v):
     return v.lower() in ("yes", "true", "t", "1")
@@ -145,6 +147,7 @@ if __name__ == "__main__":
     input_layer_size = 1 + 1 + total_frequencies_size + total_ny_gram_frequencies_size
     output_layer_size = 5
     hidden_layer_size = 2 * (input_layer_size / 3) + output_layer_size
+
     gpu_count = len(tf.config.list_physical_devices('GPU'))
 
     if gpu_count > 1:
@@ -183,12 +186,21 @@ if __name__ == "__main__":
     cntr = 0
     train_iter = 0
     train_epoch = 0
+    val_data = None
+    val_labels = None
     while train_dataset.iteration < args.max_iter:
         for run in train_dataset:
             for batch, labels in run:
-                history = model.fit(batch, labels, batch_size=args.batch_size, validation_split=0.07)
                 cntr += 1
-                train_iter = args.train_dataset_size * cntr * 0.93
+                train_iter = args.train_dataset_size * cntr
+                if cntr == 0:
+                    batch, val_data, labels, val_labels = train_test_split(batch.numpy(), labels.numpy(), test_size=0.1)
+                    batch = tf.convert_to_tensor(batch)
+                    val_data = tf.convert_to_tensor(val_data)
+                    labels = tf.convert_to_tensor(labels)
+                    val_labels = tf.convert_to_tensor(val_labels)
+                    train_iter -= args.train_dataset_size * 0.1
+                history = model.fit(batch, labels, batch_size=args.batch_size, validation_data=[val_data, val_labels])
                 train_epoch = train_dataset.epoch
                 if train_epoch > 0:
                     train_epoch = train_iter // (train_dataset.iteration // train_dataset.epoch)
