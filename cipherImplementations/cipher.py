@@ -22,7 +22,7 @@ class Cipher:
     def decrypt(self, ciphertext, key):
         raise Exception('Interface method called')
 
-    def filter(self, plaintext, keep_unknown_symbols=True):
+    def filter(self, plaintext, keep_unknown_symbols=False):
         plaintext = plaintext.lower()
         if not keep_unknown_symbols:
             return text_utils.remove_unknown_symbols(plaintext, self.alphabet)

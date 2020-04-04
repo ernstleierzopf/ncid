@@ -2,41 +2,41 @@ import argparse
 import os
 from pathlib import Path
 import sys
-import cipherImplementations as cipherImpl
+import cipherTypeDetection.config as config
 
 sys.path.append("../../../")
 from util import file_utils, text_utils
 
+
 def str2bool(v):
     return v.lower() in ("yes", "true", "t", "1")
 
-def encrypt_file_with_all_cipher_types(filename, save_folder, cipher_types, append_key, keep_unknown_symbols, min_line_length, max_line_length):
+
+def encrypt_file_with_all_cipher_types(filename, save_folder, cipher_types, append_key, keep_unknown_symbols, min_text_len, max_text_len):
     plaintexts = file_utils.read_txt_list_from_file(filename)
     for cipher_type in cipher_types:
-        path = os.path.join(save_folder, cipher_type)
-        if not os.path.exists(path):
-            Path(path).mkdir(parents=True, exist_ok=True)
-        index = cipherImpl.Cipher = cipherImpl.CIPHER_TYPES.index(cipher_type)
+        index = config.Cipher = config.CIPHER_TYPES.index(cipher_type)
         if index > -1:
-            print(index)
-            cipher = cipherImpl.CIPHER_IMPLEMENTATIONS[index]
-            key_length = cipherImpl.KEY_LENGTHS[index]
+            print('Encrypting File: %s, Cipher: %s' % (filename, cipher_type))
+            cipher = config.CIPHER_IMPLEMENTATIONS[index]
+            key_length = config.KEY_LENGTHS[index]
             ciphertexts = []
             keys = []
-            for plaintext in plaintexts:
-                if (not min_line_length is None and len(plaintext) < min_line_length) or (not max_line_length is None and len(plaintext) > max_line_length):
+            plaintext = b''
+            for p in plaintexts:
+                plaintext += cipher.filter(p, keep_unknown_symbols)
+                if len(plaintext) < min_text_len:
                     continue
-                plaintext = cipher.filter(plaintext, keep_unknown_symbols)
-                if plaintext == b'':
-                    continue
+
                 key = cipher.generate_random_key(key_length)
                 keys.append(key)
-                plaintext_numberspace = text_utils.map_text_into_numberspace(plaintext, cipher.alphabet, cipher.unknown_symbol_number)
+                plaintext_numberspace = text_utils.map_text_into_numberspace(plaintext[:max_text_len], cipher.alphabet, cipher.unknown_symbol_number)
                 if isinstance(key, bytes):
                     key = text_utils.map_text_into_numberspace(key, cipher.alphabet, cipher.unknown_symbol_number)
 
                 ciphertexts.append(text_utils.map_numbers_into_textspace(cipher.encrypt(plaintext_numberspace,key),
                     cipher.alphabet, cipher.unknown_symbol))
+                plaintext = b''
 
                 #check if decryption works
                 # c = cipher.encrypt(plaintext_numberspace, key)
@@ -46,61 +46,63 @@ def encrypt_file_with_all_cipher_types(filename, save_folder, cipher_types, appe
                 #     print()
                 #     print("ciphertext: %s"%c)
                 #     print("error %d"%index)
-            path = os.path.join(path, os.path.basename(filename))
+            path = os.path.join(save_folder, os.path.basename(filename).split('.txt')[0] + '-' + cipher_type + '-minLen'
+                + str(min_text_len) + '-maxLen' + str(max_text_len) + '-keyLen' + str(key_length) + '.txt')
             if append_key:
                 file_utils.write_ciphertext_with_keys_to_file(path, ciphertexts, keys)
             else:
                 file_utils.write_txt_list_to_file(path, ciphertexts)
         else:
-            print('Cipher \'%s\' does not exist!'%cipher_type, sys.stderr)
+            print('Cipher \'%s\' does not exist!' % cipher_type, sys.stderr)
             continue
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
-        description='CANN Ciphertext Generator Script')
+        description='CANN Ciphertext Generator Script', formatter_class=argparse.RawTextHelpFormatter)
     parser.add_argument('--input_folder', default='../gutenberg_en', type=str,
                         help='Input folder of the plaintexts.')
     parser.add_argument('--save_folder', default='../mtc3_cipher_id',
-                        help='Directory for saving generated ciphertexts.'\
-                             'For every cipher type a new subdirectory with'\
-                             ' it\'s name is created.')
+                        help='Directory for saving generated ciphertexts.\n'
+                             'For every cipher type a new subdirectory with\n'
+                             'it\'s name is created.')
     parser.add_argument('--ciphers', default='mtc3', type=str,
-                        help='A comma seperated list of the ciphers to be created. '\
-                             'Be careful to not use spaces or use \' to define the string.'
+                             help='A comma seperated list of the ciphers to be created.\n'
+                             'Be careful to not use spaces or use \' to define the string.\n'
                              'Possible values are:\n'
-                             '- mtc3 (contains the ciphers Monoalphabetic Substitution, Vigenere, '\
-                             'Columnar Transposition, Plaifair and Hill)\n'\
-                             '- aca (contains all currently implemented ciphers from https://www.cryptogram.org/resource-area/cipher-types/)\n'\
-                             '- monoalphabetic_substitution\n'\
-                             '- vigenere'\
-                             '- columnar_transposition'\
-                             '- playfair'\
+                             '- mtc3 (contains the ciphers Monoalphabetic Substitution, Vigenere,\n'
+                             '        Columnar Transposition, Plaifair and Hill)\n'
+                             '- aca (contains all currently implemented ciphers from \n'
+                             '       https://www.cryptogram.org/resource-area/cipher-types/)\n'
+                             '- simple_substitution\n'
+                             '- vigenere\n'
+                             '- columnar_transposition\n'
+                             '- playfair\n'
                              '- hill')
     parser.add_argument('--append_key', default=False, type=str2bool,
                         help='Append the encryption key at the end of every line.')
-    parser.add_argument('--keep_unknown_symbols', default=True, type=str2bool,
-                        help='Keep unknown symbols in the plaintexts. Known symbols are defined'\
+    parser.add_argument('--keep_unknown_symbols', default=False, type=str2bool,
+                        help='Keep unknown symbols in the plaintexts. Known symbols are defined\n'
                              'in the alphabet of the cipher.')
-    parser.add_argument('--min_line_length', default=None, type=int,
-                        help='Defines the minimal number of characters in a line to be chosen.'\
-                             'This applies before spaces and other non-encryptable characters are filtered.'\
-                             'If this parameter is None, no minimal line length will be checked.')
-    parser.add_argument('--max_line_length', default=None, type=int,
-                        help='Defines the maximal number of characters in a sentence to be chosen.'\
-                             'This applies before spaces and other non-encryptable characters are filtered.'\
-                             'If this parameter is None, no maximal line length will be checked.')
+    parser.add_argument('--min_text_len', default=50, type=int, help='The minimum length of a plaintext to be encrypted in the evaluation process.\n'
+                             'If this argument is set to -1 no lower limit is used.')
+    parser.add_argument('--max_text_len', default=-1, type=int, help='The maximum length of a plaintext to be encrypted in the evaluation process.\n'
+                             'If this argument is set to -1 no upper limit is used.')
+    parser.add_argument('--max_files_count', default=-1, type=int,
+                        help='Define the amount of files to be encrypted by every cipher.\n'
+                             'If set to -1 all files are encrypted by every cipher')
     args = parser.parse_args()
     args.input_folder = os.path.abspath(args.input_folder)
     args.save_folder = os.path.abspath(args.save_folder)
     args.ciphers = args.ciphers.lower()
     cipher_types = args.ciphers.split(',')
-    if cipherImpl.MTC3 in cipher_types:
-        del cipher_types[cipher_types.index(cipherImpl.MTC3)]
-        cipher_types.append(cipherImpl.CIPHER_TYPES[0])
-        cipher_types.append(cipherImpl.CIPHER_TYPES[1])
-        cipher_types.append(cipherImpl.CIPHER_TYPES[2])
-        cipher_types.append(cipherImpl.CIPHER_TYPES[3])
-        cipher_types.append(cipherImpl.CIPHER_TYPES[4])
+    if config.MTC3 in cipher_types:
+        del cipher_types[cipher_types.index(config.MTC3)]
+        cipher_types.append(config.CIPHER_TYPES[0])
+        cipher_types.append(config.CIPHER_TYPES[1])
+        cipher_types.append(config.CIPHER_TYPES[2])
+        cipher_types.append(config.CIPHER_TYPES[3])
+        cipher_types.append(config.CIPHER_TYPES[4])
     if not os.path.exists(args.save_folder):
         Path(args.save_folder).mkdir(parents=True, exist_ok=True)
 
@@ -112,11 +114,16 @@ if __name__ == "__main__":
     for root, dirs, files in os.walk(args.input_folder):
         total_file_count += len(files)
 
+    if total_file_count > args.max_files_count and args.max_files_count > -1:
+        total_file_count = args.max_files_count
+
     dir = os.listdir(args.input_folder)
     file_counter = 0
     for name in dir:
         if os.path.isfile(os.path.join(args.input_folder, name)):
             file_counter += 1
             encrypt_file_with_all_cipher_types(os.path.join(args.input_folder, name), args.save_folder, cipher_types,
-                args.append_key, args.keep_unknown_symbols, args.min_line_length, args.max_line_length)
-            file_utils.print_progress('Encrypting files: [', file_counter, total_file_count, name)
+                args.append_key, args.keep_unknown_symbols, args.min_text_len, args.max_text_len)
+            file_utils.print_progress('Encrypting files: [', file_counter, total_file_count)
+            if file_counter == total_file_count:
+                break

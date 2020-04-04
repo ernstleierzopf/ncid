@@ -31,7 +31,7 @@ def find_textfiles(path, restructure_folder_flag, total_file_count) :
             if os.path.exists(os.path.join(path, name)):
                 os.remove(os.path.join(path, name))
                 total_file_count -= 1
-        file_utils.print_progress('Collecting files: [', file_counter, total_file_count, name)
+        file_utils.print_progress('Collecting files: [', file_counter, total_file_count)
     if os.path.exists(path) and len(os.listdir(path)) == 0 and restructure_folder_flag:
         os.removedirs(path)
     return txt_files
@@ -45,7 +45,7 @@ def restructure_folder(restructure_folder_flag, txt_files, path):
                 print('Path \'%s\' already exists!'%restructured_path)
             if file != restructured_path:
                 os.rename(file, restructured_path)
-            file_utils.print_progress('Restructuring files: [', txt_files.index(file), total_file_count, file)
+            file_utils.print_progress('Restructuring files: [', txt_files.index(file), total_file_count)
             restructured_txt_files.append(restructured_path)
             dir = os.path.dirname(file)
             while len(os.listdir(dir)) == 0:

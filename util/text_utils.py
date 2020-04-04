@@ -1,7 +1,7 @@
 import numpy as np
 
 
-def map_text_into_numberspace(text, alphabet, unknown_symbol_number) :
+def map_text_into_numberspace(text, alphabet, unknown_symbol_number):
     array = []
     for c in text:
         if bytes([c]) in alphabet:
@@ -11,7 +11,7 @@ def map_text_into_numberspace(text, alphabet, unknown_symbol_number) :
     return np.array(array)
 
 
-def map_numbers_into_textspace(numbers, alphabet, unknown_symbol) :
+def map_numbers_into_textspace(numbers, alphabet, unknown_symbol):
     output = b''
     for n in numbers :
         if n > len(alphabet) :

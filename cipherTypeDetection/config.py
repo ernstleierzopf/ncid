@@ -8,11 +8,12 @@ ALPHABET = b'abcdefghijklmnopqrstuvwxyz'
 UNKNOWN_SYMBOL = b'?'
 UNKNOWN_SYMBOL_NUMBER = 90
 
-CIPHER_TYPES = ['simple_substitution', 'vigenere', 'columnar_transposition', 'playfair', 'hill']
-CIPHER_IMPLEMENTATIONS = [SimpleSubstitution(ALPHABET, UNKNOWN_SYMBOL, UNKNOWN_SYMBOL_NUMBER),
-                          Vigenere(ALPHABET, UNKNOWN_SYMBOL, UNKNOWN_SYMBOL_NUMBER),
-                          ColumnarTransposition(ALPHABET, UNKNOWN_SYMBOL, UNKNOWN_SYMBOL_NUMBER),
+CIPHER_TYPES = ['columnar_transposition', 'hill', 'simple_substitution', 'vigenere', 'playfair']
+CIPHER_IMPLEMENTATIONS = [ColumnarTransposition(ALPHABET, UNKNOWN_SYMBOL, UNKNOWN_SYMBOL_NUMBER),
+                          Hill(ALPHABET, UNKNOWN_SYMBOL, UNKNOWN_SYMBOL_NUMBER),
                           Playfair(ALPHABET.replace(b'j', b''), UNKNOWN_SYMBOL, UNKNOWN_SYMBOL_NUMBER),
-                          Hill(ALPHABET, UNKNOWN_SYMBOL, UNKNOWN_SYMBOL_NUMBER)]
-KEY_LENGTHS = [[None]*13, list(range(4, 17)), list(range(4, 17)), list(range(4, 17)), [None]*13]
+                          SimpleSubstitution(ALPHABET, UNKNOWN_SYMBOL, UNKNOWN_SYMBOL_NUMBER),
+                          Vigenere(ALPHABET, UNKNOWN_SYMBOL, UNKNOWN_SYMBOL_NUMBER)]
+KEY_LENGTHS = [13, None, 13, None, 13]
+#KEY_LENGTHS = [list(range(4, 17)), [None]*13, list(range(4, 17)), [None]*13, list(range(4, 17))]
 MTC3 = 'mtc3'

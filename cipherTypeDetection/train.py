@@ -271,7 +271,7 @@ if __name__ == "__main__":
     for i in range(0, len(total)):
         if total[i] == 0:
             continue
-        print('%s correct: %d/%d = %f'%(config.CIPHER_TYPES[i], correct[i], total[i], correct[i] / total[i]))
+        print('%s correct: %d/%d = %f' % (config.CIPHER_TYPES[i], correct[i], total[i], correct[i] / total[i]))
     if total_len_prediction == 0:
         t = 'N/A'
     else:
