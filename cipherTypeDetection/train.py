@@ -193,7 +193,7 @@ if __name__ == "__main__":
             for batch, labels in run:
                 cntr += 1
                 train_iter = args.train_dataset_size * cntr
-                if cntr == 0:
+                if cntr == 1:
                     batch, val_data, labels, val_labels = train_test_split(batch.numpy(), labels.numpy(), test_size=0.1)
                     batch = tf.convert_to_tensor(batch)
                     val_data = tf.convert_to_tensor(val_data)

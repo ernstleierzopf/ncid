@@ -155,8 +155,33 @@ def evaluate(args, model):
     print("\n\nAverage evaluation results from %d iterations: avg_test_loss=%f, avg_test_acc=%f" % (iterations, avg_test_loss, avg_test_acc))
 
 
-def predict_single_line(ciphertext, model):
-    pass
+def predict_single_line(args, model):
+    ciphertexts = []
+    if args.ciphertext is not None:
+        ciphertexts.append(bytes(args.ciphertext, 'ascii'))
+    else:
+        ciphertexts = open(args.file, 'rb')
+
+    print()
+    for line in ciphertexts:
+        # remove newline
+        line = line[:-1]
+        print(line)
+        ciphertext = text_utils.map_text_into_numberspace(line, config.ALPHABET, config.UNKNOWN_SYMBOL_NUMBER)
+        statistics = calculate_statistics(ciphertext)
+        result = model.predict(tf.convert_to_tensor([statistics]), args.batch_size, verbose=0)
+        if args.verbose:
+            for cipher in args.ciphers:
+                print("{:23s} {:f}%".format(cipher, result[0].tolist()[config.CIPHER_TYPES.index(cipher)]*100))
+        else:
+            result_list = result[0].tolist()
+            max_val = max(result_list)
+            cipher = config.CIPHER_TYPES[result_list.index(max_val)]
+            print("{:s} {:f}%".format(cipher, max_val * 100))
+        print()
+
+    if args.file is not None:
+        ciphertexts.close()
 
 
 if __name__ == "__main__":
@@ -166,7 +191,7 @@ if __name__ == "__main__":
     bench_parser = sp.add_parser('benchmark', help='Use this argument to create ciphertexts on the fly, \nlike in '
                                     'training mode, and evaluate them with the model. \nThis option is optimized for large '
                                     'throughput to test the model.')
-    pred_parser = sp.add_parser('evaluate', help='Use this argument to evaluate cipher types for single files or directories.')
+    eval_parser = sp.add_parser('evaluate', help='Use this argument to evaluate cipher types for single files or directories.')
     single_line_parser = sp.add_parser('single_line', help='Use this argument to predict a single line of ciphertext.')
 
     parser.add_argument('--batch_size', default=128, type=int,
@@ -210,11 +235,11 @@ if __name__ == "__main__":
     bench_group.add_argument('--max_text_len', help='The maximum length of a plaintext to be encrypted in the evaluation process.\n'
                              'If this argument is set to -1 no upper limit is used.')
 
-    pred_parser.add_argument('--evaluation_mode', nargs='?', choices=('summarized', 'per_file'), default='summarized', type=str)
-    pred_parser.add_argument('--ciphertext_folder', default='../data/ciphertexts_gutenberg_en', type=str)
+    eval_parser.add_argument('--evaluation_mode', nargs='?', choices=('summarized', 'per_file'), default='summarized', type=str)
+    eval_parser.add_argument('--ciphertext_folder', default='../data/ciphertexts_gutenberg_en', type=str)
 
-    pred_group = parser.add_argument_group('evaluate')
-    pred_group.add_argument('--evaluation_mode', help='- To create an single evaluation result over all iterated ciphertext files use the \'summarized\' option.\n'
+    eval_group = parser.add_argument_group('evaluate')
+    eval_group.add_argument('--evaluation_mode', help='- To create an single evaluation result over all iterated ciphertext files use the \'summarized\' option.\n'
                                                       '  This option is to be preferred over the benchmark option, if the tests should be reproducable.\n'
                                                       '- To create an evaluation for every file use \'per_file\' option. This mode allows the \n'
                                                       '  calculation of the \n  - average value of the prediction \n'
@@ -222,12 +247,18 @@ if __name__ == "__main__":
                                                       '  - median - value at the position of 50 percent of the sorted predictions\n'
                                                       '  - upper quartile - value at the position of 75 percent of the sorted predictions\n'
                                                       '  With these statistics an expert can classify a ciphertext document to a specific cipher.')
-    pred_group.add_argument('--ciphertext_folder', help='Input folder of the ciphertext files.')
+    eval_group.add_argument('--ciphertext_folder', help='Input folder of the ciphertext files.')
 
-    single_line_parser.add_argument('--ciphertext', default=None, type=str)
+    single_line_parser.add_argument('--verbose', default=True, type=str2bool)
+    data = single_line_parser.add_mutually_exclusive_group(required=True)
+    data.add_argument('--ciphertext', default=None, type=str)
+    data.add_argument('--file', default=None, type=str)
 
     single_line_group = parser.add_argument_group('single_line')
     single_line_group.add_argument('--ciphertext', help='A single line of ciphertext to be predicted by the model.')
+    single_line_group.add_argument('--file', help='A file with lines of ciphertext to be predicted line by line by the model.')
+    single_line_group.add_argument('--verbose', help='If true all predicted ciphers are printed. \n'
+                                                     'If false only the most accurate prediction is printed.')
 
     args = parser.parse_args()
     for arg in vars(args):
@@ -262,8 +293,8 @@ if __name__ == "__main__":
     if args.download_dataset is not None:
         benchmark(args, model)
     # the program was started in single_line mode.
-    elif args.ciphertext is not None:
-        predict_single_line(args.ciphertext, model)
+    elif args.ciphertext is not None or args.file is not None:
+        predict_single_line(args, model)
     # the program was started in prediction mode.
     else:
         evaluate(args, model)
