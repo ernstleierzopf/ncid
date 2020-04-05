@@ -146,3 +146,25 @@ CANN now supports multiple GPUs seamlessly during training:
   with the training commands above. The training script will automatically scale the hyperparameters to the right values.
 
   - If you have memory to spare you can increase the batch size further, but keep it a multiple of the number of GPUs you're using.
+
+# Unit-Tests
+
+Multiple Unit-Tests ensure the functionality of the implemented ciphers and the TextLine2CipherStatisticsDataset. 
+
+Every test case can be executed by using following command in the main directory:
+
+```
+python3 -m unittest discover -s unit -p '*Test.py'
+```
+
+Single test classes can be executed with this command:
+
+  ```
+python3 -m unittest <path/to/test/class>
+  ```
+
+for example:
+
+  ```
+python3 -m unittest unit/cipherTypeDetection/textLine2CipherStatisticsDataset.py
+  ```
