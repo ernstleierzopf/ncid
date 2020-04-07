@@ -141,7 +141,7 @@ def evaluate(args, model):
             cntr += 1
             if args.evaluation_mode == 'per_file':
                 print("%s (%d lines) test_loss: %f, test_accuracy: %f (progress: %d%%)" %
-                      (os.path.basename(path), len(batch),result[0], result[1], max(int(cntr / len(dir) * 100), int(iterations / args.max_iter * 100))))
+                      (os.path.basename(path), len(batch),result[0], result[1], max(int(cntr / len(dir) * 100), int(iterations / args.max_iter) * 100)))
             else:
                 file_utils.print_progress("Evaluating files", cntr, len(dir), factor=5)
 
@@ -298,4 +298,3 @@ if __name__ == "__main__":
     # the program was started in prediction mode.
     else:
         evaluate(args, model)
-

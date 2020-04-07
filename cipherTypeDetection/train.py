@@ -149,7 +149,6 @@ if __name__ == "__main__":
     hidden_layer_size = 2 * (input_layer_size / 3) + output_layer_size
 
     gpu_count = len(tf.config.list_physical_devices('GPU'))
-
     if gpu_count > 1:
         strategy = tf.distribute.MirroredStrategy()
         with strategy.scope():

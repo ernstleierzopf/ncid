@@ -55,7 +55,7 @@ python3 generate_cipher_text_files.py --min_text_len=100 --max_text_len=100 --ma
 
 # TODO: Evaluation
 
-Here are our CANN models (released on April 5th, 2020) along with average loss / accuracy and the results on random data:
+Here are our CANN model (released on April 5th, 2020) along with average loss / accuracy and the results on random data:
 
 | Model                                                        | average  loss / accuracy | cipher \| accuracy rate matrix on 1 million lines of plaintexts |
 | ------------------------------------------------------------ | ------------------------ | ------------------------------------------------------------ |
@@ -168,3 +168,6 @@ for example:
   ```
 python3 -m unittest unit/cipherTypeDetection/textLine2CipherStatisticsDataset.py
   ```
+
+# Qualitative Results
+
