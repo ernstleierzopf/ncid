@@ -23,21 +23,20 @@ class SimpleSubstitution(Cipher):
         ciphertext = []
         for position in range(0, len(plaintext)):
             p = plaintext[position]
-            if p > len(self.alphabet):
+            if p >= len(self.alphabet):
                 ciphertext.append(self.unknown_symbol_number)
                 continue
-            c = np.where(key == p)[0][0]
-            ciphertext.append(c)
+            ciphertext.append(key[p])
         return np.array(ciphertext)
 
     def decrypt(self, ciphertext, key):
         plaintext = []
         for position in range(0, len(ciphertext)):
             c = ciphertext[position]
-            if c > len(self.alphabet):
+            if c >= len(self.alphabet):
                 plaintext.append(self.unknown_symbol_number)
                 continue
-            p = key[c]
+            p = np.where(key == c)[0][0]
             while p < 0:
                 p = p + len(self.alphabet)
             plaintext.append(p)

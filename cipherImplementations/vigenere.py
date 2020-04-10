@@ -13,10 +13,10 @@ class Vigenere(Cipher):
         ciphertext = []
         for position in range(0, len(plaintext)):
             p = plaintext[position]
-            if p > len(self.alphabet):
+            if p >= len(self.alphabet):
                 ciphertext.append(self.unknown_symbol_number)
                 continue
-            shift = key[position % key_length]
+            shift = key[(position - ciphertext.count(self.unknown_symbol_number)) % key_length]
             c = (p + shift) % len(self.alphabet)
             ciphertext.append(c)
         return np.array(ciphertext)
@@ -29,7 +29,7 @@ class Vigenere(Cipher):
             if c > len(self.alphabet):
                 plaintext.append(self.unknown_symbol_number)
                 continue
-            shift = key[position % key_length]
+            shift = key[(position - plaintext.count(self.unknown_symbol_number)) % key_length]
             p = (c - shift) % len(self.alphabet)
             while p < 0:
                 p = p + len(self.alphabet)
