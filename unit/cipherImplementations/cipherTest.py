@@ -1,6 +1,7 @@
 import unittest
 from cipherImplementations.cipher import Cipher
 
+
 class CipherTest(unittest.TestCase):
     ALPHABET = b'abcdefghijklmnopqrstuvwxyz'
     UNKNOWN_SYMBOL = b'?'
