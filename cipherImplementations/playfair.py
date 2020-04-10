@@ -44,9 +44,11 @@ class Playfair(Cipher):
         self.unknown_symbol_number = unknown_symbol_number
 
     def generate_random_key(self, length=10):
-        if length < 0 or length > len(self.alphabet):
+        if length is None or length <= 0 or length > len(self.alphabet):
             raise ValueError('The length of a key must be greater than 0 and smaller than the size of the alphabet.')
-        original = bytearray(b'abcdefghiklmnopqrstuvwxyz')
+        if not isinstance(length, int):
+            raise ValueError('Length must be of type integer.')
+        original = bytearray(self.alphabet)
         key = b''
         for i in range(0, length):
             char = original[random.randrange(0, len(original))]
@@ -105,8 +107,9 @@ class Playfair(Cipher):
             plaintext.append(key[int(index1)])
         return np.array(plaintext)
 
-    def filter(self, plaintext, keep_unknown_symbols=True):
+    def filter(self, plaintext, keep_unknown_symbols=False):
         plaintext = plaintext.lower().replace(b'j', b'i')
+        plaintext = plaintext.replace(b'x', b'y')
         plaintext = super().filter(bytes(plaintext), keep_unknown_symbols)
         if len(plaintext) % 2 != 0:
             plaintext = bytes(plaintext) + bytes(b'x')
@@ -114,10 +117,15 @@ class Playfair(Cipher):
         for position in range(1, len(plaintext), 2):
             p0, p1 = plaintext[position-1], plaintext[position]
             if p0 != p1:
+                if p0 not in self.alphabet:
+                    p0 = 120
+                if p1 not in self.alphabet:
+                    p1 = 120
                 output.append(p0)
                 output.append(p1)
             else:
-                output.append(p0)
+                if p0 in self.alphabet:
+                    output.append(p0)
                 output.append(120) # 120 = 'x'
         plaintext = bytes(output)
         return plaintext

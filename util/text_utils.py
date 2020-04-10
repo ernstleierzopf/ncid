@@ -13,8 +13,8 @@ def map_text_into_numberspace(text, alphabet, unknown_symbol_number):
 
 def map_numbers_into_textspace(numbers, alphabet, unknown_symbol):
     output = b''
-    for n in numbers :
-        if n > len(alphabet) :
+    for n in numbers:
+        if n >= len(alphabet):
             output = output + unknown_symbol
         else :
             output = output + bytes([alphabet[n]])
