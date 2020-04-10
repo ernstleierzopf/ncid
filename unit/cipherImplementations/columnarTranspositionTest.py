@@ -12,7 +12,7 @@ class ColumnarTranspositionTest(unittest.TestCase):
     ciphertext_remove_unknown_symbols = b'tlwichaiatiitlesnhcritshssepaxaxeryptca'
     decrypted_plaintext_keep_unknown_symbols = b'this?is?a?plaintext?with?special?characters???xy?'
     decrypted_plaintext_remove_unknown_symbols = b'thisisaplaintextwithspecialcharactersxy'
-    key = b'aaabcdef'
+    key = text_utils.map_text_into_numberspace(b'aaabcdef', CipherTest.ALPHABET, CipherTest.UNKNOWN_SYMBOL_NUMBER)
 
     def test1encrypt_keep_unknown_symbols(self):
         plaintext = self.cipher.filter(self.plaintext, keep_unknown_symbols=True)

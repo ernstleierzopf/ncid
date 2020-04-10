@@ -1,6 +1,5 @@
 import numpy as np
 from cipherImplementations.cipher import Cipher
-import sys
 import random
 
 
@@ -25,7 +24,7 @@ class Hill(Cipher):
 
     def encrypt(self, plaintext, key):
         ciphertext = []
-        for position in range(3, len(plaintext)-3, 4):
+        for position in range(3, len(plaintext), 4):
             p = [plaintext[position-3], plaintext[position-2], plaintext[position-1], plaintext[position]]
             c = np.matmul(key, p)
             c = c % 26
@@ -35,6 +34,20 @@ class Hill(Cipher):
 
     def decrypt(self, ciphertext, key):
         raise Exception('Interface method called')
+
+    def filter(self, plaintext, keep_unknown_symbols=False):
+        plaintext = super().filter(plaintext, keep_unknown_symbols)
+        if keep_unknown_symbols:
+            i = 0
+            while i < len(plaintext):
+                if plaintext[i] not in self.alphabet:
+                    plaintext = plaintext.replace(bytes([plaintext[i]]), b'x')
+                else:
+                    i += 1
+
+        while len(plaintext) % 4 != 0:
+            plaintext += b'x'
+        return plaintext
 
     def determinant(self, matrix):
         global alphabet
