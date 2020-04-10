@@ -8,8 +8,10 @@ from util import text_utils
 class Cipher:
     ''' This is the interface of the cipher implementations.'''
     def generate_random_key(self, length):
-        if length < 0:
-            raise ValueError('The length of a key must be greater than 0.')
+        if length is None or length <= 0:
+            raise ValueError('The length of a key must be greater than 0 and must not be None.')
+        if not isinstance(length, int):
+            raise ValueError('Length must be of type integer.')
         key = b''
         for i in range(length):
             char = bytes([self.alphabet[int(random.randrange(0, len(self.alphabet) - 1))]])
