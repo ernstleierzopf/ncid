@@ -198,7 +198,7 @@ if __name__ == "__main__":
                     val_data = tf.convert_to_tensor(val_data)
                     labels = tf.convert_to_tensor(labels)
                     val_labels = tf.convert_to_tensor(val_labels)
-                    train_iter -= args.train_dataset_size * 0.1
+                train_iter -= args.train_dataset_size * 0.1
                 history = model.fit(batch, labels, batch_size=args.batch_size, validation_data=[val_data, val_labels])
                 train_epoch = train_dataset.epoch
                 if train_epoch > 0:

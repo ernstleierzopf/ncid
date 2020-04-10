@@ -16,7 +16,6 @@ sys.path.append("../")
 import cipherTypeDetection.config as config
 from cipherTypeDetection.textLine2CipherStatisticsDataset import TextLine2CipherStatisticsDataset, calculate_statistics
 tf.debugging.set_log_device_placement(enabled=False)
-import math
 
 def str2bool(v):
     return v.lower() in ("yes", "true", "t", "1")
@@ -65,7 +64,7 @@ def benchmark(args, model):
     print("Datasets loaded.\n")
 
     print("Shuffling data...")
-    train_dataset = dataset.shuffle(50000, seed=42, reshuffle_each_iteration=False)
+    dataset = dataset.shuffle(50000, seed=42, reshuffle_each_iteration=False)
     print("Data shuffled.\n")
 
     print('Evaluating model...')
