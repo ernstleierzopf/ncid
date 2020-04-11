@@ -13,14 +13,12 @@ def calculate_frequencies(text, size, recursive=True):
     before = []
     if recursive is True and size > 1:
         before = calculate_frequencies(text, size-1, recursive)
-    frequencies = []
     frequencies_size = int(math.pow(26, size))
-    for i in range(0, frequencies_size):
-        frequencies.append(0)
-    for p in range(0, len(text) - size - 1):
+    frequencies = [0]*frequencies_size
+    for p in range(0, len(text) - (size-1)):
         pos = 0
         for i in range(0, size):
-            pos += text[p + i]
+            pos += text[p + i] * int(math.pow(26, i))
         frequencies[pos] += 1
     for f in range(0, len(frequencies)):
         frequencies[f] = frequencies[f] / len(text)
@@ -31,10 +29,8 @@ def calculate_ny_gram_frequencies(text, size, interval, recursive=True):
     before = []
     if recursive is True and size > 2:
         before = calculate_ny_gram_frequencies(text, size-1, interval, recursive)
-    frequencies = []
     frequencies_size = int(math.pow(26, size))
-    for i in range(0, frequencies_size):
-        frequencies.append(0)
+    frequencies = [0]*frequencies_size
     for p in range(0, len(text) - (size-1) * interval):
         pos = 0
         for i in range(0, size):
@@ -75,14 +71,14 @@ def calculate_index_of_coincedence_bigrams(text):
     return coindex
 
 
-def hasLetterJ(text):
+def has_letter_j(text):
     for p in text:
         if p == 10:
             return 1
     return 0
 
 
-def hasDoubles(text):
+def has_doubles(text):
     for i in range(0, len(text), 2):
         p0, p1 = text[i], text[i + 1]
         if p0 == p1:
@@ -90,7 +86,7 @@ def hasDoubles(text):
     return 0
 
 
-def calculateChiSquare(frequencies):
+def calculate_chi_square(frequencies):
     global english_frequencies
     chi_square = 0
     for i in range(0, len(frequencies)):
@@ -100,7 +96,7 @@ def calculateChiSquare(frequencies):
     return chi_square
 
 
-def patternRepetitions(text):
+def pattern_repetitions(text):
     counter = 0
     for step in 3, 5, 7, 11, 13:
         # 3 pattern repitions
@@ -113,16 +109,16 @@ def patternRepetitions(text):
     return counter
 
 
-def prepareEntropy(size):
+def prepare_entropy(size):
     global xlogx
     xlogx.append(0)
     for i in range(1, size):
         xlogx.append((-1.0 * i * math.log(i / size) / math.log(2.0)))
 
 
-def calculateEntropy(text):
+def calculate_entropy(text):
     '''
-    calculates entropy based on 2 leters.
+    calculates entropy based on 2 letters.
     :param text: input numbers-ciphertext
     :return: calculated entropy
     '''
@@ -140,7 +136,7 @@ def calculateEntropy(text):
     return entropy
 
 
-def calculateAutocorrelation(text):
+def calculate_autocorrelation(text):
     values = []
     for shift in range(1, len(text)):
         same = 0
@@ -180,14 +176,14 @@ def calculate_statistics(datum):
     #    ny_gram_frequencies += calculate_ny_gram_frequencies(numbers, 2, interval=i, recursive=False)
 
     # average ny_gram_frequencies
-    ny_gram_frequencies = [0]*676
-    for i in range(2, 16):
-        freq = calculate_ny_gram_frequencies(numbers, 2, interval=i, recursive=False)
-        for j in range(0, 676):
-            ny_gram_frequencies[j] += freq[j]
-    for i in range(0, 676):
-        ny_gram_frequencies[i] = ny_gram_frequencies[i] / 14
-    return [unigram_ioc] + [bigram_ioc] + frequencies + ny_gram_frequencies
+    # ny_gram_frequencies = [0]*676
+    # for i in range(2, 16):
+    #     freq = calculate_ny_gram_frequencies(numbers, 2, interval=i, recursive=False)
+    #     for j in range(0, 676):
+    #         ny_gram_frequencies[j] += freq[j]
+    #for i in range(0, 676):
+    #    ny_gram_frequencies[i] = ny_gram_frequencies[i] / 14
+    return [unigram_ioc] + [bigram_ioc] + frequencies #+ ny_gram_frequencies
 
 
 class TextLine2CipherStatisticsDataset(object):
