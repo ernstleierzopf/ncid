@@ -34,7 +34,7 @@ def calculate_ny_gram_frequencies(text, size, interval, recursive=True):
     for p in range(0, len(text) - (size-1) * interval):
         pos = 0
         for i in range(0, size):
-            pos += text[p + i*interval]
+            pos += text[p + i*interval] * int(math.pow(26, i))
         frequencies[pos] += 1
     for f in range(0, len(frequencies)):
         frequencies[f] = frequencies[f] / len(text)

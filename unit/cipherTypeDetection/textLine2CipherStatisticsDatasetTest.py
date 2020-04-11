@@ -15,7 +15,7 @@ class TextLine2CipherStatisticsDatasetTest(unittest.TestCase):
     simple_substitution_ciphertext = b'xokqkqfrkixapahzifkuxanxwkxoqebawephqkukxxecayqahxexaqxxoaqxfxkqxkgqerxoaxanxikuaxegkzoapqxfxkqxkgqh'
     simple_substitution_ciphertext_numberspace = text_utils.map_text_into_numberspace(simple_substitution_ciphertext, cipher.alphabet, cipherTest.CipherTest.UNKNOWN_SYMBOL_NUMBER)
 
-    def test01calculate_frequencies_non_recursive(self):
+    def test01calculate_frequencies(self):
         # unigrams
         plaintext_counter = Counter(self.plaintext.decode())
         simple_substitution_ciphertext_counter = Counter(self.simple_substitution_ciphertext.decode())
@@ -25,8 +25,10 @@ class TextLine2CipherStatisticsDatasetTest(unittest.TestCase):
             unigram_frequencies_plaintext[i] = plaintext_counter[c] / len(self.plaintext)
             unigram_frequencies_simple_substitution_ciphertext[i] = simple_substitution_ciphertext_counter[c] / len(self.simple_substitution_ciphertext)
 
-        self.assertCountEqual(textLine2CipherStatisticsDataset.calculate_frequencies(self.plaintext_numberspace, 1, recursive=False), unigram_frequencies_plaintext)
-        self.assertCountEqual(textLine2CipherStatisticsDataset.calculate_frequencies(self.simple_substitution_ciphertext_numberspace, 1, recursive=False), unigram_frequencies_simple_substitution_ciphertext)
+        self.assertCountEqual(textLine2CipherStatisticsDataset.calculate_frequencies(self.plaintext_numberspace, 1,
+            recursive=False), unigram_frequencies_plaintext)
+        self.assertCountEqual(textLine2CipherStatisticsDataset.calculate_frequencies(self.simple_substitution_ciphertext_numberspace, 1,
+            recursive=False), unigram_frequencies_simple_substitution_ciphertext)
 
         keys_plaintext = list(plaintext_counter.keys())
         keys_simple_substitution_cipher = list(simple_substitution_ciphertext_counter.keys())
@@ -54,8 +56,10 @@ class TextLine2CipherStatisticsDatasetTest(unittest.TestCase):
                         cntr += 1
                 bigram_frequencies_plaintext[i*26+j] = cntr / len(self.plaintext)
 
-        self.assertCountEqual(textLine2CipherStatisticsDataset.calculate_frequencies(self.plaintext_numberspace, 2, recursive=False), bigram_frequencies_plaintext)
-        self.assertCountEqual(textLine2CipherStatisticsDataset.calculate_frequencies(self.simple_substitution_ciphertext_numberspace, 2, recursive=False), bigram_frequencies_simple_substitution_ciphertext)
+        self.assertCountEqual(textLine2CipherStatisticsDataset.calculate_frequencies(self.plaintext_numberspace, 2,
+            recursive=False), bigram_frequencies_plaintext)
+        self.assertCountEqual(textLine2CipherStatisticsDataset.calculate_frequencies(self.simple_substitution_ciphertext_numberspace, 2,
+            recursive=False), bigram_frequencies_simple_substitution_ciphertext)
 
         # trigrams
         trigram_frequencies_simple_substitution_ciphertext = [0]*17576
@@ -84,45 +88,134 @@ class TextLine2CipherStatisticsDatasetTest(unittest.TestCase):
                     trigram_frequencies_plaintext[i * 676 + j * 26 + k] = cntr / len(
                         self.simple_substitution_ciphertext)
 
-        self.assertCountEqual(textLine2CipherStatisticsDataset.calculate_frequencies(self.plaintext_numberspace, 3, recursive=False), trigram_frequencies_plaintext)
-        self.assertCountEqual(textLine2CipherStatisticsDataset.calculate_frequencies(self.simple_substitution_ciphertext_numberspace, 3, recursive=False), trigram_frequencies_simple_substitution_ciphertext)
+        self.assertCountEqual(textLine2CipherStatisticsDataset.calculate_frequencies(self.plaintext_numberspace, 3,
+            recursive=False), trigram_frequencies_plaintext)
+        self.assertCountEqual(textLine2CipherStatisticsDataset.calculate_frequencies(self.simple_substitution_ciphertext_numberspace, 3,
+            recursive=False), trigram_frequencies_simple_substitution_ciphertext)
+
+        self.assertCountEqual(textLine2CipherStatisticsDataset.calculate_frequencies(self.plaintext_numberspace, 3,
+            recursive=True), unigram_frequencies_plaintext + bigram_frequencies_plaintext + trigram_frequencies_plaintext)
+        self.assertCountEqual(
+            textLine2CipherStatisticsDataset.calculate_frequencies(self.simple_substitution_ciphertext_numberspace, 3,
+                recursive=True), unigram_frequencies_simple_substitution_ciphertext + bigram_frequencies_simple_substitution_ciphertext + trigram_frequencies_simple_substitution_ciphertext)
+
+    def test02calculate_ny_gram_frequencies(self):
+        # bigrams interval=2
+        bigram_ny_frequencies_simple_substitution_ciphertext = [0] * 676
+        for i in range(0, len(self.cipher.alphabet)):
+            for j in range(0, len(self.cipher.alphabet)):
+                cntr = 0
+                for k in range(0, len(self.simple_substitution_ciphertext) - 2):
+                    if self.simple_substitution_ciphertext[k] == self.cipher.alphabet[i] and \
+                            self.simple_substitution_ciphertext[k + 2] == self.cipher.alphabet[j]:
+                        cntr += 1
+                bigram_ny_frequencies_simple_substitution_ciphertext[i * 26 + j] = cntr / len(self.simple_substitution_ciphertext)
+
+        bigram_ny_frequencies_plaintext = [0] * 676
+        for i in range(0, len(self.cipher.alphabet)):
+            for j in range(0, len(self.cipher.alphabet)):
+                cntr = 0
+                for k in range(0, len(self.plaintext) - 2):
+                    if self.plaintext[k] == self.cipher.alphabet[i] and self.plaintext[k + 2] == self.cipher.alphabet[j]:
+                        cntr += 1
+                bigram_ny_frequencies_plaintext[i * 26 + j] = cntr / len(self.plaintext)
+
+        self.assertCountEqual(textLine2CipherStatisticsDataset.calculate_ny_gram_frequencies(self.plaintext_numberspace, 2,
+            interval=2, recursive=False), bigram_ny_frequencies_plaintext)
+        self.assertCountEqual(textLine2CipherStatisticsDataset.calculate_ny_gram_frequencies(self.simple_substitution_ciphertext_numberspace, 2,
+            interval=2, recursive=False), bigram_ny_frequencies_simple_substitution_ciphertext)
+
+        # bigrams interval=7
+        bigram_ny_frequencies_simple_substitution_ciphertext = [0] * 676
+        for i in range(0, len(self.cipher.alphabet)):
+            for j in range(0, len(self.cipher.alphabet)):
+                cntr = 0
+                for k in range(0, len(self.simple_substitution_ciphertext) - 7):
+                    if self.simple_substitution_ciphertext[k] == self.cipher.alphabet[i] and \
+                            self.simple_substitution_ciphertext[k + 7] == self.cipher.alphabet[j]:
+                        cntr += 1
+                bigram_ny_frequencies_simple_substitution_ciphertext[i * 26 + j] = cntr / len(self.simple_substitution_ciphertext)
+
+        bigram_ny_frequencies_plaintext = [0] * 676
+        for i in range(0, len(self.cipher.alphabet)):
+            for j in range(0, len(self.cipher.alphabet)):
+                cntr = 0
+                for k in range(0, len(self.plaintext) - 7):
+                    if self.plaintext[k] == self.cipher.alphabet[i] and self.plaintext[k + 7] == self.cipher.alphabet[j]:
+                        cntr += 1
+                bigram_ny_frequencies_plaintext[i * 26 + j] = cntr / len(self.plaintext)
+
+        self.assertCountEqual(textLine2CipherStatisticsDataset.calculate_ny_gram_frequencies(self.plaintext_numberspace, 2,
+            interval=7, recursive=False), bigram_ny_frequencies_plaintext)
+        self.assertCountEqual(textLine2CipherStatisticsDataset.calculate_ny_gram_frequencies(
+            self.simple_substitution_ciphertext_numberspace, 2, interval=7, recursive=False), bigram_ny_frequencies_simple_substitution_ciphertext)
+
+        # trigrams interval=7
+        trigram_ny_frequencies_simple_substitution_ciphertext = [0] * 17576
+        for i in range(0, len(self.cipher.alphabet)):
+            for j in range(0, len(self.cipher.alphabet)):
+                for k in range(0, len(self.cipher.alphabet)):
+                    cntr = 0
+                    for l in range(0, len(self.simple_substitution_ciphertext) - 14):
+                        if self.simple_substitution_ciphertext[l] == self.cipher.alphabet[i] and \
+                                self.simple_substitution_ciphertext[l + 7] == self.cipher.alphabet[j] and \
+                                self.simple_substitution_ciphertext[l + 14] == self.cipher.alphabet[k]:
+                            cntr += 1
+                    trigram_ny_frequencies_simple_substitution_ciphertext[i * 676 + j * 26 + k] = cntr / len(
+                        self.simple_substitution_ciphertext)
+
+        trigram_ny_frequencies_plaintext = [0] * 17576
+        for i in range(0, len(self.cipher.alphabet)):
+            for j in range(0, len(self.cipher.alphabet)):
+                for k in range(0, len(self.cipher.alphabet)):
+                    cntr = 0
+                    for l in range(0, len(self.plaintext) - 14):
+                        if self.plaintext[l] == self.cipher.alphabet[i] and self.plaintext[l + 7] == self.cipher.alphabet[j]\
+                            and self.plaintext[l + 14] == self.cipher.alphabet[k]:
+                            cntr += 1
+                    trigram_ny_frequencies_plaintext[i * 676 + j * 26 + k] = cntr / len(self.plaintext)
+
+        self.assertCountEqual(
+            textLine2CipherStatisticsDataset.calculate_ny_gram_frequencies(self.plaintext_numberspace, 3, interval=7,
+                recursive=False), trigram_ny_frequencies_plaintext)
+        self.assertCountEqual(textLine2CipherStatisticsDataset.calculate_ny_gram_frequencies(
+            self.simple_substitution_ciphertext_numberspace, 3, interval=7, recursive=False),
+            trigram_ny_frequencies_simple_substitution_ciphertext)
+
+        self.assertCountEqual(
+            textLine2CipherStatisticsDataset.calculate_ny_gram_frequencies(self.plaintext_numberspace, 3, interval=7,
+                recursive=True), bigram_ny_frequencies_plaintext + trigram_ny_frequencies_plaintext)
+        self.assertCountEqual(textLine2CipherStatisticsDataset.calculate_ny_gram_frequencies(
+            self.simple_substitution_ciphertext_numberspace, 3, interval=7, recursive=True),
+            bigram_ny_frequencies_simple_substitution_ciphertext + trigram_ny_frequencies_simple_substitution_ciphertext)
 
 
-    def test02calculate_frequencies_recursive(self):
+    def test03calculate_index_of_coincidence(self):
         pass
 
-    def test03calculate_ny_gram_frequencies_non_recursive(self):
+    def test04calculate_index_of_coincidence_bigrams(self):
         pass
 
-    def test04calculate_ny_gram_frequencies_recursive(self):
-        pass
-
-    def test05calculate_index_of_coincidence(self):
-        pass
-
-    def test06calculate_index_of_coincidence_bigrams(self):
-        pass
-
-    # def test07has_letter_j(self):
+    # def test05has_letter_j(self):
     #     pass
     #
-    # def test08has_doubles(self):
+    # def test06has_doubles(self):
     #     pass
     #
-    # def test09calculate_chi_square(self):
+    # def test07calculate_chi_square(self):
     #     pass
     #
-    # def test10pattern_repetitions(self):
+    # def test08pattern_repetitions(self):
     #     pass
     #
-    # def test11calculate_entropy(self):
+    # def test09calculate_entropy(self):
     #     pass
     #
-    # def test12calculate_autocorrelation(self):
+    # def test10calculate_autocorrelation(self):
     #     pass
 
-    def test13encrypt(self):
+    def test11encrypt(self):
         pass
 
-    def test14calculate_statistics(self):
+    def test12calculate_statistics(self):
         pass
