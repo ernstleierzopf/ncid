@@ -7,6 +7,7 @@ import copy
 import math
 import multiprocessing
 sys.path.append("../")
+import numpy as np
 
 
 def calculate_frequencies(text, size, recursive=True):
@@ -106,31 +107,18 @@ def pattern_repetitions(text):
                     counter += 1
     return counter
 
-
-def prepare_entropy(size):
-    global xlogx
-    xlogx.append(0)
-    for i in range(1, size):
-        xlogx.append((-1.0 * i * math.log(i / size) / math.log(2.0)))
-
-
 def calculate_entropy(text):
     '''
-    calculates entropy based on 2 letters.
+    calculates shannon's entropy index.
     :param text: input numbers-ciphertext
     :return: calculated entropy
     '''
-    global xlogx
-    n = []
-    for i in range(0, 26 * 26):
-        n.append(0)
-    for i in range(0, len(text), 2):
-        p0, p1 = text[i], text[i + 1]
-        n[p0 * 26 + p1] = n[p0 * 26 + p1] + 1
-    entropy = 0.0
-    for i in range(0, len(n) - 1):
-        entropy = entropy + xlogx[n[i]]
-    entropy = entropy / (len(text) / 2)
+    unique, counts = np.unique(text, return_counts=True)
+    prob = []
+    for c in counts:
+        prob.append(float(c) / len(text))
+    # calculate the entropy
+    entropy = - sum([p * math.log(p) / math.log(2.0) for p in prob])
     return entropy
 
 

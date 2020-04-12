@@ -3,7 +3,7 @@ from collections import Counter
 from cipherTypeDetection import textLine2CipherStatisticsDataset as textLine2CipherStatisticsDataset
 import unit.cipherImplementations.cipherTest as cipherTest
 import util.textUtils as text_utils
-import numpy as np
+import math
 
 
 class TextLine2CipherStatisticsDatasetTest(unittest.TestCase):
@@ -298,9 +298,23 @@ class TextLine2CipherStatisticsDatasetTest(unittest.TestCase):
                         counter += 1
         self.assertEqual(textLine2CipherStatisticsDataset.pattern_repetitions(self.simple_substitution_ciphertext_numberspace), counter)
 
-    # def test09calculate_entropy(self):
-    #     pass
-    #
+    def test09calculate_entropy(self):
+        string = self.simple_substitution_ciphertext.decode()
+        prob = [float(string.count(c)) / len(string) for c in dict.fromkeys(list(string))]
+
+        # calculate the entropy
+        entropy = - sum([p * math.log(p) / math.log(2.0) for p in prob])
+        self.assertEqual(round(textLine2CipherStatisticsDataset.calculate_entropy(self.simple_substitution_ciphertext_numberspace), 6), round(entropy, 6))
+        e = entropy
+
+        string = self.plaintext.decode()
+        prob = [float(string.count(c)) / len(string) for c in dict.fromkeys(list(string))]
+
+        # calculate the entropy
+        entropy = - sum([p * math.log(p) / math.log(2.0) for p in prob])
+        self.assertEqual(round(textLine2CipherStatisticsDataset.calculate_entropy(self.plaintext_numberspace), 6), round(entropy, 6))
+        self.assertEqual(e, entropy)
+
     # def test10calculate_autocorrelation(self):
     #     pass
 
