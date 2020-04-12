@@ -69,7 +69,7 @@ def calculate_index_of_coincidence_bigrams(text):
 
 def has_letter_j(text):
     for p in text:
-        if p == 10:
+        if p == 9:
             return 1
     return 0
 
