@@ -250,19 +250,54 @@ class TextLine2CipherStatisticsDatasetTest(unittest.TestCase):
 
 
     def test05has_letter_j(self):
-        print(self.cipher.alphabet.decode().index('j'))
-        self.assertEqual(textLine2CipherStatisticsDataset.has_letter_j(self.simple_substitution_ciphertext_numberspace), 0)
-        self.assertEqual(textLine2CipherStatisticsDataset.has_letter_j(self.plaintext_numberspace), 0)
-    #
-    # def test06has_doubles(self):
-    #     pass
-    #
-    # def test07calculate_chi_square(self):
-    #     pass
-    #
-    # def test08pattern_repetitions(self):
-    #     pass
-    #
+        self.assertEqual(textLine2CipherStatisticsDataset.has_letter_j(self.simple_substitution_ciphertext_numberspace),
+            self.simple_substitution_ciphertext.decode().__contains__('j'))
+        self.assertEqual(textLine2CipherStatisticsDataset.has_letter_j(self.plaintext_numberspace),
+            self.plaintext.decode().__contains__('j'))
+
+    def test06has_doubles(self):
+        has_doubles = 0
+        for i in range(0, len(self.simple_substitution_ciphertext) - 1):
+            if self.simple_substitution_ciphertext[i] == self.simple_substitution_ciphertext[i+1]:
+                has_doubles = 1
+        self.assertEqual(textLine2CipherStatisticsDataset.has_doubles(self.simple_substitution_ciphertext_numberspace), has_doubles)
+
+        has_doubles = 0
+        for i in range(0, len(self.plaintext) - 1):
+            if self.plaintext[i] == self.plaintext[i + 1]:
+                has_doubles = 1
+        self.assertEqual(textLine2CipherStatisticsDataset.has_doubles(self.plaintext_numberspace), has_doubles)
+
+    def test07calculate_chi_square(self):
+        english_frequencies = [0.08167, 0.01492, 0.02782, 0.04253, 0.12702, 0.02228, 0.02015, 0.06094, 0.06966, 0.00153,
+            0.00772, 0.04025, 0.02406, 0.06749, 0.07507, 0.01929, 0.00095, 0.05987, 0.06327, 0.09056, 0.02758, 0.00978,
+            0.0236, 0.0015, 0.01974, 0.00074]
+        unigram_frequencies = [0]*26
+        for c in self.cipher.alphabet:
+            for i in range(0, len(self.simple_substitution_ciphertext)):
+                if self.simple_substitution_ciphertext[i] == c:
+                    unigram_frequencies[self.cipher.alphabet.index(c)] += 1
+            unigram_frequencies[self.cipher.alphabet.index(c)] = unigram_frequencies[self.cipher.alphabet.index(c)] / len(self.simple_substitution_ciphertext)
+        chi_square = 0
+        for i in range(0, len(unigram_frequencies)):
+            residual = unigram_frequencies[i] - english_frequencies[i]
+            chi_square += (residual * residual / english_frequencies[i])
+        self.assertEqual(textLine2CipherStatisticsDataset.calculate_chi_square(unigram_frequencies), chi_square)
+
+    def test08pattern_repetitions(self):
+        # count patterns of 3
+        counter = 0
+        text = self.simple_substitution_ciphertext.decode()
+        patterns = []
+        for i in range(0, len(self.simple_substitution_ciphertext) - 2):
+            pattern = text[i] + text[i+1] + text[i+2]
+            if pattern not in patterns:
+                patterns.append(pattern)
+                for j in range(i+1, len(self.simple_substitution_ciphertext) - 2):
+                    if pattern == text[j] + text[j+1] + text[j+2]:
+                        counter += 1
+        self.assertEqual(textLine2CipherStatisticsDataset.pattern_repetitions(self.simple_substitution_ciphertext_numberspace), counter)
+
     # def test09calculate_entropy(self):
     #     pass
     #
