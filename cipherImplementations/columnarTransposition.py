@@ -3,7 +3,7 @@ from cipherImplementations.cipher import Cipher
 import sys
 
 sys.path.append("../../../")
-from util import text_utils
+from util import textUtils
 
 
 def indices(word):
@@ -22,7 +22,7 @@ class ColumnarTransposition(Cipher):
         key = indices(key)
         ciphertext = []
         for start in range(0, len(key)):
-            position = text_utils.num_index_of(key, start)
+            position = textUtils.num_index_of(key, start)
             while position < len(plaintext):
                 p = plaintext[position]
                 if p > len(self.alphabet):
@@ -38,7 +38,7 @@ class ColumnarTransposition(Cipher):
         plaintext = [b'']*len(ciphertext)
         i = 0
         for start in range(0, len(key)):
-            position = text_utils.num_index_of(key, start)
+            position = textUtils.num_index_of(key, start)
             while position < len(plaintext):
                 c = ciphertext[i]
                 i += 1

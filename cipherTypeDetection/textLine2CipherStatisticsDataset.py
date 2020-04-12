@@ -2,7 +2,7 @@ import tensorflow as tf
 import cipherTypeDetection.config as config
 from cipherImplementations.simpleSubstitution import SimpleSubstitution
 import sys
-from util import text_utils
+from util import textUtils
 import copy
 import math
 import multiprocessing
@@ -41,10 +41,8 @@ def calculate_ny_gram_frequencies(text, size, interval, recursive=True):
     return before + frequencies
 
 
-def calculate_index_of_coincedence(text):
-    n = []
-    for i in range(0, 26):
-        n.append(0)
+def calculate_index_of_coincidence(text):
+    n = [0]*26
     for p in text:
         n[p] = n[p] + 1
     coindex = 0
@@ -55,10 +53,8 @@ def calculate_index_of_coincedence(text):
     return coindex
 
 
-def calculate_index_of_coincedence_bigrams(text):
-    n = []
-    for i in range(0, 26 * 26):
-        n.append(0)
+def calculate_index_of_coincidence_bigrams(text):
+    n = [0]*676
     for i in range(1, len(text), 2):
         p0, p1 = text[i-1], text[i]
         n[p0 * 26 + p1] = n[p0 * 26 + p1] + 1
@@ -155,20 +151,19 @@ def calculate_autocorrelation(text):
 
 def encrypt(plaintext, label, key_length, keep_unknown_symbols):
     cipher = config.CIPHER_IMPLEMENTATIONS[label]
-
     plaintext = cipher.filter(plaintext, keep_unknown_symbols)
     key = cipher.generate_random_key(key_length)
-    plaintext_numberspace = text_utils.map_text_into_numberspace(plaintext, cipher.alphabet, cipher.unknown_symbol_number)
+    plaintext_numberspace = textUtils.map_text_into_numberspace(plaintext, cipher.alphabet, cipher.unknown_symbol_number)
     if isinstance(key, bytes):
-        key = text_utils.map_text_into_numberspace(key, cipher.alphabet, cipher.unknown_symbol_number)
+        key = textUtils.map_text_into_numberspace(key, cipher.alphabet, cipher.unknown_symbol_number)
     ciphertext = cipher.encrypt(plaintext_numberspace, key)
     return ciphertext
 
 
 def calculate_statistics(datum):
     numbers = datum
-    unigram_ioc = calculate_index_of_coincedence(numbers)
-    bigram_ioc = calculate_index_of_coincedence_bigrams(numbers)
+    unigram_ioc = calculate_index_of_coincidence(numbers)
+    bigram_ioc = calculate_index_of_coincidence_bigrams(numbers)
     # autocorrelation = calculateAutocorrelation(numbers)
     frequencies = calculate_frequencies(numbers, 2, recursive=True)
     #ny_gram_frequencies = []

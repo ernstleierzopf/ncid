@@ -7,7 +7,7 @@ from sklearn.model_selection import train_test_split
 import os
 from datetime import datetime
 # This environ variable must be set before all tensorflow imports!
-from util import text_utils, file_utils
+from util import textUtils, fileUtils
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 import tensorflow as tf
@@ -129,7 +129,7 @@ def evaluate(args, model):
                 for line in fd.readlines():
                     # remove newline
                     line = line[:-1]
-                    ciphertext = text_utils.map_text_into_numberspace(line, config.ALPHABET, config.UNKNOWN_SYMBOL_NUMBER)
+                    ciphertext = textUtils.map_text_into_numberspace(line, config.ALPHABET, config.UNKNOWN_SYMBOL_NUMBER)
                     statistics = calculate_statistics(ciphertext)
                     batch.append(statistics)
                     iterations += 1
@@ -142,7 +142,7 @@ def evaluate(args, model):
                 print("%s (%d lines) test_loss: %f, test_accuracy: %f (progress: %d%%)" %
                       (os.path.basename(path), len(batch),result[0], result[1], max(int(cntr / len(dir) * 100), int(iterations / args.max_iter) * 100)))
             else:
-                file_utils.print_progress("Evaluating files", cntr, len(dir), factor=5)
+                fileUtils.print_progress("Evaluating files", cntr, len(dir), factor=5)
 
     avg_test_loss = 0
     avg_test_acc = 0
@@ -166,7 +166,7 @@ def predict_single_line(args, model):
         # remove newline
         line = line[:-1]
         print(line)
-        ciphertext = text_utils.map_text_into_numberspace(line, config.ALPHABET, config.UNKNOWN_SYMBOL_NUMBER)
+        ciphertext = textUtils.map_text_into_numberspace(line, config.ALPHABET, config.UNKNOWN_SYMBOL_NUMBER)
         statistics = calculate_statistics(ciphertext)
         result = model.predict(tf.convert_to_tensor([statistics]), args.batch_size, verbose=0)
         if args.verbose:

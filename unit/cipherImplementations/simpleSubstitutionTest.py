@@ -1,7 +1,7 @@
 import unittest
 from cipherImplementations.simpleSubstitution import SimpleSubstitution
 import unit.cipherImplementations.cipherTest as cipherTest
-import util.text_utils as text_utils
+import util.textUtils as text_utils
 
 
 class SimpleSubstitutionTest(unittest.TestCase):

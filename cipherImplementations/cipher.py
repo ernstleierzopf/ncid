@@ -2,7 +2,7 @@ import random
 import sys
 
 sys.path.append("../../../")
-from util import text_utils
+from util import textUtils
 
 
 class Cipher:
@@ -27,5 +27,5 @@ class Cipher:
     def filter(self, plaintext, keep_unknown_symbols=False):
         plaintext = plaintext.lower()
         if not keep_unknown_symbols:
-            return text_utils.remove_unknown_symbols(plaintext, self.alphabet)
+            return textUtils.remove_unknown_symbols(plaintext, self.alphabet)
         return plaintext

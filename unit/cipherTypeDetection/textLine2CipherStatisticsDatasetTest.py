@@ -2,7 +2,7 @@ import unittest
 from collections import Counter
 from cipherTypeDetection import textLine2CipherStatisticsDataset as textLine2CipherStatisticsDataset
 import unit.cipherImplementations.cipherTest as cipherTest
-import util.text_utils as text_utils
+import util.textUtils as text_utils
 import numpy as np
 
 
@@ -191,13 +191,68 @@ class TextLine2CipherStatisticsDatasetTest(unittest.TestCase):
 
 
     def test03calculate_index_of_coincidence(self):
-        pass
+        n = [0]*26
+        for c in self.cipher.alphabet:
+            for i in range(0, len(self.simple_substitution_ciphertext)):
+                if self.simple_substitution_ciphertext[i] == c:
+                    n[self.cipher.alphabet.index(c)] += 1
+        ic = 0
+        for i in range(0, len(n)):
+            ic += n[i] * (n[i] - 1)
+        ic = ic / len(self.simple_substitution_ciphertext)
+        ic = ic / (len(self.simple_substitution_ciphertext) - 1)
+        self.assertEqual(textLine2CipherStatisticsDataset.calculate_index_of_coincidence(self.simple_substitution_ciphertext_numberspace), ic)
+
+        n = [0] * 26
+        for c in self.cipher.alphabet:
+            for i in range(0, len(self.plaintext)):
+                if self.plaintext[i] == c:
+                    n[self.cipher.alphabet.index(c)] += 1
+        ic = 0
+        for i in range(0, len(n)):
+            ic += n[i] * (n[i] - 1)
+        ic = ic / len(self.plaintext)
+        ic = ic / (len(self.plaintext) - 1)
+        self.assertEqual(textLine2CipherStatisticsDataset.calculate_index_of_coincidence(
+            self.plaintext_numberspace), ic)
 
     def test04calculate_index_of_coincidence_bigrams(self):
-        pass
+        n = [0]*676
+        for i in range(0, len(self.cipher.alphabet)):
+            for j in range(0, len(self.cipher.alphabet)):
+                for k in range(0, len(self.simple_substitution_ciphertext) - 1):
+                    if self.simple_substitution_ciphertext[k] == self.cipher.alphabet[i] and \
+                        self.simple_substitution_ciphertext[k + 1] == self.cipher.alphabet[j]:
+                            n[i * 26 + j] += 1
+        ic = 0
+        for i in range(0, len(n)):
+            ic += n[i] * (n[i] - 1)
+        ic = ic / len(self.simple_substitution_ciphertext)
+        ic = ic / (len(self.simple_substitution_ciphertext) - 1)
+        ic = ic / (len(self.simple_substitution_ciphertext) - 2)
+        self.assertEqual(textLine2CipherStatisticsDataset.calculate_index_of_coincidence_bigrams(self.simple_substitution_ciphertext_numberspace), ic)
 
-    # def test05has_letter_j(self):
-    #     pass
+        n = [0] * 676
+        for i in range(0, len(self.cipher.alphabet)):
+            for j in range(0, len(self.cipher.alphabet)):
+                for k in range(0, len(self.plaintext) - 1):
+                    if self.plaintext[k] == self.cipher.alphabet[i] and \
+                            self.plaintext[k + 1] == self.cipher.alphabet[j]:
+                        n[i * 26 + j] += 1
+        ic = 0
+        for i in range(0, len(n)):
+            ic += n[i] * (n[i] - 1)
+        ic = ic / len(self.plaintext)
+        ic = ic / (len(self.plaintext) - 1)
+        ic = ic / (len(self.plaintext) - 2)
+        self.assertEqual(textLine2CipherStatisticsDataset.calculate_index_of_coincidence_bigrams(
+            self.plaintext_numberspace), ic)
+
+
+    def test05has_letter_j(self):
+        print(self.cipher.alphabet.decode().index('j'))
+        self.assertEqual(textLine2CipherStatisticsDataset.has_letter_j(self.simple_substitution_ciphertext_numberspace), 0)
+        self.assertEqual(textLine2CipherStatisticsDataset.has_letter_j(self.plaintext_numberspace), 0)
     #
     # def test06has_doubles(self):
     #     pass
@@ -214,8 +269,6 @@ class TextLine2CipherStatisticsDatasetTest(unittest.TestCase):
     # def test10calculate_autocorrelation(self):
     #     pass
 
-    def test11encrypt(self):
-        pass
-
-    def test12calculate_statistics(self):
-        pass
+    '''
+    The methods calculate_statistics and encrypt can not be tested properly, because they are either random or are only depending on other methods
+    '''

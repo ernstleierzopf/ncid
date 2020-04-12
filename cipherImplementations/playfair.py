@@ -4,7 +4,7 @@ import sys
 import random
 
 sys.path.append("../../../")
-from util import text_utils
+from util import textUtils
 
 
 def get_right_neighbor(index):
@@ -65,8 +65,8 @@ class Playfair(Cipher):
         ciphertext = []
         for position in range(1, len(plaintext), 2):
             p0, p1 = plaintext[position-1], plaintext[position]
-            index0 = int(text_utils.num_index_of(key, p0))
-            index1 = int(text_utils.num_index_of(key, p1))
+            index0 = int(textUtils.num_index_of(key, p0))
+            index1 = int(textUtils.num_index_of(key, p1))
             row_p0 = int(index0 / 5);
             row_p1 = int(index1 / 5);
             col_p0 = index0 % 5;
@@ -88,8 +88,8 @@ class Playfair(Cipher):
         plaintext = []
         for position in range(1, len(ciphertext), 2):
             c0, c1 = ciphertext[position - 1], ciphertext[position]
-            index0 = int(text_utils.num_index_of(key, c0))
-            index1 = int(text_utils.num_index_of(key, c1))
+            index0 = int(textUtils.num_index_of(key, c0))
+            index1 = int(textUtils.num_index_of(key, c1))
             row_p0 = int(index0 / 5);
             row_p1 = int(index1 / 5);
             col_p0 = index0 % 5;
