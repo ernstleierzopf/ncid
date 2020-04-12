@@ -4,6 +4,7 @@ from cipherTypeDetection import textLine2CipherStatisticsDataset as textLine2Cip
 import unit.cipherImplementations.cipherTest as cipherTest
 import util.textUtils as text_utils
 import math
+import numpy as np
 
 
 class TextLine2CipherStatisticsDatasetTest(unittest.TestCase):
@@ -299,6 +300,7 @@ class TextLine2CipherStatisticsDatasetTest(unittest.TestCase):
         self.assertEqual(textLine2CipherStatisticsDataset.pattern_repetitions(self.simple_substitution_ciphertext_numberspace), counter)
 
     def test09calculate_entropy(self):
+        # https://stackoverflow.com/questions/2979174/how-do-i-compute-the-approximate-entropy-of-a-bit-string
         string = self.simple_substitution_ciphertext.decode()
         prob = [float(string.count(c)) / len(string) for c in dict.fromkeys(list(string))]
 
@@ -315,8 +317,31 @@ class TextLine2CipherStatisticsDatasetTest(unittest.TestCase):
         self.assertEqual(round(textLine2CipherStatisticsDataset.calculate_entropy(self.plaintext_numberspace), 6), round(entropy, 6))
         self.assertEqual(e, entropy)
 
-    # def test10calculate_autocorrelation(self):
-    #     pass
+    def test10calculate_autocorrelation_average(self):
+        # https://stackoverflow.com/questions/14297012/estimate-autocorrelation-using-python
+        x = self.plaintext_numberspace
+        n = len(x)
+        variance = x.var()
+        x = x - x.mean()
+        r = np.correlate(x, x, mode='full')[-n:]
+        result = r / (variance * (np.arange(n, 0, -1)))
+        avg = 0
+        for i in range(0, len(result)):
+            avg += result[i]
+        avg = avg / len(result)
+        self.assertEqual(textLine2CipherStatisticsDataset.calculate_autocorrelation_average(self.plaintext_numberspace), avg)
+
+        x = self.simple_substitution_ciphertext_numberspace
+        n = len(x)
+        variance = x.var()
+        x = x - x.mean()
+        r = np.correlate(x, x, mode='full')[-n:]
+        result = r / (variance * (np.arange(n, 0, -1)))
+        avg = 0
+        for i in range(0, len(result)):
+            avg += result[i]
+        avg = avg / len(result)
+        self.assertEqual(textLine2CipherStatisticsDataset.calculate_autocorrelation_average(self.simple_substitution_ciphertext_numberspace), avg)
 
     '''
     The methods calculate_statistics and encrypt can not be tested properly, because they are either random or are only depending on other methods

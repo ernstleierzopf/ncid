@@ -113,6 +113,7 @@ def calculate_entropy(text):
     :param text: input numbers-ciphertext
     :return: calculated entropy
     '''
+    # https://stackoverflow.com/questions/2979174/how-do-i-compute-the-approximate-entropy-of-a-bit-string
     unique, counts = np.unique(text, return_counts=True)
     prob = []
     for c in counts:
@@ -122,21 +123,23 @@ def calculate_entropy(text):
     return entropy
 
 
-def calculate_autocorrelation(text):
-    values = []
-    for shift in range(1, len(text)):
-        same = 0
-        for pos in range(1,len(text) - shift):
-            if text[pos] == text[pos + shift]:
-                same = same + 1
-        values.append(same)
-    value = 0
-    index = 0
-    for i in range(1,len(values)):
-        if values[i] > value:
-            value = values[i]
-            index = i
-    return index
+def calculate_autocorrelation_average(text):
+    '''
+    calculates average of the normalized autocorrelation
+    :param text: input numbers-ciphertext
+    :return: autocorrelation average
+    '''
+    # https://stackoverflow.com/questions/14297012/estimate-autocorrelation-using-python
+    n = len(text)
+    variance = text.var()
+    text = text - text.mean()
+    r = np.correlate(text, text, mode='full')[-n:]
+    result = r / (variance * (np.arange(n, 0, -1)))
+    avg = 0
+    for i in range(0, len(result)):
+        avg += result[i]
+    avg = avg / len(result)
+    return avg
 
 
 def encrypt(plaintext, label, key_length, keep_unknown_symbols):
@@ -154,7 +157,7 @@ def calculate_statistics(datum):
     numbers = datum
     unigram_ioc = calculate_index_of_coincidence(numbers)
     bigram_ioc = calculate_index_of_coincidence_bigrams(numbers)
-    # autocorrelation = calculateAutocorrelation(numbers)
+    # autocorrelation = calculate_autocorrelation_average(numbers)
     frequencies = calculate_frequencies(numbers, 2, recursive=True)
     #ny_gram_frequencies = []
     #for i in range(2, 17):
