@@ -33,6 +33,8 @@ if __name__ == "__main__":
                              'by the amount of --ciphers.')
     parser.add_argument('--dataset_workers', default=1, type=int,
                         help='The number of parallel workers for reading the \ninput files.')
+    parser.add_argument('--epochs', default=1, type=int,
+                        help='Defines how many times the same data is used to fit the model.')
     parser.add_argument('--input_folder', default='../data/gutenberg_en', type=str,
                         help='Input folder of the plaintexts.')
     parser.add_argument('--download_dataset', default=True, type=str2bool,
@@ -73,6 +75,7 @@ if __name__ == "__main__":
     parser.add_argument('--max_test_len', default=-1, type=int,
                         help='The maximum length of a plaintext to be encrypted in testing. \n'
                              'If this argument is set to -1 no upper limit is used.')
+
     args = parser.parse_args()
     for arg in vars(args):
         print("{:23s}= {:s}".format(arg, str(getattr(args, arg))))
@@ -142,9 +145,9 @@ if __name__ == "__main__":
     total_frequencies_size = int(total_frequencies_size)
 
     #total_ny_gram_frequencies_size = int(math.pow(26, 2)) * 14
-    #total_ny_gram_frequencies_size = int(math.pow(26, 2))
+    total_ny_gram_frequencies_size = int(math.pow(26, 2))
 
-    input_layer_size = 1 + 1 + total_frequencies_size #+ total_ny_gram_frequencies_size
+    input_layer_size = 1 + 1 + total_frequencies_size + total_ny_gram_frequencies_size
     output_layer_size = 5
     hidden_layer_size = 2 * (input_layer_size / 3) + output_layer_size
 
@@ -199,7 +202,7 @@ if __name__ == "__main__":
                     labels = tf.convert_to_tensor(labels)
                     val_labels = tf.convert_to_tensor(val_labels)
                 train_iter -= args.train_dataset_size * 0.1
-                history = model.fit(batch, labels, batch_size=args.batch_size, validation_data=[val_data, val_labels])
+                history = model.fit(batch, labels, batch_size=args.batch_size, validation_data=[val_data, val_labels], epochs=args.epochs)
                 train_epoch = train_dataset.epoch
                 if train_epoch > 0:
                     train_epoch = train_iter // (train_dataset.iteration // train_dataset.epoch)

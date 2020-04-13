@@ -55,13 +55,7 @@ python3 generate_cipher_text_files.py --min_text_len=100 --max_text_len=100 --ma
 
 # TODO: Evaluation
 
-Here are our CANN model (released on April 5th, 2020) along with average loss / accuracy and the results on random data:
-
-| Model                                                        | average  loss / accuracy | cipher \| accuracy rate matrix on 1 million lines of plaintexts |
-| ------------------------------------------------------------ | ------------------------ | ------------------------------------------------------------ |
-| mtc3_model_100.h5 (Link)<br />batch_size = 16<br />ciphers = mtc3<br />keep_unknown_symbols = False<br />train_len = 100 \| 100<br />test_len = 100 \| 100 |                          | simple_substitution\| accuracy rate1 <br />vigenere\| <br />columnar_transposition\| <br />playfair\| <br />hill\| |
-| mtc3_logistic_regression_baseline_50.h5 (Link)               |                          | simple_substitution\| accuracy rate1 <br />vigenere\| <br />columnar_transposition\| <br />playfair\| <br />hill\ |
-|                                                              |                          |                                                              |
+Here is our CANN model (released on April 5th, 2020) along with average loss / accuracy and the results on random data: M1.h5 (with Link)
 
 There are multiple ways to evaluate the model. First of all it is needed to put the corresponding weights file in the `./weights` directory and run one of the following commands:
 
@@ -171,3 +165,32 @@ python3 -m unittest unit/cipherTypeDetection/textLine2CipherStatisticsDataset.py
 
 # Qualitative Results
 
+Here are our training results from a DGX-1 with 2 GPUs:
+
+| Model                           |      | M1         | M2         | M3         | M4               | M5         | M6         | M7         | M8         | M9         | M10        | M11        |
+| ------------------------------- | ---- | ---------- | ---------- | ---------- | ---------------- | ---------- | ---------- | ---------- | ---------- | ---------- | ---------- | ---------- |
+| Total accuracy                  |      | 0.868428   | 0.879094   | 0.873371   |                  |            |            |            |            |            |            |            |
+| Columnar Transposition accuracy |      | 0.999642   | 0.999688   | 0.999183   |                  |            |            |            |            |            |            |            |
+| Hill accuracy                   |      | 0.744559   | 0.777486   | 0.760050   |                  |            |            |            |            |            |            |            |
+| Playfair accuracy               |      | 0.968207   | 0.979629   | 0.973104   |                  |            |            |            |            |            |            |            |
+| Simple Substitution accuracy    |      | 0.986788   | 0.981202   | 0.980970   |                  |            |            |            |            |            |            |            |
+| Vigenere accuracy               |      | 0.642945   | 0.657463   | 0.653549   |                  |            |            |            |            |            |            |            |
+| batch_size                      |      | 16         | 16         | 16         | 16               | 16         | 16         | 16         | 16         | 16         | 16         | 16         |
+| iterations (in Mio)             |      | 10         | 50         | 10         | 10               | 10         | 10         | 10         | 10         | 10         | 10         | 10         |
+| epochs                          |      | 1          | 1          | 3          |                  |            |            |            |            |            |            |            |
+| keep_unknown_symbols            |      | False      | False      | False      | False            | False      | False      | False      | False      | False      | False      | False      |
+| train text length               |      | 100 \| 100 | 100 \| 100 | 100 \| 100 | 100 \| 100       | 100 \| 100 | 100 \| 100 | 100 \| 100 | 100 \| 100 | 100 \| 100 | 100 \| 100 | 100 \| 100 |
+| test text length                |      | 100 \| 100 | 100 \| 100 | 100 \| 100 | 100 \| 100       | 100 \| 100 | 100 \| 100 | 100 \| 100 | 100 \| 100 | 100 \| 100 | 100 \| 100 | 100 \| 100 |
+| key lengths                     |      | 4 - 16     | 4 - 16     | 4 - 16     | 4 - 16           | 4 - 16     | 4 - 16     | 4 - 16     | 4 - 16     | 4 - 16     | 4 - 16     | 4 - 16     |
+| training time                   |      | 1h 19m 5s  | 6h 45m 49s | 2h 47m 41s |                  |            |            |            |            |            |            |            |
+| Unigrams                        |      | ✔          | ✔          | ✔          | ✔                | ✔          | ✔          | ✔          | ✔          | ✔          | ✔          | ✔          |
+| Bigrams                         |      | ✔          | ✔          | ✔          | ✔                | ✔          | ✔          | ✔          | ✔          | ✔          | ✔          | ✔          |
+| Ny-Bigrams (range intervals)    |      | **X**      | **X**      | **X**      | ✔ 2-15 (average) | ✔ 2-15     |            |            |            |            |            |            |
+| Index of Coincidence Unigrams   |      | ✔          | ✔          | ✔          | ✔                | ✔          | ✔          | ✔          | ✔          | ✔          | ✔          | ✔          |
+| Index of Coincidence Bigrams    |      | ✔          | ✔          | ✔          | ✔                | ✔          | ✔          | ✔          | ✔          | ✔          | ✔          | ✔          |
+| Has Letter J Check              |      | **X**      | **X**      | **X**      | **X**            | **X**      | ✔          |            |            |            |            |            |
+| Has Doubles Check               |      | **X**      | **X**      | **X**      | **X**            | **X**      |            | ✔          |            |            |            |            |
+| Chi Square                      |      | **X**      | **X**      | **X**      | **X**            | **X**      |            |            | ✔          |            |            |            |
+| Pattern Repititions Count       |      | **X**      | **X**      | **X**      | **X**            | **X**      |            |            |            | ✔          |            |            |
+| Shannon's Entropy               |      | **X**      | **X**      | **X**      | **X**            | **X**      |            |            |            |            | ✔          |            |
+| Autocorrelation Average         |      | **X**      | **X**      | **X**      | **X**            | **X**      |            |            |            |            |            | ✔          |
