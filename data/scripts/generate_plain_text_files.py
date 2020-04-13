@@ -3,7 +3,7 @@ import os
 import sys
 
 sys.path.append("../../../")
-from util import file_utils
+from util import fileUtils
 
 def str2bool(v):
     return v.lower() in ("yes", "true", "t", "1")
@@ -16,7 +16,7 @@ def find_textfiles(path, restructure_folder_flag, total_file_count) :
     file_counter = 0
     txt_files = []
     if restructure_folder_flag:
-        file_utils.unpack_zip_folders(path)
+        fileUtils.unpack_zip_folders(path)
     dir = os.listdir(path)
     for name in dir:
         if os.path.isdir(os.path.join(path, name)) :
@@ -25,13 +25,13 @@ def find_textfiles(path, restructure_folder_flag, total_file_count) :
         elif name.lower().endswith('.txt') and '-' not in name and 'robots.txt' not in name:
             if os.path.join(path, name) not in txt_files:
                 txt_files.append(os.path.join(path, name))
-                file_utils.remove_disclaimer_from_file(os.path.join(path, name))
+                fileUtils.remove_disclaimer_from_file(os.path.join(path, name))
                 file_counter += 1
         elif restructure_folder_flag:
             if os.path.exists(os.path.join(path, name)):
                 os.remove(os.path.join(path, name))
                 total_file_count -= 1
-        file_utils.print_progress('Collecting files: [', file_counter, total_file_count)
+        fileUtils.print_progress('Collecting files: [', file_counter, total_file_count)
     if os.path.exists(path) and len(os.listdir(path)) == 0 and restructure_folder_flag:
         os.removedirs(path)
     return txt_files
@@ -45,7 +45,7 @@ def restructure_folder(restructure_folder_flag, txt_files, path):
                 print('Path \'%s\' already exists!'%restructured_path)
             if file != restructured_path:
                 os.rename(file, restructured_path)
-            file_utils.print_progress('Restructuring files: [', txt_files.index(file), total_file_count)
+            fileUtils.print_progress('Restructuring files: [', txt_files.index(file), total_file_count)
             restructured_txt_files.append(restructured_path)
             dir = os.path.dirname(file)
             while len(os.listdir(dir)) == 0:
