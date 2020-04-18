@@ -45,8 +45,8 @@ class Hill(Cipher):
                 else:
                     i += 1
 
-        while len(plaintext) % 4 != 0:
-            plaintext += b'x'
+        #while len(plaintext) % 4 != 0:
+        #    plaintext += b'x'
         return plaintext
 
     def determinant(self, matrix):

@@ -109,10 +109,10 @@ class Playfair(Cipher):
 
     def filter(self, plaintext, keep_unknown_symbols=False):
         plaintext = plaintext.lower().replace(b'j', b'i')
-        plaintext = plaintext.replace(b'x', b'y')
+        #plaintext = plaintext.replace(b'x', b'y')
         plaintext = super().filter(bytes(plaintext), keep_unknown_symbols)
-        if len(plaintext) % 2 != 0:
-            plaintext = bytes(plaintext) + bytes(b'x')
+        #if len(plaintext) % 2 != 0:
+        #    plaintext = bytes(plaintext) + bytes(b'x')
         output = bytearray()
         for position in range(1, len(plaintext), 2):
             p0, p1 = plaintext[position-1], plaintext[position]

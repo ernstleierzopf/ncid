@@ -159,20 +159,25 @@ def calculate_statistics(datum):
     bigram_ioc = calculate_index_of_coincidence_bigrams(numbers)
     # autocorrelation = calculate_autocorrelation_average(numbers)
     frequencies = calculate_frequencies(numbers, 2, recursive=True)
+    # has_j = has_letter_j(numbers)
+    # has_double = has_doubles(numbers)
+    # chi_square = calculate_chi_square(frequencies[0:26])
+    # pattern_repetitions_count = pattern_repetitions(numbers)
+    # entropy = calculate_entropy(numbers)
+
     # ny_gram_frequencies = []
     # for i in range(2, 16):
     #     ny_gram_frequencies += calculate_ny_gram_frequencies(numbers, 2, interval=i, recursive=False)
 
     # average ny_gram_frequencies
-    ny_gram_frequencies = [0]*676
-    for i in range(2, 16):
-        freq = calculate_ny_gram_frequencies(numbers, 2, interval=i, recursive=False)
-        for j in range(0, 676):
-            ny_gram_frequencies[j] += freq[j]
-    for i in range(0, 676):
-       ny_gram_frequencies[i] = ny_gram_frequencies[i] / 14
-    return [unigram_ioc] + [bigram_ioc] + frequencies + ny_gram_frequencies
-
+    # ny_gram_frequencies = [0]*676
+    # for i in range(2, 16):
+    #     freq = calculate_ny_gram_frequencies(numbers, 2, interval=i, recursive=False)
+    #     for j in range(0, 676):
+    #         ny_gram_frequencies[j] += freq[j]
+    # for i in range(0, 676):
+    #    ny_gram_frequencies[i] = ny_gram_frequencies[i] / 14
+    return [unigram_ioc] + [bigram_ioc] + frequencies
 
 class TextLine2CipherStatisticsDataset(object):
     def __init__(self, paths, cipher_types, batch_size, min_text_len, max_text_len, keep_unknown_symbols=False, dataset_workers=None):

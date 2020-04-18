@@ -16,8 +16,8 @@ from cipherTypeDetection.textLine2CipherStatisticsDataset import TextLine2Cipher
 tf.debugging.set_log_device_placement(enabled=False)
 import math
 
-for device in tf.config.list_physical_devices('GPU'):
-    tf.config.experimental.set_memory_growth(device, True)
+#for device in tf.config.list_physical_devices('GPU'):
+#    tf.config.experimental.set_memory_growth(device, True)
 
 def str2bool(v):
     return v.lower() in ("yes", "true", "t", "1")
@@ -138,16 +138,15 @@ if __name__ == "__main__":
     print('Creating model...')
 
     # sizes for layers
-    # input_layer_size = 1 + 1 + 26 + 676
     total_frequencies_size = 0
     for i in range(1, 3):
         total_frequencies_size += math.pow(26, i)
     total_frequencies_size = int(total_frequencies_size)
 
     #total_ny_gram_frequencies_size = int(math.pow(26, 2)) * 14
-    total_ny_gram_frequencies_size = int(math.pow(26, 2))
+    # total_ny_gram_frequencies_size = int(math.pow(26, 2))
 
-    input_layer_size = 1 + 1 + total_frequencies_size + total_ny_gram_frequencies_size
+    input_layer_size = 1 + 1 + total_frequencies_size #+ total_ny_gram_frequencies_size
     output_layer_size = 5
     hidden_layer_size = 2 * (input_layer_size / 3) + output_layer_size
 
