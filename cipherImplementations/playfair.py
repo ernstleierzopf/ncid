@@ -114,18 +114,13 @@ class Playfair(Cipher):
         #if len(plaintext) % 2 != 0:
         #    plaintext = bytes(plaintext) + bytes(b'x')
         output = bytearray()
-        for position in range(1, len(plaintext), 2):
-            p0, p1 = plaintext[position-1], plaintext[position]
-            if p0 != p1:
-                if p0 not in self.alphabet:
-                    p0 = 120
-                if p1 not in self.alphabet:
-                    p1 = 120
-                output.append(p0)
-                output.append(p1)
-            else:
-                if p0 in self.alphabet:
-                    output.append(p0)
+        for position in range(1, len(plaintext)):
+            p0, p1 = plaintext[position - 1], plaintext[position]
+            output.append(p0)
+            if p0 == p1:
                 output.append(120) # 120 = 'x'
+            #Playfair doppelte Buchstaben x dazwischen
+            #Unittests anpassen
+        output.append(plaintext[len(plaintext)-1])
         plaintext = bytes(output)
         return plaintext

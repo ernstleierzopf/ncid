@@ -177,7 +177,13 @@ def calculate_statistics(datum):
     #         ny_gram_frequencies[j] += freq[j]
     # for i in range(0, 676):
     #    ny_gram_frequencies[i] = ny_gram_frequencies[i] / 14
-    return [unigram_ioc] + [bigram_ioc] + frequencies
+
+    ny_gram_frequencies = []
+    ny_gram_frequencies += calculate_ny_gram_frequencies(numbers, 2, interval=5, recursive=False)
+    ny_gram_frequencies += calculate_ny_gram_frequencies(numbers, 2, interval=10, recursive=False)
+    ny_gram_frequencies += calculate_ny_gram_frequencies(numbers, 2, interval=20, recursive=False)
+    ny_gram_frequencies += calculate_ny_gram_frequencies(numbers, 2, interval=25, recursive=False)
+    return [unigram_ioc] + [bigram_ioc] + frequencies + ny_gram_frequencies
 
 class TextLine2CipherStatisticsDataset(object):
     def __init__(self, paths, cipher_types, batch_size, min_text_len, max_text_len, keep_unknown_symbols=False, dataset_workers=None):

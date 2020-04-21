@@ -155,6 +155,7 @@ def evaluate(args, model):
 
 
 def predict_single_line(args, model):
+    cipher_id_result = ''
     ciphertexts = []
     if args.ciphertext is not None:
         ciphertexts.append(bytes(args.ciphertext, 'ascii'))
@@ -172,15 +173,25 @@ def predict_single_line(args, model):
         if args.verbose:
             for cipher in args.ciphers:
                 print("{:23s} {:f}%".format(cipher, result[0].tolist()[config.CIPHER_TYPES.index(cipher)]*100))
+            result_list = result[0].tolist()
+            max_val = max(result_list)
+            cipher = config.CIPHER_TYPES[result_list.index(max_val)]
         else:
             result_list = result[0].tolist()
             max_val = max(result_list)
             cipher = config.CIPHER_TYPES[result_list.index(max_val)]
             print("{:s} {:f}%".format(cipher, max_val * 100))
         print()
+        cipher_id_result += cipher[0].upper()
 
     if args.file is not None:
         ciphertexts.close()
+    print(cipher_id_result)
+    print('C: %d' %cipher_id_result.count('C'))
+    print('H: %d' % cipher_id_result.count('H'))
+    print('P: %d' % cipher_id_result.count('P'))
+    print('S: %d' % cipher_id_result.count('S'))
+    print('V: %d' % cipher_id_result.count('V'))
 
 
 if __name__ == "__main__":

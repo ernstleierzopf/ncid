@@ -3,3 +3,4 @@ venv/*
 *.pyc
 data/gutenberg_en/*
 *.h5
+weights.zip

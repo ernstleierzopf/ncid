@@ -145,8 +145,9 @@ if __name__ == "__main__":
 
     #total_ny_gram_frequencies_size = int(math.pow(26, 2)) * 14
     # total_ny_gram_frequencies_size = int(math.pow(26, 2))
+    total_ny_gram_frequencies_size = int(math.pow(26, 2))*4
 
-    input_layer_size = 1 + 1 + total_frequencies_size #+ total_ny_gram_frequencies_size
+    input_layer_size = 1 + 1 + total_frequencies_size + total_ny_gram_frequencies_size
     output_layer_size = 5
     hidden_layer_size = 2 * (input_layer_size / 3) + output_layer_size
 
