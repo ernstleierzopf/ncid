@@ -186,12 +186,17 @@ def predict_single_line(args, model):
 
     if args.file is not None:
         ciphertexts.close()
-    print(cipher_id_result)
-    print('C: %d' %cipher_id_result.count('C'))
-    print('H: %d' % cipher_id_result.count('H'))
-    print('P: %d' % cipher_id_result.count('P'))
-    print('S: %d' % cipher_id_result.count('S'))
-    print('V: %d' % cipher_id_result.count('V'))
+    # print(cipher_id_result)
+    # print('C: %d' %cipher_id_result.count('C'))
+    # print('H: %d' % cipher_id_result.count('H'))
+    # print('P: %d' % cipher_id_result.count('P'))
+    # print('S: %d' % cipher_id_result.count('S'))
+    # print('V: %d' % cipher_id_result.count('V'))
+    # solution = 'SCPHHCVHSSSHHVVPSSVPVCVVHPHCCVPHSPVPPPSHHCSHSVPPSSHVCVSCSCSSCVVSVHSHSSCCPVHVPHPPSPSHCVHCCSSVHHCHPSVSSVCHVCPSVPHVVPPVCHCPCSVCHVCVCPPPSCVPHPVVHCCSVHHHSPCPHCCVHHPSCSPVSCCHVCSPHHHSCCPSPPCVVVVHVCSCSVVHHHPHPCVVHPPVVCSVHCSHHVSVPVCPSHSSVHPPCCHCSSVVCPHSCCPCHCCHVHCHVVVSCSPSVPVCSCCPSSSVHCPSPHVVPCHHSPPHVCHSPPCHVCHPCCPCCPSPSSSVHVSSSSHPVCSCPPCHPSPCVCPHPSSSCSHHCSPVSVPVSSPCVHHVPPCPPPHSCHPCSHPHPPCVSCCSHCVHVHCPCHCSHPVCVVSPPPSCVHPPHHHVPSSVVCCPSPVHSCHHSPVSHHHVSCHHPSCHPVPSHCPVHVCHVVPHVVHSSHVVCPVPPSSCVPHVSPPCCSCHVCCS'
+    #
+    # for i, c in enumerate(cipher_id_result):
+    #     if c != solution[i]:
+    #         print('solution: %s, prediction: %s, position: %d' % (solution[i], c, i))
 
 
 if __name__ == "__main__":
