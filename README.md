@@ -26,7 +26,7 @@ This project contains code for the detection and classification of ciphers to cl
 - Install the recommended and tested versions by using requirements.txt:
 
   ```
-  pip3 install -r reqirements.txt
+  pip3 install -r requirements.txt
   ```
 
 ## Generate Plaintexts (Optional)
