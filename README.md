@@ -15,7 +15,7 @@ This project contains code for the detection and classification of ciphers to cl
   ```
 
 - Set up the environment with the following method:
-   - Set up a Python3.7 or higher environment (e.g., using virtenv).
+   - Set up a Python3.7 or higher environment (e.g., using virtenv (see https://gist.github.com/Geoyi/d9fab4f609e9f75941946be45000632b)).
    
    - Install all needed packages:
      
