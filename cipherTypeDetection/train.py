@@ -143,11 +143,11 @@ if __name__ == "__main__":
         total_frequencies_size += math.pow(26, i)
     total_frequencies_size = int(total_frequencies_size)
 
-    #total_ny_gram_frequencies_size = int(math.pow(26, 2)) * 14
+    # total_ny_gram_frequencies_size = int(math.pow(26, 2)) * 14
     # total_ny_gram_frequencies_size = int(math.pow(26, 2))
-    total_ny_gram_frequencies_size = int(math.pow(26, 2))*4
+    # total_ny_gram_frequencies_size = int(math.pow(26, 2))*4
 
-    input_layer_size = 1 + 1 + total_frequencies_size + total_ny_gram_frequencies_size
+    input_layer_size = 1 + 1 + total_frequencies_size  # + total_ny_gram_frequencies_size
     output_layer_size = 5
     hidden_layer_size = 2 * (input_layer_size / 3) + output_layer_size
 
@@ -202,7 +202,7 @@ if __name__ == "__main__":
                     labels = tf.convert_to_tensor(labels)
                     val_labels = tf.convert_to_tensor(val_labels)
                 train_iter -= args.train_dataset_size * 0.1
-                history = model.fit(batch, labels, batch_size=args.batch_size, validation_data=[val_data, val_labels], epochs=args.epochs)
+                history = model.fit(batch, labels, batch_size=args.batch_size, validation_data=(val_data, val_labels), epochs=args.epochs)
                 train_epoch = train_dataset.epoch
                 if train_epoch > 0:
                     train_epoch = train_iter // (train_dataset.iteration // train_dataset.epoch)
