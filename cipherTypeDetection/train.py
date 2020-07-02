@@ -3,6 +3,7 @@ from pathlib import Path
 import numpy as np
 import argparse
 import sys
+import time
 from sklearn.model_selection import train_test_split
 import os
 from datetime import datetime
@@ -18,6 +19,7 @@ import math
 
 #for device in tf.config.list_physical_devices('GPU'):
 #    tf.config.experimental.set_memory_growth(device, True)
+
 
 def str2bool(v):
     return v.lower() in ("yes", "true", "t", "1")
@@ -103,9 +105,9 @@ if __name__ == "__main__":
         tfds.download.add_checksums_dir('../data/checksums/')
         download_manager = tfds.download.download_manager.DownloadManager(download_dir='../data/', extract_dir=args.input_folder)
         download_manager.download_and_extract('https://drive.google.com/uc?id=1bF5sSVjxTxa3DB-P5wxn87nxWndRhK_V&export=download')
-        path = os.path.join(args.input_folder, 'ZIP.ucid_1bF5sSVjxTx-P5wxn87nxWn_V_export_downloadR9Cwhunev5CvJ-ic__HawxhTtGOlSdcCrro4fxfEI8A', os.path.basename(args.input_folder))
-        dir = os.listdir(path)
-        for name in dir:
+        path = os.path.join(args.input_folder, 'ZIP.ucid_1bF5sSVjxTx-P5wxn87nxWn_V_export_downloadR9Cwhunev5CvJ-ic__HawxhTtGOlSdcCrro4fxfEI8A.incomplete_25fe7c1666cb4a8fb06682d99df2c0df', os.path.basename(args.input_folder))
+        dir_name = os.listdir(path)
+        for name in dir_name:
             p = Path(os.path.join(path, name))
             parent_dir = p.parents[2]
             p.rename(parent_dir / p.name)
@@ -115,9 +117,8 @@ if __name__ == "__main__":
 
     print("Loading Datasets...")
     plaintext_files = []
-    dir = os.listdir(args.input_folder)
-    # dir = ['2.txt','3.txt','4.txt','5.txt']
-    for name in dir:
+    dir_name = os.listdir(args.input_folder)
+    for name in dir_name:
         path = os.path.join(args.input_folder, name)
         if os.path.isfile(path):
             plaintext_files.append(path)
@@ -183,36 +184,51 @@ if __name__ == "__main__":
     print('Model created.\n')
 
     print('Training model...')
-    import time
+    # tensorboard_callback = tf.keras.callbacks.TensorBoard(log_dir='./logs', update_freq='epoch')
     start_time = time.time()
     cntr = 0
     train_iter = 0
     train_epoch = 0
     val_data = None
     val_labels = None
+    run = None
+    run1 = None
+    processes = []
     while train_dataset.iteration < args.max_iter:
-        for run in train_dataset:
-            for batch, labels in run:
-                cntr += 1
-                train_iter = args.train_dataset_size * cntr
-                if cntr == 1:
-                    batch, val_data, labels, val_labels = train_test_split(batch.numpy(), labels.numpy(), test_size=0.1)
-                    batch = tf.convert_to_tensor(batch)
-                    val_data = tf.convert_to_tensor(val_data)
-                    labels = tf.convert_to_tensor(labels)
-                    val_labels = tf.convert_to_tensor(val_labels)
-                train_iter -= args.train_dataset_size * 0.1
-                history = model.fit(batch, labels, batch_size=args.batch_size, validation_data=(val_data, val_labels), epochs=args.epochs)
-                train_epoch = train_dataset.epoch
-                if train_epoch > 0:
-                    train_epoch = train_iter // (train_dataset.iteration // train_dataset.epoch)
-                print("Epoch: %d, Iteration: %d" % (train_epoch, train_iter))
-                if train_iter >= args.max_iter:
-                    break
-            if train_dataset.iteration >= args.max_iter:
+        if run1 is None:
+            processes, run1 = train_dataset.__next__()
+        if run is None:
+            for process in processes:
+                process.join()
+            run = run1
+            train_dataset.iteration += train_dataset.batch_size * train_dataset.dataset_workers
+            if train_dataset.iteration < args.max_iter:
+                processes, run1 = train_dataset.__next__()
+        for batch, labels in run:
+            cntr += 1
+            train_iter = args.train_dataset_size * cntr
+            if cntr == 1:
+                batch, val_data, labels, val_labels = train_test_split(batch.numpy(), labels.numpy(), test_size=0.1)
+                batch = tf.convert_to_tensor(batch)
+                val_data = tf.convert_to_tensor(val_data)
+                labels = tf.convert_to_tensor(labels)
+                val_labels = tf.convert_to_tensor(val_labels)
+            train_iter -= args.train_dataset_size * 0.1
+            history = model.fit(batch, labels, batch_size=args.batch_size, validation_data=(val_data, val_labels), epochs=args.epochs)#,
+                                #callbacks=[tensorboard_callback])
+            train_epoch = train_dataset.epoch
+            if train_epoch > 0:
+                train_epoch = train_iter // (train_dataset.iteration // train_dataset.epoch)
+            print("Epoch: %d, Iteration: %d" % (train_epoch, train_iter))
+            if train_iter >= args.max_iter:
                 break
         if train_dataset.iteration >= args.max_iter:
             break
+        run = None
+    for process in processes:
+        if process.is_alive():
+            process.kill()
+
     elapsed_training_time = datetime.fromtimestamp(time.time()) - datetime.fromtimestamp(start_time)
     print('Finished training in %d days %d hours %d minutes %d seconds with %d iterations and %d epochs.\n' %
            (elapsed_training_time.days, elapsed_training_time.seconds // 3600, (elapsed_training_time.seconds // 60) % 60,
@@ -241,30 +257,44 @@ if __name__ == "__main__":
     cntr = 0
     test_iter = 0
     test_epoch = 0
+    run = None
+    run1 = None
+    processes = []
     while test_dataset.iteration < args.max_iter:
-        for run in test_dataset:
-            for batch, labels in run:
-                prediction = model.predict(batch, batch_size=args.batch_size)
-                for i in range(0, len(prediction)):
-                    if labels[i] == np.argmax(prediction[i]):
-                        correct_all += 1
-                        correct[labels[i]] += 1
-                    else:
-                        incorrect[labels[i]][np.argmax(prediction[i])] += 1
-                    total[labels[i]] += 1
-                total_len_prediction += len(prediction)
-                cntr += 1
-                test_iter = args.train_dataset_size * cntr
-                test_epoch = test_dataset.epoch
-                if test_epoch > 0:
-                    test_epoch = test_iter // (test_dataset.iteration // test_dataset.epoch)
-                print("Prediction Epoch: %d, Iteration: %d / %d" % (test_epoch, test_iter, args.max_iter))
-                if test_iter >= args.max_iter:
-                    break
-            if test_dataset.iteration >= args.max_iter:
+        if run1 is None:
+            processes, run1 = test_dataset.__next__()
+        if run is None:
+            for process in processes:
+                process.join()
+            run = run1
+            test_dataset.iteration += test_dataset.batch_size * test_dataset.dataset_workers
+            if test_dataset.iteration < args.max_iter:
+                processes, run1 = test_dataset.__next__()
+        for batch, labels in run:
+            prediction = model.predict(batch, batch_size=args.batch_size)
+            for i in range(0, len(prediction)):
+                if labels[i] == np.argmax(prediction[i]):
+                    correct_all += 1
+                    correct[labels[i]] += 1
+                else:
+                    incorrect[labels[i]][np.argmax(prediction[i])] += 1
+                total[labels[i]] += 1
+            total_len_prediction += len(prediction)
+            cntr += 1
+            test_iter = args.train_dataset_size * cntr
+            test_epoch = test_dataset.epoch
+            if test_epoch > 0:
+                test_epoch = test_iter // (test_dataset.iteration // test_dataset.epoch)
+            print("Prediction Epoch: %d, Iteration: %d / %d" % (test_epoch, test_iter, args.max_iter))
+            if test_iter >= args.max_iter:
                 break
         if test_dataset.iteration >= args.max_iter:
             break
+        run = None
+    for process in processes:
+        if process.is_alive():
+            process.kill()
+
     elapsed_prediction_time = datetime.fromtimestamp(time.time()) - datetime.fromtimestamp(start_time)
 
     if total_len_prediction > args.train_dataset_size:

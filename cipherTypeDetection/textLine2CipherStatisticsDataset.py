@@ -178,12 +178,12 @@ def calculate_statistics(datum):
     # for i in range(0, 676):
     #    ny_gram_frequencies[i] = ny_gram_frequencies[i] / 14
 
-    ny_gram_frequencies = []
-    ny_gram_frequencies += calculate_ny_gram_frequencies(numbers, 2, interval=5, recursive=False)
-    ny_gram_frequencies += calculate_ny_gram_frequencies(numbers, 2, interval=10, recursive=False)
-    ny_gram_frequencies += calculate_ny_gram_frequencies(numbers, 2, interval=20, recursive=False)
-    ny_gram_frequencies += calculate_ny_gram_frequencies(numbers, 2, interval=25, recursive=False)
-    return [unigram_ioc] + [bigram_ioc] + frequencies + ny_gram_frequencies
+    # ny_gram_frequencies = []
+    # ny_gram_frequencies += calculate_ny_gram_frequencies(numbers, 2, interval=5, recursive=False)
+    # ny_gram_frequencies += calculate_ny_gram_frequencies(numbers, 2, interval=10, recursive=False)
+    # ny_gram_frequencies += calculate_ny_gram_frequencies(numbers, 2, interval=20, recursive=False)
+    # ny_gram_frequencies += calculate_ny_gram_frequencies(numbers, 2, interval=25, recursive=False)
+    return [unigram_ioc] + [bigram_ioc] + frequencies  # + ny_gram_frequencies
 
 class TextLine2CipherStatisticsDataset(object):
     def __init__(self, paths, cipher_types, batch_size, min_text_len, max_text_len, keep_unknown_symbols=False, dataset_workers=None):
@@ -251,10 +251,10 @@ class TextLine2CipherStatisticsDataset(object):
             process = multiprocessing.Process(target=self._worker, args=[d, result_list])
             process.start()
             processes.append(process)
-            self.iteration += self.batch_size
-        for process in processes:
-            process.join()
-        return result_list
+            #self.iteration += self.batch_size
+        #for process in processes:
+        #    process.join()
+        return processes, result_list
 
     def _worker(self, data, result):
         batch = []
