@@ -4,6 +4,7 @@ import numpy as np
 import argparse
 import sys
 import time
+import shutil
 from sklearn.model_selection import train_test_split
 import os
 from datetime import datetime
@@ -45,7 +46,7 @@ if __name__ == "__main__":
                         help='Directory for saving generated models. \n'
                              'When interrupting, the current model is \n'
                              'saved as interrupted_...')
-    parser.add_argument('--model_name', default='model.h5', type=str,
+    parser.add_argument('--model_name', default='m.h5', type=str,
                         help='Name of the output model file. The file must \nhave the .h5 extension.')
     parser.add_argument('--ciphers', default='mtc3', type=str,
                         help='A comma seperated list of the ciphers to be created.\n'
@@ -184,7 +185,7 @@ if __name__ == "__main__":
     print('Model created.\n')
 
     print('Training model...')
-    # tensorboard_callback = tf.keras.callbacks.TensorBoard(log_dir='./logs', update_freq='epoch')
+    tensorboard_callback = tf.keras.callbacks.TensorBoard(log_dir='./logs', update_freq='epoch')
     start_time = time.time()
     cntr = 0
     train_iter = 0
@@ -196,6 +197,7 @@ if __name__ == "__main__":
     processes = []
     while train_dataset.iteration < args.max_iter:
         if run1 is None:
+            train_epoch = 0
             processes, run1 = train_dataset.__next__()
         if run is None:
             for process in processes:
@@ -203,6 +205,7 @@ if __name__ == "__main__":
             run = run1
             train_dataset.iteration += train_dataset.batch_size * train_dataset.dataset_workers
             if train_dataset.iteration < args.max_iter:
+                train_epoch = train_dataset.epoch
                 processes, run1 = train_dataset.__next__()
         for batch, labels in run:
             cntr += 1
@@ -214,11 +217,10 @@ if __name__ == "__main__":
                 labels = tf.convert_to_tensor(labels)
                 val_labels = tf.convert_to_tensor(val_labels)
             train_iter -= args.train_dataset_size * 0.1
-            history = model.fit(batch, labels, batch_size=args.batch_size, validation_data=(val_data, val_labels), epochs=args.epochs)#,
-                                #callbacks=[tensorboard_callback])
-            train_epoch = train_dataset.epoch
+            history = model.fit(batch, labels, batch_size=args.batch_size, validation_data=(val_data, val_labels), epochs=args.epochs,
+                                callbacks=[tensorboard_callback])
             if train_epoch > 0:
-                train_epoch = train_iter // (train_dataset.iteration // train_dataset.epoch)
+                train_epoch = train_iter // ((train_dataset.iteration + train_dataset.batch_size * train_dataset.dataset_workers) // train_dataset.epoch)
             print("Epoch: %d, Iteration: %d" % (train_epoch, train_iter))
             if train_iter >= args.max_iter:
                 break
@@ -235,9 +237,19 @@ if __name__ == "__main__":
            (elapsed_training_time.seconds) % 60, train_iter, train_epoch))
 
     print('Saving model...')
-    date = datetime.now()
-    date = date.strftime("%Y%m%d%H%M")
-    model.save(os.path.join(args.save_folder, args.model_name.split('.')[0] + date + '.h5'))
+    if args.model_name == 'm.h5':
+        i = 1
+        while os.path.exists(os.path.join(args.save_folder, args.model_name.split('.')[0] + str(i) + '.h5')):
+            i += 1
+        model_name = args.model_name.split('.')[0] + str(i) + '.h5'
+    else:
+        model_name = args.model_name
+    model_path = os.path.join(args.save_folder, model_name)
+    model.save(model_path)
+    with open(model_path.split('.')[0] + '_parameters.txt', 'w') as f:
+        for arg in vars(args):
+            f.write("{:23s}= {:s}\n".format(arg, str(getattr(args, arg))))
+    shutil.move('./logs', model_name.split('.')[0] + '_tensorboard_logs')
     print('Model saved.\n')
 
     print('Predicting test data...\n')
@@ -284,7 +296,7 @@ if __name__ == "__main__":
             test_iter = args.train_dataset_size * cntr
             test_epoch = test_dataset.epoch
             if test_epoch > 0:
-                test_epoch = test_iter // (test_dataset.iteration // test_dataset.epoch)
+                test_epoch = test_iter // ((test_dataset.iteration + test_dataset.batch_size * test_dataset.dataset_workers) // test_dataset.epoch)
             print("Prediction Epoch: %d, Iteration: %d / %d" % (test_epoch, test_iter, args.max_iter))
             if test_iter >= args.max_iter:
                 break
