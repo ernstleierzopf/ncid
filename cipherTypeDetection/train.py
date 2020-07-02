@@ -105,9 +105,9 @@ if __name__ == "__main__":
         tfds.download.add_checksums_dir('../data/checksums/')
         download_manager = tfds.download.download_manager.DownloadManager(download_dir='../data/', extract_dir=args.input_folder)
         download_manager.download_and_extract('https://drive.google.com/uc?id=1bF5sSVjxTxa3DB-P5wxn87nxWndRhK_V&export=download')
-        path = os.path.join(args.input_folder, 'ZIP.ucid_1bF5sSVjxTx-P5wxn87nxWn_V_export_downloadR9Cwhunev5CvJ-ic__HawxhTtGOlSdcCrro4fxfEI8A.incomplete_25fe7c1666cb4a8fb06682d99df2c0df', os.path.basename(args.input_folder))
-        dir_name = os.listdir(path)
-        for name in dir_name:
+        path = os.path.join(args.input_folder, 'ZIP.ucid_1bF5sSVjxTx-P5wxn87nxWn_V_export_downloadR9Cwhunev5CvJ-ic__HawxhTtGOlSdcCrro4fxfEI8A', os.path.basename(args.input_folder))
+        dir = os.listdir(path)
+        for name in dir:
             p = Path(os.path.join(path, name))
             parent_dir = p.parents[2]
             p.rename(parent_dir / p.name)

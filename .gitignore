@@ -4,4 +4,4 @@ venv/*
 data/gutenberg_en/*
 *.h5
 weights.zip
-cipherTypeDetection/logs/**
+cipherTypeDetection/*_logs/**
