@@ -199,9 +199,9 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description='CANN Ciphertype Detection Neuronal Network Evaluation Script', formatter_class=argparse.RawTextHelpFormatter)
     sp = parser.add_subparsers()
-    bench_parser = sp.add_parser('benchmark', help='Use this argument to create ciphertexts on the fly, \nlike in '
-                                    'training mode, and evaluate them with the model. \nThis option is optimized for large '
-                                    'throughput to test the model.')
+    bench_parser = sp.add_parser('benchmark', help=
+                                 'Use this argument to create ciphertexts on the fly, \nlike in training mode, and evaluate them with the '
+                                 'model. \nThis option is optimized for large throughput to test the model.')
     eval_parser = sp.add_parser('evaluate', help='Use this argument to evaluate cipher types for single files or directories.')
     single_line_parser = sp.add_parser('single_line', help='Use this argument to predict a single line of ciphertext.')
 

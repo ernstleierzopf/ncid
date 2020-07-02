@@ -10,7 +10,7 @@ def str2bool(v):
     return v.lower() in ("yes", "true", "t", "1")
 
 
-def find_textfiles(path, restructure_folder_flag, total_fc) :
+def find_textfiles(path, restructure_folder_flag, total_fc):
     """This function searches recursively for all textfiles stored in the path and its sub-folders. It stores the found filenames
     (full paths) in cache_file and returns the list of filenames."""
     file_counter = 0
@@ -43,7 +43,7 @@ def restructure_folder(restructure_folder_flag, found_files, path):
         for file in found_files:
             restructured_path = os.path.join(path, os.path.basename(file))
             if restructured_path != file and os.path.exists(restructured_path):
-                print('Path \'%s\' already exists!'%restructured_path)
+                print('Path \'%s\' already exists!' % restructured_path)
             if file != restructured_path:
                 os.rename(file, restructured_path)
             fileUtils.print_progress('Restructuring files: [', found_files.index(file), total_file_count)
@@ -61,9 +61,9 @@ if __name__ == "__main__":
         description='CANN Plaintext Generator Script')
     parser.add_argument('--directory', default='../gutenberg_en', type=str,
                         help='Input and save folder of the plaintexts to be extracted.')
-    parser.add_argument('--restructure_directory', default=False, type=str2bool, help=
-                        'Deletes all unneeded files from the --directory recursively and moves the files into the first subdirectory.'
-                        'Be careful! This option removes files and directories. Only use it with a backup of the files!')
+    parser.add_argument('--restructure_directory', default=False, type=str2bool,
+                        help='Deletes all unneeded files from the --directory recursively and moves the files into the first subdirectory.'
+                             'Be careful! This option removes files and directories. Only use it with a backup of the files!')
     args = parser.parse_args()
     args.directory = os.path.abspath(args.directory)
 

@@ -12,7 +12,7 @@ class SimpleSubstitution(Cipher):
     def generate_random_key(self, length=None):
         alphabet2 = b'' + self.alphabet
         key = b''
-        for i in range(len(self.alphabet)):
+        for _ in range(len(self.alphabet)):
             position = int(random.randrange(0, len(alphabet2)))
             char = bytes([alphabet2[position]])
             key = key + char

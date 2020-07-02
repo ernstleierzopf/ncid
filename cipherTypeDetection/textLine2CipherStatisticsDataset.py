@@ -10,6 +10,11 @@ sys.path.append("../")
 import numpy as np
 
 
+english_frequencies = [
+    0.08167, 0.01492, 0.02782, 0.04253, 0.12702, 0.02228, 0.02015, 0.06094, 0.06966, 0.00153, 0.00772, 0.04025, 0.02406, 0.06749, 0.07507,
+    0.01929, 0.00095, 0.05987, 0.06327, 0.09056, 0.02758, 0.00978, 0.0236, 0.0015, 0.01974, 0.00074]
+
+
 def calculate_frequencies(text, size, recursive=True):
     before = []
     if recursive is True and size > 1:
@@ -82,9 +87,6 @@ def has_doubles(text):
             return 1
     return 0
 
-english_frequencies = [0.08167, 0.01492, 0.02782, 0.04253, 0.12702, 0.02228, 0.02015, 0.06094, 0.06966, 0.00153,
-        0.00772, 0.04025, 0.02406, 0.06749, 0.07507, 0.01929, 0.00095, 0.05987, 0.06327, 0.09056, 0.02758, 0.00978,
-        0.0236, 0.0015, 0.01974, 0.00074]
 
 def calculate_chi_square(frequencies):
     chi_square = 0
@@ -107,12 +109,11 @@ def pattern_repetitions(text):
                     counter += 1
     return counter
 
+
 def calculate_entropy(text):
-    '''
-    calculates shannon's entropy index.
+    """calculates shannon's entropy index.
     :param text: input numbers-ciphertext
-    :return: calculated entropy
-    '''
+    :return: calculated entropy"""
     # https://stackoverflow.com/questions/2979174/how-do-i-compute-the-approximate-entropy-of-a-bit-string
     _unique, counts = np.unique(text, return_counts=True)
     prob = []
@@ -124,11 +125,9 @@ def calculate_entropy(text):
 
 
 def calculate_autocorrelation_average(text):
-    '''
-    calculates average of the normalized autocorrelation
+    """calculates average of the normalized autocorrelation
     :param text: input numbers-ciphertext
-    :return: autocorrelation average
-    '''
+    :return: autocorrelation average"""
     # https://stackoverflow.com/questions/14297012/estimate-autocorrelation-using-python
     n = len(text)
     variance = text.var()
@@ -252,9 +251,6 @@ class TextLine2CipherStatisticsDataset:
             process = multiprocessing.Process(target=self._worker, args=(d, result_list))
             process.start()
             processes.append(process)
-            #self.iteration += self.batch_size
-        #for process in processes:
-        #    process.join()
         return processes, result_list
 
     def _worker(self, data, result):

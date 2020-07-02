@@ -39,7 +39,7 @@ def encrypt_file_with_all_cipher_types(filename, save_folder, cipher_types, appe
                                                                         config.ALPHABET, config.UNKNOWN_SYMBOL))
                 plaintext = b''
 
-                #check if decryption works
+                # check if decryption works
                 # c = cipher.encrypt(plaintext_numberspace, key)
                 # c = text_utils.map_numbers_into_textspace(cipher.decrypt(c, key), config.ALPHABET, config.UNKNOWN_SYMBOL)
                 # if plaintext != c:
@@ -67,33 +67,33 @@ if __name__ == "__main__":
                         help='Directory for saving generated ciphertexts.\n'
                              'For every cipher type a new subdirectory with\n'
                              'it\'s name is created.')
-    parser.add_argument('--ciphers', default='mtc3', type=str, help=
-                        'A comma seperated list of the ciphers to be created.\n'
-                        'Be careful to not use spaces or use \' to define the string.\n'
-                        'Possible values are:\n'
-                        '- mtc3 (contains the ciphers Monoalphabetic Substitution, Vigenere,\n'
-                        '        Columnar Transposition, Plaifair and Hill)\n'
-                        '- aca (contains all currently implemented ciphers from \n'
-                        '       https://www.cryptogram.org/resource-area/cipher-types/)\n'
-                        '- simple_substitution\n'
-                        '- vigenere\n'
-                        '- columnar_transposition\n'
-                        '- playfair\n'
-                        '- hill')
+    parser.add_argument('--ciphers', default='mtc3', type=str,
+                        help='A comma seperated list of the ciphers to be created.\n'
+                             'Be careful to not use spaces or use \' to define the string.\n'
+                             'Possible values are:\n'
+                             '- mtc3 (contains the ciphers Monoalphabetic Substitution, Vigenere,\n'
+                             '        Columnar Transposition, Plaifair and Hill)\n'
+                             '- aca (contains all currently implemented ciphers from \n'
+                             '       https://www.cryptogram.org/resource-area/cipher-types/)\n'
+                             '- simple_substitution\n'
+                             '- vigenere\n'
+                             '- columnar_transposition\n'
+                             '- playfair\n'
+                             '- hill')
     parser.add_argument('--append_key', default=False, type=str2bool,
                         help='Append the encryption key at the end of every line.')
     parser.add_argument('--keep_unknown_symbols', default=False, type=str2bool,
                         help='Keep unknown symbols in the plaintexts. Known symbols are defined\n'
                              'in the alphabet of the cipher.')
-    parser.add_argument('--min_text_len', default=50, type=int, help=
-                        'The minimum length of a plaintext to be encrypted in the evaluation process.\n'
-                        'If this argument is set to -1 no lower limit is used.')
-    parser.add_argument('--max_text_len', default=-1, type=int, help=
-                        'The maximum length of a plaintext to be encrypted in the evaluation process.\n'
-                        'If this argument is set to -1 no upper limit is used.')
-    parser.add_argument('--max_files_count', default=-1, type=int, help=
-                        'Define the amount of files to be encrypted by every cipher.\n'
-                        'If set to -1 all files are encrypted by every cipher')
+    parser.add_argument('--min_text_len', default=50, type=int,
+                        help='The minimum length of a plaintext to be encrypted in the evaluation process.\n'
+                             'If this argument is set to -1 no lower limit is used.')
+    parser.add_argument('--max_text_len', default=-1, type=int,
+                        help='The maximum length of a plaintext to be encrypted in the evaluation process.\n'
+                             'If this argument is set to -1 no upper limit is used.')
+    parser.add_argument('--max_files_count', default=-1, type=int,
+                        help='Define the amount of files to be encrypted by every cipher.\n'
+                             'If set to -1 all files are encrypted by every cipher')
     args = parser.parse_args()
     args.input_folder = os.path.abspath(args.input_folder)
     args.save_folder = os.path.abspath(args.save_folder)

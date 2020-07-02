@@ -13,7 +13,7 @@ class Cipher:
         if not isinstance(length, int):
             raise ValueError('Length must be of type integer.')
         key = b''
-        for i in range(length):
+        for _ in range(length):
             char = bytes([self.alphabet[int(random.randrange(0, len(self.alphabet) - 1))]])
             key = key + char
         return key

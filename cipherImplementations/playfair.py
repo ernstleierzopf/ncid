@@ -10,10 +10,9 @@ from util import textUtils
 def get_right_neighbor(index):
     if index % 5 < 4:
         return index + 1
-    elif index % 5 == 4:
+    if index % 5 == 4:
         return index - 4
-    else:
-        return -1
+    return -1
 
 
 def get_lower_neighbour(index):
@@ -27,10 +26,9 @@ def get_substitute(row, col):
 def get_left_neighbor(index):
     if index % 5 > 0:
         return index - 1
-    elif index % 5 == 0:
+    if index % 5 == 0:
         return index + 4
-    else:
-        return -1
+    return -1
 
 
 def get_upper_neighbour(index):
@@ -50,12 +48,12 @@ class Playfair(Cipher):
             raise ValueError('Length must be of type integer.')
         original = bytearray(self.alphabet)
         key = b''
-        for i in range(0, length):
+        for _ in range(0, length):
             char = original[random.randrange(0, len(original))]
             original = original.replace(bytes([char]), b'')
             key = key + bytes([char])
 
-        for i in range(0, len(original)):
+        for _ in range(0, len(original)):
             char = original[0]
             original = original.replace(bytes([char]), b'')
             key = key + bytes([char])
@@ -67,10 +65,10 @@ class Playfair(Cipher):
             p0, p1 = plaintext[position-1], plaintext[position]
             index0 = int(textUtils.num_index_of(key, p0))
             index1 = int(textUtils.num_index_of(key, p1))
-            row_p0 = int(index0 / 5);
-            row_p1 = int(index1 / 5);
-            col_p0 = index0 % 5;
-            col_p1 = index1 % 5;
+            row_p0 = int(index0 / 5)
+            row_p1 = int(index1 / 5)
+            col_p0 = index0 % 5
+            col_p1 = index1 % 5
             if row_p0 == row_p1:
                 index0 = get_right_neighbor(index0)
                 index1 = get_right_neighbor(index1)
@@ -90,10 +88,10 @@ class Playfair(Cipher):
             c0, c1 = ciphertext[position - 1], ciphertext[position]
             index0 = int(textUtils.num_index_of(key, c0))
             index1 = int(textUtils.num_index_of(key, c1))
-            row_p0 = int(index0 / 5);
-            row_p1 = int(index1 / 5);
-            col_p0 = index0 % 5;
-            col_p1 = index1 % 5;
+            row_p0 = int(index0 / 5)
+            row_p1 = int(index1 / 5)
+            col_p0 = index0 % 5
+            col_p1 = index1 % 5
             if row_p0 == row_p1:
                 index0 = get_left_neighbor(index0)
                 index1 = get_left_neighbor(index1)
@@ -111,6 +109,8 @@ class Playfair(Cipher):
         plaintext = plaintext.lower().replace(b'j', b'i')
         #plaintext = plaintext.replace(b'x', b'y')
         plaintext = super().filter(bytes(plaintext), keep_unknown_symbols)
+        if len(plaintext) == 0:
+            return b''
         #if len(plaintext) % 2 != 0:
         #    plaintext = bytes(plaintext) + bytes(b'x')
         output = bytearray()

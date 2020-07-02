@@ -18,7 +18,7 @@ from cipherTypeDetection.textLine2CipherStatisticsDataset import TextLine2Cipher
 tf.debugging.set_log_device_placement(enabled=False)
 import math
 
-#for device in tf.config.list_physical_devices('GPU'):
+# for device in tf.config.list_physical_devices('GPU'):
 #    tf.config.experimental.set_memory_growth(device, True)
 
 
@@ -106,9 +106,10 @@ if __name__ == "__main__":
         tfds.download.add_checksums_dir('../data/checksums/')
         download_manager = tfds.download.download_manager.DownloadManager(download_dir='../data/', extract_dir=args.input_folder)
         download_manager.download_and_extract('https://drive.google.com/uc?id=1bF5sSVjxTxa3DB-P5wxn87nxWndRhK_V&export=download')
-        path = os.path.join(args.input_folder, 'ZIP.ucid_1bF5sSVjxTx-P5wxn87nxWn_V_export_downloadR9Cwhunev5CvJ-ic__HawxhTtGOlSdcCrro4fxfEI8A', os.path.basename(args.input_folder))
-        dir = os.listdir(path)
-        for name in dir:
+        path = os.path.join(args.input_folder, 'ZIP.ucid_1bF5sSVjxTx-P5wxn87nxWn_V_export_downloadR9Cwhunev5CvJ-ic__'
+                                               'HawxhTtGOlSdcCrro4fxfEI8A', os.path.basename(args.input_folder))
+        dir_name = os.listdir(path)
+        for name in dir_name:
             p = Path(os.path.join(path, name))
             parent_dir = p.parents[2]
             p.rename(parent_dir / p.name)
@@ -125,16 +126,18 @@ if __name__ == "__main__":
             plaintext_files.append(path)
     train, test = train_test_split(plaintext_files, test_size=0.1, random_state=42, shuffle=True)
 
-    train_dataset = TextLine2CipherStatisticsDataset(train, cipher_types, args.train_dataset_size, args.min_train_len, args.max_train_len, args.keep_unknown_symbols, args.dataset_workers)
-    test_dataset = TextLine2CipherStatisticsDataset(test, cipher_types, args.train_dataset_size, args.min_test_len, args.max_test_len, args.keep_unknown_symbols, args.dataset_workers)
-    if args.train_dataset_size % train_dataset.key_lengths_count != 0:
-        print("WARNING: the --train_dataset_size parameter must be dividable by the amount of --ciphers "
-              " and the length configured KEY_LENGTHS in config.py. The current key_lengths_count is %d" % train_dataset.key_lengths_count, file=sys.stderr)
+    train_ds = TextLine2CipherStatisticsDataset(train, cipher_types, args.train_dataset_size, args.min_train_len, args.max_train_len,
+                                                args.keep_unknown_symbols, args.dataset_workers)
+    test_ds = TextLine2CipherStatisticsDataset(test, cipher_types, args.train_dataset_size, args.min_test_len, args.max_test_len,
+                                               args.keep_unknown_symbols, args.dataset_workers)
+    if args.train_dataset_size % train_ds.key_lengths_count != 0:
+        print("WARNING: the --train_dataset_size parameter must be dividable by the amount of --ciphers  and the length configured "
+              "KEY_LENGTHS in config.py. The current key_lengths_count is %d" % train_ds.key_lengths_count, file=sys.stderr)
     print("Datasets loaded.\n")
 
     print("Shuffling data...")
-    train_dataset = train_dataset.shuffle(50000, seed=42, reshuffle_each_iteration=False)
-    test_dataset = test_dataset.shuffle(50000, seed=42, reshuffle_each_iteration=False)
+    train_ds = train_ds.shuffle(50000, seed=42, reshuffle_each_iteration=False)
+    test_ds = test_ds.shuffle(50000, seed=42, reshuffle_each_iteration=False)
     print("Data shuffled.\n")
 
     print('Creating model...')
@@ -153,7 +156,7 @@ if __name__ == "__main__":
     output_layer_size = 5
     hidden_layer_size = 2 * (input_layer_size / 3) + output_layer_size
 
-    gpu_count = len(tf.config.list_physical_devices('GPU'))
+    gpu_count = len(tf.config.list_physical_devices('GPU')) + len(tf.config.list_physical_devices('XLA_GPU'))
     if gpu_count > 1:
         strategy = tf.distribute.MirroredStrategy()
         with strategy.scope():
@@ -195,18 +198,18 @@ if __name__ == "__main__":
     run = None
     run1 = None
     processes = []
-    while train_dataset.iteration < args.max_iter:
+    while train_ds.iteration < args.max_iter:
         if run1 is None:
             train_epoch = 0
-            processes, run1 = train_dataset.__next__()
+            processes, run1 = train_ds.__next__()
         if run is None:
             for process in processes:
                 process.join()
             run = run1
-            train_dataset.iteration += train_dataset.batch_size * train_dataset.dataset_workers
-            if train_dataset.iteration < args.max_iter:
-                train_epoch = train_dataset.epoch
-                processes, run1 = train_dataset.__next__()
+            train_ds.iteration += train_ds.batch_size * train_ds.dataset_workers
+            if train_ds.iteration < args.max_iter:
+                train_epoch = train_ds.epoch
+                processes, run1 = train_ds.__next__()
         for batch, labels in run:
             cntr += 1
             train_iter = args.train_dataset_size * cntr
@@ -220,11 +223,11 @@ if __name__ == "__main__":
             history = model.fit(batch, labels, batch_size=args.batch_size, validation_data=(val_data, val_labels), epochs=args.epochs,
                                 callbacks=[tensorboard_callback])
             if train_epoch > 0:
-                train_epoch = train_iter // ((train_dataset.iteration + train_dataset.batch_size * train_dataset.dataset_workers) // train_dataset.epoch)
+                train_epoch = train_iter // ((train_ds.iteration + train_ds.batch_size * train_ds.dataset_workers) // train_ds.epoch)
             print("Epoch: %d, Iteration: %d" % (train_epoch, train_iter))
             if train_iter >= args.max_iter:
                 break
-        if train_dataset.iteration >= args.max_iter:
+        if train_ds.iteration >= args.max_iter:
             break
         run = None
     for process in processes:
@@ -232,9 +235,9 @@ if __name__ == "__main__":
             process.kill()
 
     elapsed_training_time = datetime.fromtimestamp(time.time()) - datetime.fromtimestamp(start_time)
-    print('Finished training in %d days %d hours %d minutes %d seconds with %d iterations and %d epochs.\n' %
-           (elapsed_training_time.days, elapsed_training_time.seconds // 3600, (elapsed_training_time.seconds // 60) % 60,
-           (elapsed_training_time.seconds) % 60, train_iter, train_epoch))
+    print('Finished training in %d days %d hours %d minutes %d seconds with %d iterations and %d epochs.\n' % (
+        elapsed_training_time.days, elapsed_training_time.seconds // 3600, (elapsed_training_time.seconds // 60) % 60,
+        elapsed_training_time.seconds % 60, train_iter, train_epoch))
 
     print('Saving model...')
     if args.model_name == 'm.h5':
@@ -263,7 +266,7 @@ if __name__ == "__main__":
         incorrect += [[0]*len(config.CIPHER_TYPES)]
 
     prediction_dataset_factor = 10
-    while test_dataset.dataset_workers * test_dataset.batch_size > args.max_iter / prediction_dataset_factor:
+    while test_ds.dataset_workers * test_ds.batch_size > args.max_iter / prediction_dataset_factor:
         prediction_dataset_factor -= 1
     args.max_iter /= prediction_dataset_factor
     cntr = 0
@@ -272,16 +275,16 @@ if __name__ == "__main__":
     run = None
     run1 = None
     processes = []
-    while test_dataset.iteration < args.max_iter:
+    while test_ds.iteration < args.max_iter:
         if run1 is None:
-            processes, run1 = test_dataset.__next__()
+            processes, run1 = test_ds.__next__()
         if run is None:
             for process in processes:
                 process.join()
             run = run1
-            test_dataset.iteration += test_dataset.batch_size * test_dataset.dataset_workers
-            if test_dataset.iteration < args.max_iter:
-                processes, run1 = test_dataset.__next__()
+            test_ds.iteration += test_ds.batch_size * test_ds.dataset_workers
+            if test_ds.iteration < args.max_iter:
+                processes, run1 = test_ds.__next__()
         for batch, labels in run:
             prediction = model.predict(batch, batch_size=args.batch_size)
             for i in range(0, len(prediction)):
@@ -294,13 +297,13 @@ if __name__ == "__main__":
             total_len_prediction += len(prediction)
             cntr += 1
             test_iter = args.train_dataset_size * cntr
-            test_epoch = test_dataset.epoch
+            test_epoch = test_ds.epoch
             if test_epoch > 0:
-                test_epoch = test_iter // ((test_dataset.iteration + test_dataset.batch_size * test_dataset.dataset_workers) // test_dataset.epoch)
+                test_epoch = test_iter // ((test_ds.iteration + test_ds.batch_size * test_ds.dataset_workers) // test_ds.epoch)
             print("Prediction Epoch: %d, Iteration: %d / %d" % (test_epoch, test_iter, args.max_iter))
             if test_iter >= args.max_iter:
                 break
-        if test_dataset.iteration >= args.max_iter:
+        if test_ds.iteration >= args.max_iter:
             break
         run = None
     for process in processes:
@@ -320,12 +323,12 @@ if __name__ == "__main__":
         t = 'N/A'
     else:
         t = str(correct_all / total_len_prediction)
-    print('Total: %s\n'%t)
-    print('Finished training in %d days %d hours %d minutes %d seconds with %d iterations and %d epochs.\n' %
-           (elapsed_training_time.days, elapsed_training_time.seconds // 3600, (elapsed_training_time.seconds // 60) % 60,
-           (elapsed_training_time.seconds) % 60, train_iter, train_epoch))
-    print('Prediction time: %d days %d hours %d minutes %d seconds with %d iterations and %d epochs.' %(
-          elapsed_prediction_time.days, elapsed_prediction_time.seconds // 3600, (elapsed_prediction_time.seconds // 60) % 60,
-          (elapsed_prediction_time.seconds) % 60, test_iter, test_epoch))
+    print('Total: %s\n' % t)
+    print('Finished training in %d days %d hours %d minutes %d seconds with %d iterations and %d epochs.\n' % (
+        elapsed_training_time.days, elapsed_training_time.seconds // 3600, (elapsed_training_time.seconds // 60) % 60,
+        elapsed_training_time.seconds % 60, train_iter, train_epoch))
+    print('Prediction time: %d days %d hours %d minutes %d seconds with %d iterations and %d epochs.' % (
+        elapsed_prediction_time.days, elapsed_prediction_time.seconds // 3600, (elapsed_prediction_time.seconds // 60) % 60,
+        elapsed_prediction_time.seconds % 60, test_iter, test_epoch))
 
     print("Incorrect prediction counts: %s" % incorrect)
