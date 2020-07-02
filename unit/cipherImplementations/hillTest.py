@@ -17,7 +17,7 @@ class HillTest(unittest.TestCase):
     key = [[2,15,22,3], [1,9,1,12], [16,7,13,11], [8,5,9,6]]
 
     def test1generate_random_key(self):
-        for i in range(0, 10):
+        for _ in range(0, 10):
             key = self.cipher.generate_random_key()
             self.assertEqual(4, len(key))
             for arr in key:

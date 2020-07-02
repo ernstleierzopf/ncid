@@ -16,7 +16,7 @@ class SimpleSubstitutionTest(unittest.TestCase):
 
     def test1generate_random_key(self):
         old_key = self.cipher.alphabet
-        for i in range(0, 100):
+        for _ in range(0, 100):
             key = self.cipher.generate_random_key()
             self.assertEqual(26, len(key))
             self.assertNotEqual(key, old_key)

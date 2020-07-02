@@ -30,12 +30,13 @@ def encrypt_file_with_all_cipher_types(filename, save_folder, cipher_types, appe
 
                 key = cipher.generate_random_key(key_length)
                 keys.append(key)
-                plaintext_numberspace = textUtils.map_text_into_numberspace(plaintext[:max_text_len], config.ALPHABET, config.UNKNOWN_SYMBOL_NUMBER)
+                plaintext_numberspace = textUtils.map_text_into_numberspace(plaintext[:max_text_len], config.ALPHABET,
+                                                                            config.UNKNOWN_SYMBOL_NUMBER)
                 if isinstance(key, bytes):
                     key = textUtils.map_text_into_numberspace(key, cipher.alphabet, cipher.unknown_symbol_number)
 
-                ciphertexts.append(textUtils.map_numbers_into_textspace(cipher.encrypt(plaintext_numberspace,key),
-                    config.ALPHABET, config.UNKNOWN_SYMBOL))
+                ciphertexts.append(textUtils.map_numbers_into_textspace(cipher.encrypt(plaintext_numberspace, key),
+                                                                        config.ALPHABET, config.UNKNOWN_SYMBOL))
                 plaintext = b''
 
                 #check if decryption works
@@ -46,8 +47,8 @@ def encrypt_file_with_all_cipher_types(filename, save_folder, cipher_types, appe
                 #     print()
                 #     print("ciphertext: %s"%c)
                 #     print("error %d"%index)
-            path = os.path.join(save_folder, os.path.basename(filename).split('.txt')[0] + '-' + cipher_type + '-minLen'
-                + str(min_text_len) + '-maxLen' + str(max_text_len) + '-keyLen' + str(key_length) + '.txt')
+            path = os.path.join(save_folder, os.path.basename(filename).split('.txt')[0] + '-' + cipher_type + '-minLen' +
+                                str(min_text_len) + '-maxLen' + str(max_text_len) + '-keyLen' + str(key_length) + '.txt')
             if append_key:
                 fileUtils.write_ciphertext_with_keys_to_file(path, ciphertexts, keys)
             else:
@@ -66,31 +67,33 @@ if __name__ == "__main__":
                         help='Directory for saving generated ciphertexts.\n'
                              'For every cipher type a new subdirectory with\n'
                              'it\'s name is created.')
-    parser.add_argument('--ciphers', default='mtc3', type=str,
-                             help='A comma seperated list of the ciphers to be created.\n'
-                             'Be careful to not use spaces or use \' to define the string.\n'
-                             'Possible values are:\n'
-                             '- mtc3 (contains the ciphers Monoalphabetic Substitution, Vigenere,\n'
-                             '        Columnar Transposition, Plaifair and Hill)\n'
-                             '- aca (contains all currently implemented ciphers from \n'
-                             '       https://www.cryptogram.org/resource-area/cipher-types/)\n'
-                             '- simple_substitution\n'
-                             '- vigenere\n'
-                             '- columnar_transposition\n'
-                             '- playfair\n'
-                             '- hill')
+    parser.add_argument('--ciphers', default='mtc3', type=str, help=
+                        'A comma seperated list of the ciphers to be created.\n'
+                        'Be careful to not use spaces or use \' to define the string.\n'
+                        'Possible values are:\n'
+                        '- mtc3 (contains the ciphers Monoalphabetic Substitution, Vigenere,\n'
+                        '        Columnar Transposition, Plaifair and Hill)\n'
+                        '- aca (contains all currently implemented ciphers from \n'
+                        '       https://www.cryptogram.org/resource-area/cipher-types/)\n'
+                        '- simple_substitution\n'
+                        '- vigenere\n'
+                        '- columnar_transposition\n'
+                        '- playfair\n'
+                        '- hill')
     parser.add_argument('--append_key', default=False, type=str2bool,
                         help='Append the encryption key at the end of every line.')
     parser.add_argument('--keep_unknown_symbols', default=False, type=str2bool,
                         help='Keep unknown symbols in the plaintexts. Known symbols are defined\n'
                              'in the alphabet of the cipher.')
-    parser.add_argument('--min_text_len', default=50, type=int, help='The minimum length of a plaintext to be encrypted in the evaluation process.\n'
-                             'If this argument is set to -1 no lower limit is used.')
-    parser.add_argument('--max_text_len', default=-1, type=int, help='The maximum length of a plaintext to be encrypted in the evaluation process.\n'
-                             'If this argument is set to -1 no upper limit is used.')
-    parser.add_argument('--max_files_count', default=-1, type=int,
-                        help='Define the amount of files to be encrypted by every cipher.\n'
-                             'If set to -1 all files are encrypted by every cipher')
+    parser.add_argument('--min_text_len', default=50, type=int, help=
+                        'The minimum length of a plaintext to be encrypted in the evaluation process.\n'
+                        'If this argument is set to -1 no lower limit is used.')
+    parser.add_argument('--max_text_len', default=-1, type=int, help=
+                        'The maximum length of a plaintext to be encrypted in the evaluation process.\n'
+                        'If this argument is set to -1 no upper limit is used.')
+    parser.add_argument('--max_files_count', default=-1, type=int, help=
+                        'Define the amount of files to be encrypted by every cipher.\n'
+                        'If set to -1 all files are encrypted by every cipher')
     args = parser.parse_args()
     args.input_folder = os.path.abspath(args.input_folder)
     args.save_folder = os.path.abspath(args.save_folder)
@@ -106,24 +109,24 @@ if __name__ == "__main__":
     if not os.path.exists(args.save_folder):
         Path(args.save_folder).mkdir(parents=True, exist_ok=True)
 
-    #print all arguments for debugging..
+    # print all arguments for debugging..
     for arg in vars(args):
-        print("%s = %s"%(arg, vars(args)[arg]))
+        print("%s = %s" % (arg, vars(args)[arg]))
 
     total_file_count = 0
     for root, dirs, files in os.walk(args.input_folder):
         total_file_count += len(files)
 
-    if total_file_count > args.max_files_count and args.max_files_count > -1:
+    if total_file_count > args.max_files_count > -1:
         total_file_count = args.max_files_count
 
-    dir = os.listdir(args.input_folder)
+    dir_name = os.listdir(args.input_folder)
     file_counter = 0
-    for name in dir:
+    for name in dir_name:
         if os.path.isfile(os.path.join(args.input_folder, name)):
             file_counter += 1
-            encrypt_file_with_all_cipher_types(os.path.join(args.input_folder, name), args.save_folder, cipher_types,
-                args.append_key, args.keep_unknown_symbols, args.min_text_len, args.max_text_len)
+            encrypt_file_with_all_cipher_types(os.path.join(args.input_folder, name), args.save_folder, cipher_types, args.append_key,
+                                               args.keep_unknown_symbols, args.min_text_len, args.max_text_len)
             fileUtils.print_progress('Encrypting files: [', file_counter, total_file_count)
             if file_counter == total_file_count:
                 break

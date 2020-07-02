@@ -114,7 +114,7 @@ def calculate_entropy(text):
     :return: calculated entropy
     '''
     # https://stackoverflow.com/questions/2979174/how-do-i-compute-the-approximate-entropy-of-a-bit-string
-    unique, counts = np.unique(text, return_counts=True)
+    _unique, counts = np.unique(text, return_counts=True)
     prob = []
     for c in counts:
         prob.append(float(c) / len(text))
@@ -185,7 +185,8 @@ def calculate_statistics(datum):
     # ny_gram_frequencies += calculate_ny_gram_frequencies(numbers, 2, interval=25, recursive=False)
     return [unigram_ioc] + [bigram_ioc] + frequencies  # + ny_gram_frequencies
 
-class TextLine2CipherStatisticsDataset(object):
+
+class TextLine2CipherStatisticsDataset:
     def __init__(self, paths, cipher_types, batch_size, min_text_len, max_text_len, keep_unknown_symbols=False, dataset_workers=None):
         self.keep_unknown_symbols = keep_unknown_symbols
         self.dataset_workers = dataset_workers
@@ -225,9 +226,9 @@ class TextLine2CipherStatisticsDataset(object):
         c = SimpleSubstitution(config.ALPHABET, config.UNKNOWN_SYMBOL, config.UNKNOWN_SYMBOL_NUMBER)
         # debugging does not work here!
         result_list = manager.list()
-        for i in range(self.dataset_workers):
+        for _ in range(self.dataset_workers):
             d = []
-            for j in range(int(self.batch_size / self.key_lengths_count)):
+            for _ in range(int(self.batch_size / self.key_lengths_count)):
                 try:
                     # use the basic prefilter to get the most accurate text length
                     data = c.filter(self.iter.__next__().numpy(), self.keep_unknown_symbols)
@@ -248,7 +249,7 @@ class TextLine2CipherStatisticsDataset(object):
                         d.append(data[:self.max_text_len])
                     else:
                         d.append(data)
-            process = multiprocessing.Process(target=self._worker, args=[d, result_list])
+            process = multiprocessing.Process(target=self._worker, args=(d, result_list))
             process.start()
             processes.append(process)
             #self.iteration += self.batch_size

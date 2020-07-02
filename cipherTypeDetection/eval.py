@@ -1,9 +1,7 @@
 from pathlib import Path
 
-import numpy as np
 import argparse
 import sys
-from sklearn.model_selection import train_test_split
 import os
 from datetime import datetime
 # This environ variable must be set before all tensorflow imports!
@@ -17,6 +15,7 @@ import cipherTypeDetection.config as config
 from cipherTypeDetection.textLine2CipherStatisticsDataset import TextLine2CipherStatisticsDataset, calculate_statistics
 tf.debugging.set_log_device_placement(enabled=False)
 
+
 def str2bool(v):
     return v.lower() in ("yes", "true", "t", "1")
 
@@ -24,23 +23,20 @@ def str2bool(v):
 def benchmark(args, model):
     args.plaintext_folder = os.path.abspath(args.plaintext_folder)
     if args.dataset_size * args.dataset_workers > args.max_iter:
-        print("ERROR: --dataset_size * --dataset_workers must not be bigger than --max_iter. "
-              "In this case it was %d > %d" % (args.dataset_size * args.dataset_workers, args.max_iter),
-            file=sys.stderr)
+        print("ERROR: --dataset_size * --dataset_workers must not be bigger than --max_iter. In this case it was %d > %d" % (
+            args.dataset_size * args.dataset_workers, args.max_iter), file=sys.stderr)
         exit(1)
     if args.download_dataset and not os.path.exists(args.plaintext_folder) and args.plaintext_folder == os.path.abspath(
             '../data/gutenberg_en'):
         print("Downloading Datsets...")
         tfds.download.add_checksums_dir('../data/checksums/')
-        download_manager = tfds.download.download_manager.DownloadManager(download_dir='../data/',
-            extract_dir=args.plaintext_folder)
+        download_manager = tfds.download.download_manager.DownloadManager(download_dir='../data/', extract_dir=args.plaintext_folder)
         download_manager.download_and_extract(
             'https://drive.google.com/uc?id=1bF5sSVjxTxa3DB-P5wxn87nxWndRhK_V&export=download')
-        path = os.path.join(args.plaintext_folder,
-            'ZIP.ucid_1bF5sSVjxTx-P5wxn87nxWn_V_export_downloadR9Cwhunev5CvJ-ic__HawxhTtGOlSdcCrro4fxfEI8A.incomplete_25fe7c1666cb4a8fb06682d99df2c0df',
-            os.path.basename(args.plaintext_folder))
-        dir = os.listdir(path)
-        for name in dir:
+        path = os.path.join(args.plaintext_folder, 'ZIP.ucid_1bF5sSVjxTx-P5wxn87nxWn_V_export_downloadR9Cwhunev5CvJ-ic__'
+                                                   'HawxhTtGOlSdcCrro4fxfEI8A', os.path.basename(args.plaintext_folder))
+        dir_nam = os.listdir(path)
+        for name in dir_nam:
             p = Path(os.path.join(path, name))
             parent_dir = p.parents[2]
             p.rename(parent_dir / p.name)
@@ -50,17 +46,16 @@ def benchmark(args, model):
 
     print("Loading Datasets...")
     plaintext_files = []
-    dir = os.listdir(args.plaintext_folder)
-    for name in dir:
+    dir_nam = os.listdir(args.plaintext_folder)
+    for name in dir_nam:
         path = os.path.join(args.plaintext_folder, name)
         if os.path.isfile(path):
             plaintext_files.append(path)
-    dataset = TextLine2CipherStatisticsDataset(plaintext_files, cipher_types, args.dataset_size, args.min_text_len,
-        args.max_text_len, args.keep_unknown_symbols, args.dataset_workers)
+    dataset = TextLine2CipherStatisticsDataset(plaintext_files, cipher_types, args.dataset_size, args.min_text_len, args.max_text_len,
+                                               args.keep_unknown_symbols, args.dataset_workers)
     if args.dataset_size % dataset.key_lengths_count != 0:
-        print("WARNING: the --dataset_size parameter must be dividable by the amount of --ciphers "
-              " and the length configured KEY_LENGTHS in config.py. The current key_lengths_count is %d" % dataset.key_lengths_count,
-            file=sys.stderr)
+        print("WARNING: the --dataset_size parameter must be dividable by the amount of --ciphers  and the length configured KEY_LENGTHS in"
+              " config.py. The current key_lengths_count is %d" % dataset.key_lengths_count, file=sys.stderr)
     print("Datasets loaded.\n")
 
     print("Shuffling data...")
@@ -71,7 +66,7 @@ def benchmark(args, model):
     import time
     start_time = time.time()
     cntr = 0
-    iter = 0
+    iteration = 0
     epoch = 0
     results = []
     while dataset.iteration < args.max_iter:
@@ -79,12 +74,12 @@ def benchmark(args, model):
             for batch, labels in run:
                 results.append(model.evaluate(batch, labels, batch_size=args.batch_size))
                 cntr += 1
-                iter = args.dataset_size * cntr
+                iteration = args.dataset_size * cntr
                 epoch = dataset.epoch
                 if epoch > 0:
-                    epoch = iter // (dataset.iteration // dataset.epoch)
-                print("Epoch: %d, Iteration: %d" % (epoch, iter))
-                if iter >= args.max_iter:
+                    epoch = iteration // (dataset.iteration // dataset.epoch)
+                print("Epoch: %d, Iteration: %d" % (epoch, iteration))
+                if iteration >= args.max_iter:
                     break
             if dataset.iteration >= args.max_iter:
                 break
@@ -92,8 +87,8 @@ def benchmark(args, model):
             break
     elapsed_evaluation_time = datetime.fromtimestamp(time.time()) - datetime.fromtimestamp(start_time)
     print('Finished evaluation in %d days %d hours %d minutes %d seconds with %d iterations and %d epochs.\n' % (
-    elapsed_evaluation_time.days, elapsed_evaluation_time.seconds // 3600, (elapsed_evaluation_time.seconds // 60) % 60,
-    (elapsed_evaluation_time.seconds) % 60, iter, epoch))
+        elapsed_evaluation_time.days, elapsed_evaluation_time.seconds // 3600, (elapsed_evaluation_time.seconds // 60) % 60,
+        elapsed_evaluation_time.seconds % 60, iteration, epoch))
 
     avg_loss = 0
     avg_acc = 0
@@ -108,12 +103,12 @@ def benchmark(args, model):
 
 def evaluate(args, model):
     results_list = []
-    dir = os.listdir(args.ciphertext_folder)
-    dir.sort()
+    dir_name = os.listdir(args.ciphertext_folder)
+    dir_name.sort()
     cntr = 0
     iterations = 0
     basename = ''
-    for name in dir:
+    for name in dir_name:
         if iterations > args.max_iter:
             break
         path = os.path.join(args.ciphertext_folder, name)
@@ -139,10 +134,11 @@ def evaluate(args, model):
             results_list.append(result)
             cntr += 1
             if args.evaluation_mode == 'per_file':
-                print("%s (%d lines) test_loss: %f, test_accuracy: %f (progress: %d%%)" %
-                      (os.path.basename(path), len(batch),result[0], result[1], max(int(cntr / len(dir) * 100), int(iterations / args.max_iter) * 100)))
+                print("%s (%d lines) test_loss: %f, test_accuracy: %f (progress: %d%%)" % (
+                    os.path.basename(path), len(batch), result[0], result[1], max(
+                        int(cntr / len(dir_name) * 100), int(iterations / args.max_iter) * 100)))
             else:
-                fileUtils.print_progress("Evaluating files", cntr, len(dir), factor=5)
+                fileUtils.print_progress("Evaluating files", cntr, len(dir_name), factor=5)
 
     avg_test_loss = 0
     avg_test_acc = 0
@@ -254,14 +250,15 @@ if __name__ == "__main__":
     eval_parser.add_argument('--ciphertext_folder', default='../data/ciphertexts_gutenberg_en', type=str)
 
     eval_group = parser.add_argument_group('evaluate')
-    eval_group.add_argument('--evaluation_mode', help='- To create an single evaluation result over all iterated ciphertext files use the \'summarized\' option.\n'
-                                                      '  This option is to be preferred over the benchmark option, if the tests should be reproducable.\n'
-                                                      '- To create an evaluation for every file use \'per_file\' option. This mode allows the \n'
-                                                      '  calculation of the \n  - average value of the prediction \n'
-                                                      '  - lower quartile - value at the position of 25 percent of the sorted predictions\n'
-                                                      '  - median - value at the position of 50 percent of the sorted predictions\n'
-                                                      '  - upper quartile - value at the position of 75 percent of the sorted predictions\n'
-                                                      '  With these statistics an expert can classify a ciphertext document to a specific cipher.')
+    eval_group.add_argument('--evaluation_mode', help=
+                            '- To create an single evaluation result over all iterated ciphertext files use the \'summarized\' option.\n'
+                            '  This option is to be preferred over the benchmark option, if the tests should be reproducable.\n'
+                            '- To create an evaluation for every file use \'per_file\' option. This mode allows the \n'
+                            '  calculation of the \n  - average value of the prediction \n'
+                            '  - lower quartile - value at the position of 25 percent of the sorted predictions\n'
+                            '  - median - value at the position of 50 percent of the sorted predictions\n'
+                            '  - upper quartile - value at the position of 75 percent of the sorted predictions\n'
+                            '  With these statistics an expert can classify a ciphertext document to a specific cipher.')
     eval_group.add_argument('--ciphertext_folder', help='Input folder of the ciphertext files.')
 
     single_line_parser.add_argument('--verbose', default=True, type=str2bool)
