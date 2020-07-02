@@ -45,7 +45,7 @@ class Hill(Cipher):
                 else:
                     i += 1
 
-        #while len(plaintext) % 4 != 0:
+        # while len(plaintext) % 4 != 0:
         #    plaintext += b'x'
         return plaintext
 

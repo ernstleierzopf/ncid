@@ -147,7 +147,8 @@ def evaluate(args, model):
         avg_test_acc += acc
     avg_test_loss = avg_test_loss / len(results_list)
     avg_test_acc = avg_test_acc / len(results_list)
-    print("\n\nAverage evaluation results from %d iterations: avg_test_loss=%f, avg_test_acc=%f" % (iterations, avg_test_loss, avg_test_acc))
+    print("\n\nAverage evaluation results from %d iterations: avg_test_loss=%f, avg_test_acc=%f" % (
+        iterations, avg_test_loss, avg_test_acc))
 
 
 def predict_single_line(args, model):
@@ -199,9 +200,9 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description='CANN Ciphertype Detection Neuronal Network Evaluation Script', formatter_class=argparse.RawTextHelpFormatter)
     sp = parser.add_subparsers()
-    bench_parser = sp.add_parser('benchmark', help=
-                                 'Use this argument to create ciphertexts on the fly, \nlike in training mode, and evaluate them with the '
-                                 'model. \nThis option is optimized for large throughput to test the model.')
+    bench_parser = sp.add_parser('benchmark',
+                                 help='Use this argument to create ciphertexts on the fly, \nlike in training mode, and evaluate them with '
+                                      'the model. \nThis option is optimized for large throughput to test the model.')
     eval_parser = sp.add_parser('evaluate', help='Use this argument to evaluate cipher types for single files or directories.')
     single_line_parser = sp.add_parser('single_line', help='Use this argument to predict a single line of ciphertext.')
 
@@ -250,15 +251,15 @@ if __name__ == "__main__":
     eval_parser.add_argument('--ciphertext_folder', default='../data/ciphertexts_gutenberg_en', type=str)
 
     eval_group = parser.add_argument_group('evaluate')
-    eval_group.add_argument('--evaluation_mode', help=
-                            '- To create an single evaluation result over all iterated ciphertext files use the \'summarized\' option.\n'
-                            '  This option is to be preferred over the benchmark option, if the tests should be reproducable.\n'
-                            '- To create an evaluation for every file use \'per_file\' option. This mode allows the \n'
-                            '  calculation of the \n  - average value of the prediction \n'
-                            '  - lower quartile - value at the position of 25 percent of the sorted predictions\n'
-                            '  - median - value at the position of 50 percent of the sorted predictions\n'
-                            '  - upper quartile - value at the position of 75 percent of the sorted predictions\n'
-                            '  With these statistics an expert can classify a ciphertext document to a specific cipher.')
+    eval_group.add_argument('--evaluation_mode',
+                            help='- To create an single evaluation result over all iterated ciphertext files use the \'summarized\' option.\n'
+                                 '  This option is to be preferred over the benchmark option, if the tests should be reproducable.\n'
+                                 '- To create an evaluation for every file use \'per_file\' option. This mode allows the \n'
+                                 '  calculation of the \n  - average value of the prediction \n'
+                                 '  - lower quartile - value at the position of 25 percent of the sorted predictions\n'
+                                 '  - median - value at the position of 50 percent of the sorted predictions\n'
+                                 '  - upper quartile - value at the position of 75 percent of the sorted predictions\n'
+                                 '  With these statistics an expert can classify a ciphertext document to a specific cipher.')
     eval_group.add_argument('--ciphertext_folder', help='Input folder of the ciphertext files.')
 
     single_line_parser.add_argument('--verbose', default=True, type=str2bool)

@@ -8,9 +8,9 @@ class PlayfairTest(unittest.TestCase):
     CipherTest = cipherTest.CipherTest
     cipher = Playfair(CipherTest.ALPHABET.replace(b'j', b''), b'x', ord('x'))
     plaintext = b'this is a plaintext with special characters!%xzll'
-    #ciphertext_keep_unknown_symbols = b'xdnotnxyytqkdoixhuuttmxdyxukalcivydyozavgpxyyhwynvnv'
+    # ciphertext_keep_unknown_symbols = b'xdnotnxyytqkdoixhuuttmxdyxukalcivydyozavgpxyyhwynvnv'
     ciphertext_remove_unknown_symbols = b'xdnonoboickiudtutmxdoqfbodqfdyozavgpxycmvn'
-    #decrypted_plaintext_keep_unknown_symbols = b'thisxisxaxplaintextxwithxspecialxcharactersxxxzlxl'
+    # decrypted_plaintext_keep_unknown_symbols = b'thisxisxaxplaintextxwithxspecialxcharactersxxxzlxl'
     decrypted_plaintext_remove_unknown_symbols = b'thisisaplaintextwithspecialcharactersxzlxl'
     key = text_utils.map_text_into_numberspace(b'abczydefghiklmnopqrstuvwx', cipher.alphabet, cipher.unknown_symbol_number)
 
@@ -61,7 +61,8 @@ class PlayfairTest(unittest.TestCase):
     #     self.assertEqual(self.decrypted_plaintext_keep_unknown_symbols, plaintext)
 
     def test6decrypt_remove_unknown_symbols(self):
-        ciphertext_numbers = text_utils.map_text_into_numberspace(self.ciphertext_remove_unknown_symbols, self.cipher.alphabet, self.cipher.unknown_symbol_number)
+        ciphertext_numbers = text_utils.map_text_into_numberspace(self.ciphertext_remove_unknown_symbols, self.cipher.alphabet,
+                                                                  self.cipher.unknown_symbol_number)
         plaintext_numbers = self.cipher.decrypt(ciphertext_numbers, self.key)
         plaintext = text_utils.map_numbers_into_textspace(plaintext_numbers, self.cipher.alphabet, self.cipher.unknown_symbol)
         self.assertEqual(self.decrypted_plaintext_remove_unknown_symbols, plaintext)

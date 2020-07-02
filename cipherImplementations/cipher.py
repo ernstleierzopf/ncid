@@ -6,7 +6,7 @@ from util import textUtils
 
 
 class Cipher:
-    ''' This is the interface of the cipher implementations.'''
+    """This is the interface of the cipher implementations."""
     def generate_random_key(self, length):
         if length is None or length <= 0:
             raise ValueError('The length of a key must be greater than 0 and must not be None.')

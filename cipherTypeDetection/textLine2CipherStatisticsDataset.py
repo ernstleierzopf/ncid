@@ -195,6 +195,7 @@ class TextLine2CipherStatisticsDataset:
         self.max_text_len = max_text_len
         self.epoch = 0
         self.iteration = 0
+        self.iter = None
         datasets = []
         for path in paths:
             datasets.append(tf.data.TextLineDataset(path, num_parallel_reads=dataset_workers))
@@ -234,7 +235,7 @@ class TextLine2CipherStatisticsDataset:
                     while len(data) < self.min_text_len:
                         # add the new data to the existing to speed up the searching process.
                         data += c.filter(self.iter.__next__().numpy(), self.keep_unknown_symbols)
-                    if len(data) > self.max_text_len and self.max_text_len != -1:
+                    if len(data) > self.max_text_len != -1:
                         d.append(data[:self.max_text_len])
                     else:
                         d.append(data)

@@ -107,20 +107,15 @@ class Playfair(Cipher):
 
     def filter(self, plaintext, keep_unknown_symbols=False):
         plaintext = plaintext.lower().replace(b'j', b'i')
-        #plaintext = plaintext.replace(b'x', b'y')
         plaintext = super().filter(bytes(plaintext), keep_unknown_symbols)
         if len(plaintext) == 0:
             return b''
-        #if len(plaintext) % 2 != 0:
-        #    plaintext = bytes(plaintext) + bytes(b'x')
         output = bytearray()
         for position in range(1, len(plaintext)):
             p0, p1 = plaintext[position - 1], plaintext[position]
             output.append(p0)
             if p0 == p1:
                 output.append(120) # 120 = 'x'
-            #Playfair doppelte Buchstaben x dazwischen
-            #Unittests anpassen
         output.append(plaintext[len(plaintext)-1])
         plaintext = bytes(output)
         return plaintext

@@ -193,8 +193,8 @@ class TextLine2CipherStatisticsDatasetTest(unittest.TestCase):
                 if self.plaintext[i] == c:
                     n[self.cipher.alphabet.index(c)] += 1
         ic = 0
-        for i in range(0, len(n)):
-            ic += n[i] * (n[i] - 1)
+        for _, val in enumerate(n):
+            ic += val * (val - 1)
         ic = ic / len(self.plaintext)
         ic = ic / (len(self.plaintext) - 1)
         self.assertEqual(ds.calculate_index_of_coincidence(
@@ -208,8 +208,8 @@ class TextLine2CipherStatisticsDatasetTest(unittest.TestCase):
                     if self.ciphertext[k] == self.cipher.alphabet[i] and self.ciphertext[k + 1] == self.cipher.alphabet[j]:
                         n[i * 26 + j] += 1
         ic = 0
-        for i in range(0, len(n)):
-            ic += n[i] * (n[i] - 1)
+        for _, val in enumerate(n):
+            ic += val * (val - 1)
         ic = ic / len(self.ciphertext)
         ic = ic / (len(self.ciphertext) - 1)
         ic = ic / (len(self.ciphertext) - 2)
@@ -304,8 +304,8 @@ class TextLine2CipherStatisticsDatasetTest(unittest.TestCase):
         r = np.correlate(x, x, mode='full')[-n:]
         result = r / (variance * (np.arange(n, 0, -1)))
         avg = 0
-        for i in range(0, len(result)):
-            avg += result[i]
+        for _, res in enumerate(result):
+            avg += res
         avg = avg / len(result)
         self.assertEqual(ds.calculate_autocorrelation_average(self.plaintext_numberspace), avg)
 

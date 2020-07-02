@@ -32,7 +32,7 @@ def remove_unknown_symbols(text, alphabet):
 
 
 def num_index_of(array, value):
-    for position in range(0, len(array)):
-        if array[position] == value:
+    for position, val in enumerate(array):
+        if val == value:
             return position
     return -1
