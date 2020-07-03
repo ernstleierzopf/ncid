@@ -135,10 +135,10 @@ if __name__ == "__main__":
               "KEY_LENGTHS in config.py. The current key_lengths_count is %d" % train_ds.key_lengths_count, file=sys.stderr)
     print("Datasets loaded.\n")
 
-    print("Shuffling data...")
-    train_ds = train_ds.shuffle(50000, seed=42, reshuffle_each_iteration=False)
-    test_ds = test_ds.shuffle(50000, seed=42, reshuffle_each_iteration=False)
-    print("Data shuffled.\n")
+    # print("Shuffling data...")
+    # train_ds = train_ds.shuffle(50000, seed=42, reshuffle_each_iteration=False)
+    # test_ds = test_ds.shuffle(50000, seed=42, reshuffle_each_iteration=False)
+    # print("Data shuffled.\n")
 
     print('Creating model...')
 
