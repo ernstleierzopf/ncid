@@ -1,43 +1,28 @@
-import unittest
 from cipherImplementations.vigenere import Vigenere
-import unit.cipherImplementations.cipherTest as cipherTest
-import util.textUtils as text_utils
+from util.textUtils import map_text_into_numberspace, map_numbers_into_textspace
+from unit.cipherImplementations.CipherTestBase import CipherTestBase
 
-
-class VigenereTest(unittest.TestCase):
-    CipherTest = cipherTest.CipherTest
-    cipher = Vigenere(CipherTest.ALPHABET, CipherTest.UNKNOWN_SYMBOL, CipherTest.UNKNOWN_SYMBOL_NUMBER)
+class VigenereTest(CipherTestBase):
+    cipher = Vigenere(CipherTestBase.ALPHABET, CipherTestBase.UNKNOWN_SYMBOL, CipherTestBase.UNKNOWN_SYMBOL_NUMBER)
     plaintext = b'this is a plaintext with special characters!%%xy<'
-    ciphertext_keep_unknown_symbols = b'thit?kv?e?ulaiovhby?witi?usihial?djdvfctesu???ac?'
-    ciphertext_remove_unknown_symbols = b'thitkveulaiovhbywitiusihialdjdvfctesuac'
-    decrypted_plaintext_keep_unknown_symbols = b'this?is?a?plaintext?with?special?characters???xy?'
-    decrypted_plaintext_remove_unknown_symbols = b'thisisaplaintextwithspecialcharactersxy'
-    key = text_utils.map_text_into_numberspace(b'aaabcdef', CipherTest.ALPHABET, CipherTest.UNKNOWN_SYMBOL_NUMBER)
+    ciphertext = b'thitkveulaiovhbywitiusihialdjdvfctesuac'
+    decrypted_plaintext = b'thisisaplaintextwithspecialcharactersxy'
+    key = map_text_into_numberspace(b'aaabcdef', CipherTestBase.ALPHABET, CipherTestBase.UNKNOWN_SYMBOL_NUMBER)
 
-    def test1encrypt_keep_unknown_symbols(self):
-        plaintext = self.cipher.filter(self.plaintext, keep_unknown_symbols=True)
-        plaintext_numbers = text_utils.map_text_into_numberspace(plaintext, self.CipherTest.ALPHABET, self.CipherTest.UNKNOWN_SYMBOL_NUMBER)
-        ciphertext_numbers = self.cipher.encrypt(plaintext_numbers, self.key)
-        ciphertext = text_utils.map_numbers_into_textspace(ciphertext_numbers, self.CipherTest.ALPHABET, self.CipherTest.UNKNOWN_SYMBOL)
-        self.assertEqual(self.ciphertext_keep_unknown_symbols, ciphertext)
+    def test1generate_random_key_allowed_length(self):
+        self.run_test1generate_random_key_allowed_length()
 
-    def test2encrypt_remove_unknown_symbols(self):
-        plaintext = self.cipher.filter(self.plaintext, keep_unknown_symbols=False)
-        plaintext_numbers = text_utils.map_text_into_numberspace(plaintext, self.CipherTest.ALPHABET, self.CipherTest.UNKNOWN_SYMBOL_NUMBER)
-        ciphertext_numbers = self.cipher.encrypt(plaintext_numbers, self.key)
-        ciphertext = text_utils.map_numbers_into_textspace(ciphertext_numbers, self.CipherTest.ALPHABET, self.CipherTest.UNKNOWN_SYMBOL)
-        self.assertEqual(self.ciphertext_remove_unknown_symbols, ciphertext)
+    def test2generate_random_key_wrong_length_parameter(self):
+        self.run_test2generate_random_key_wrong_length_parameter()
 
-    def test3decrypt_keep_unknown_symbols(self):
-        ciphertext_numbers = text_utils.map_text_into_numberspace(self.ciphertext_keep_unknown_symbols, self.CipherTest.ALPHABET,
-                                                                  self.CipherTest.UNKNOWN_SYMBOL_NUMBER)
-        plaintext_numbers = self.cipher.decrypt(ciphertext_numbers, self.key)
-        plaintext = text_utils.map_numbers_into_textspace(plaintext_numbers, self.CipherTest.ALPHABET, self.CipherTest.UNKNOWN_SYMBOL)
-        self.assertEqual(self.decrypted_plaintext_keep_unknown_symbols, plaintext)
+    def test3filter_keep_unknown_symbols(self):
+        self.run_test3filter_keep_unknown_symbols()
 
-    def test4decrypt_remove_unknown_symbols(self):
-        ciphertext_numbers = text_utils.map_text_into_numberspace(self.ciphertext_remove_unknown_symbols, self.CipherTest.ALPHABET,
-                                                                  self.CipherTest.UNKNOWN_SYMBOL_NUMBER)
-        plaintext_numbers = self.cipher.decrypt(ciphertext_numbers, self.key)
-        plaintext = text_utils.map_numbers_into_textspace(plaintext_numbers, self.CipherTest.ALPHABET, self.CipherTest.UNKNOWN_SYMBOL)
-        self.assertEqual(self.decrypted_plaintext_remove_unknown_symbols, plaintext)
+    def test4filter_delete_unknown_symbols(self):
+        self.run_test4filter_delete_unknown_symbols()
+
+    def test5encrypt_remove_unknown_symbols(self):
+        self.run_test5encrypt_remove_unknown_symbols()
+
+    def test6decrypt_keep_unknown_symbols(self):
+        self.run_test6decrypt_keep_unknown_symbols()
