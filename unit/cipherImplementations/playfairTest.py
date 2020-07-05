@@ -33,8 +33,8 @@ class PlayfairTest(CipherTestBase):
     def test4filter_delete_unknown_symbols(self):
         self.run_test4filter_delete_unknown_symbols()
 
-    def test5encrypt_remove_unknown_symbols(self):
-        self.run_test5encrypt_remove_unknown_symbols()
+    def test5encrypt(self):
+        self.run_test5encrypt()
 
-    def test6decrypt_remove_unknown_symbols(self):
-        self.run_test6decrypt_keep_unknown_symbols()
+    def test6decrypt(self):
+        self.run_test6decrypt()

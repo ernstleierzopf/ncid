@@ -67,7 +67,7 @@ if __name__ == "__main__":
                         help='Directory for saving generated ciphertexts.\n'
                              'For every cipher type a new subdirectory with\n'
                              'it\'s name is created.')
-    parser.add_argument('--ciphers', default='mtc3', type=str,
+    parser.add_argument('--ciphers', default='aca', type=str,
                         help='A comma seperated list of the ciphers to be created.\n'
                              'Be careful to not use spaces or use \' to define the string.\n'
                              'Possible values are:\n'
@@ -79,7 +79,8 @@ if __name__ == "__main__":
                              '- vigenere\n'
                              '- columnar_transposition\n'
                              '- playfair\n'
-                             '- hill')
+                             '- hill\n'
+                             '- amsco')
     parser.add_argument('--append_key', default=False, type=str2bool,
                         help='Append the encryption key at the end of every line.')
     parser.add_argument('--keep_unknown_symbols', default=False, type=str2bool,
@@ -106,6 +107,9 @@ if __name__ == "__main__":
         cipher_types.append(config.CIPHER_TYPES[2])
         cipher_types.append(config.CIPHER_TYPES[3])
         cipher_types.append(config.CIPHER_TYPES[4])
+    if config.ACA in cipher_types:
+        del cipher_types[cipher_types.index(config.ACA)]
+        cipher_types.append(config.CIPHER_TYPES[5])
     if not os.path.exists(args.save_folder):
         Path(args.save_folder).mkdir(parents=True, exist_ok=True)
 

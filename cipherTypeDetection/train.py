@@ -29,7 +29,7 @@ def str2bool(v):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description='CANN Ciphertype Detection Neuronal Network Training Script', formatter_class=argparse.RawTextHelpFormatter)
-    parser.add_argument('--batch_size', default=16, type=int,
+    parser.add_argument('--batch_size', default=128, type=int,
                         help='Batch size for training.')
     parser.add_argument('--train_dataset_size', default=16000, type=int,
                         help='Dataset size per fit. This argument should be dividable \n'
@@ -48,7 +48,7 @@ if __name__ == "__main__":
                              'saved as interrupted_...')
     parser.add_argument('--model_name', default='m.h5', type=str,
                         help='Name of the output model file. The file must \nhave the .h5 extension.')
-    parser.add_argument('--ciphers', default='mtc3', type=str,
+    parser.add_argument('--ciphers', default='aca', type=str,
                         help='A comma seperated list of the ciphers to be created.\n'
                              'Be careful to not use spaces or use \' to define the string.\n'
                              'Possible values are:\n'
@@ -60,7 +60,8 @@ if __name__ == "__main__":
                              '- vigenere\n'
                              '- columnar_transposition\n'
                              '- playfair\n'
-                             '- hill')
+                             '- hill\n'
+                             '- amsco')
     parser.add_argument('--keep_unknown_symbols', default=False, type=str2bool,
                         help='Keep unknown symbols in the plaintexts. Known \n'
                              'symbols are defined in the alphabet of the cipher.')
@@ -96,6 +97,9 @@ if __name__ == "__main__":
         cipher_types.append(config.CIPHER_TYPES[2])
         cipher_types.append(config.CIPHER_TYPES[3])
         cipher_types.append(config.CIPHER_TYPES[4])
+    if config.ACA in cipher_types:
+        del cipher_types[cipher_types.index(config.ACA)]
+        cipher_types.append(config.CIPHER_TYPES[5])
     if args.train_dataset_size * args.dataset_workers > args.max_iter:
         print("ERROR: --train_dataset_size * --dataset_workers must not be bigger than --max_iter. "
               "In this case it was %d > %d" % (args.train_dataset_size * args.dataset_workers, args.max_iter), file=sys.stderr)
