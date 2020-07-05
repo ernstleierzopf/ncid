@@ -67,7 +67,7 @@ def calculate_index_of_coincidence_bigrams(text):
     coindex = 0
     for i in range(0, 26 * 26):
         coindex = coindex + n[i] * (n[i] - 1)
-    coindex = coindex / len(text / 2)
+    coindex = coindex / len(text) / 2
     if len(text) / 2 - 1 > 0:
         coindex = coindex / (len(text) / 2 - 1)
     return coindex
