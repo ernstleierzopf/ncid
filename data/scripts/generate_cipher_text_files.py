@@ -80,7 +80,8 @@ if __name__ == "__main__":
                              '- columnar_transposition\n'
                              '- playfair\n'
                              '- hill\n'
-                             '- amsco')
+                             '- amsco\n'
+                             '- autokey')
     parser.add_argument('--append_key', default=False, type=str2bool,
                         help='Append the encryption key at the end of every line.')
     parser.add_argument('--keep_unknown_symbols', default=False, type=str2bool,
@@ -109,7 +110,8 @@ if __name__ == "__main__":
         cipher_types.append(config.CIPHER_TYPES[4])
     if config.ACA in cipher_types:
         del cipher_types[cipher_types.index(config.ACA)]
-        cipher_types.append(config.CIPHER_TYPES[5])
+        cipher_types.append(config.CIPHER_TYPES[0])
+        cipher_types.append(config.CIPHER_TYPES[1])
     if not os.path.exists(args.save_folder):
         Path(args.save_folder).mkdir(parents=True, exist_ok=True)
 

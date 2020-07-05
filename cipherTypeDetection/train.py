@@ -61,7 +61,8 @@ if __name__ == "__main__":
                              '- columnar_transposition\n'
                              '- playfair\n'
                              '- hill\n'
-                             '- amsco')
+                             '- amsco\n'
+                             '- autokey')
     parser.add_argument('--keep_unknown_symbols', default=False, type=str2bool,
                         help='Keep unknown symbols in the plaintexts. Known \n'
                              'symbols are defined in the alphabet of the cipher.')
@@ -99,7 +100,8 @@ if __name__ == "__main__":
         cipher_types.append(config.CIPHER_TYPES[4])
     if config.ACA in cipher_types:
         del cipher_types[cipher_types.index(config.ACA)]
-        cipher_types.append(config.CIPHER_TYPES[5])
+        cipher_types.append(config.CIPHER_TYPES[0])
+        cipher_types.append(config.CIPHER_TYPES[1])
     if args.train_dataset_size * args.dataset_workers > args.max_iter:
         print("ERROR: --train_dataset_size * --dataset_workers must not be bigger than --max_iter. "
               "In this case it was %d > %d" % (args.train_dataset_size * args.dataset_workers, args.max_iter), file=sys.stderr)
