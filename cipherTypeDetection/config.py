@@ -5,25 +5,27 @@ from cipherImplementations.playfair import Playfair
 from cipherImplementations.hill import Hill
 from cipherImplementations.amsco import Amsco
 from cipherImplementations.autokey import Autokey
+from cipherImplementations.baconian import Baconian
 
 ALPHABET = b'abcdefghijklmnopqrstuvwxyz'
 UNKNOWN_SYMBOL = b'?'
 UNKNOWN_SYMBOL_NUMBER = 90
 
 # CIPHER_TYPES = ['columnar_transposition', 'hill', 'playfair', 'simple_substitution', 'vigenere']
-CIPHER_TYPES = ['amsco', 'autokey']
+CIPHER_TYPES = ['amsco', 'autokey', 'baconian']
 # CIPHER_IMPLEMENTATIONS = [ColumnarTransposition(ALPHABET, UNKNOWN_SYMBOL, UNKNOWN_SYMBOL_NUMBER),
 #                           Hill(ALPHABET, b'x', ord('x')),
 #                           Playfair(ALPHABET.replace(b'j', b''), b'x', ord('x')),
 #                           SimpleSubstitution(ALPHABET, UNKNOWN_SYMBOL, UNKNOWN_SYMBOL_NUMBER),
 #                           Vigenere(ALPHABET, UNKNOWN_SYMBOL, UNKNOWN_SYMBOL_NUMBER)]
 CIPHER_IMPLEMENTATIONS = [Amsco(ALPHABET, UNKNOWN_SYMBOL, UNKNOWN_SYMBOL_NUMBER),
-                          Autokey(ALPHABET, UNKNOWN_SYMBOL, UNKNOWN_SYMBOL_NUMBER)]
+                          Autokey(ALPHABET, UNKNOWN_SYMBOL, UNKNOWN_SYMBOL_NUMBER),
+                          Baconian(ALPHABET, UNKNOWN_SYMBOL, UNKNOWN_SYMBOL_NUMBER)]
 
 # KEY_LENGTHS = [13, None, 13, None, 13]
 # KEY_LENGTHS = [list(range(4, 17)), [None]*13, list(range(4, 17)), [None]*13, list(range(4, 17))]
 # KEY_LENGTHS = [[5,10,20,25], [None]*4, [6,7,8,9], [None]*4, [5,10,20,25]]
 # KEY_LENGTHS = [[None]*4, [5,10,20,25]]
-KEY_LENGTHS = [[5,6,7,8], [5,6,7,8]]
+KEY_LENGTHS = [[5,6,7,8], [5,6,7,8], [None]*4]
 MTC3 = 'mtc3'
 ACA = 'aca'

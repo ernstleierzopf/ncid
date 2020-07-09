@@ -1,6 +1,5 @@
 from cipherImplementations.autokey import Autokey
 from unit.cipherImplementations.CipherTestBase import CipherTestBase
-import random
 from util.textUtils import map_text_into_numberspace
 
 

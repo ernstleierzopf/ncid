@@ -1,5 +1,4 @@
 from cipherImplementations.cipher import Cipher
-import random
 
 
 class Autokey(Cipher):
