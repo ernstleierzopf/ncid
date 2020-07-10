@@ -44,7 +44,7 @@ class PolybiusSquare:
         return row, column
 
     def get_char(self, row, column):
-        return self.__alphabet[row * self.__side + column]#[0]
+        return self.__alphabet[row * self.__side + column]
 
     def get_columns(self):
         return self.__side

@@ -20,7 +20,7 @@ class BaconianTest(CipherTestBase):
         plaintext = self.cipher.filter(self.plaintext, keep_unknown_symbols=False)
         plaintext_numbers = map_text_into_numberspace(plaintext, self.cipher.alphabet, self.UNKNOWN_SYMBOL_NUMBER)
         ciphertext_numbers = self.cipher.encrypt(plaintext_numbers, self.key)
-        self.assertEqual(len(plaintext_numbers) - len(plaintext_numbers) % 2, len(ciphertext_numbers))
+        self.assertEqual(len(plaintext_numbers) * 5, len(ciphertext_numbers))
 
     def test6decrypt(self):
         self.run_test6decrypt()
