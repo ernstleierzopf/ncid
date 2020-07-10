@@ -9,12 +9,12 @@ class Autokey(Cipher):
         self.unknown_symbol_number = unknown_symbol_number
 
     def encrypt(self, plaintext, key):
-        return self.cipher_message(plaintext, key, 'encrypt')
+        return self.__enc_dec(plaintext, key, 'encrypt')
 
     def decrypt(self, ciphertext, key):
-        return self.cipher_message(ciphertext, key, 'decrypt')
+        return self.__enc_dec(ciphertext, key, 'decrypt')
 
-    def cipher_message(self, message, key, mode):
+    def __enc_dec(self, message, key, mode):
         cipher = []
         k_index = 0
         key = list(key)
