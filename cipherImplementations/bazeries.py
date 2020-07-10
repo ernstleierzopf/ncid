@@ -1,7 +1,6 @@
 from cipherImplementations.cipher import Cipher
 from cipherImplementations.polybius_square import PolybiusSquare
 import random
-from util.textUtils import map_text_into_numberspace
 
 
 ones = ["", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "eleven", "twelve", "thirteen",
@@ -59,17 +58,17 @@ class Bazeries(Cipher):
         return number, num2word(number)
 
     def encrypt(self, plaintext, key):
-        return self.__encDec(self.alphabet, plaintext, key, True)
+        return self.__enc_dec(self.alphabet, plaintext, key, True)
 
     def decrypt(self, ciphertext, key):
-        return self.__encDec(self.alphabet, ciphertext, key, False)
+        return self.__enc_dec(self.alphabet, ciphertext, key, False)
 
     def filter(self, plaintext, keep_unknown_symbols=False):
         plaintext = plaintext.lower().replace(b'j', b'i')
         plaintext = super().filter(bytes(plaintext), keep_unknown_symbols)
         return plaintext
 
-    def __encDec(self, alphabet, text, key, isEncrypt=True):
+    def __enc_dec(self, alphabet, text, key, is_encrypt=True):
         square1 = PolybiusSquare(alphabet)
 
         # key is a number, make it a string
@@ -98,7 +97,7 @@ class Bazeries(Cipher):
 
         # now we have reversed text and we encrypt
         ret = []
-        if isEncrypt:
+        if is_encrypt:
             for char in revtext:
                 coords = square1.get_coordinates(char)
                 ret.append(square2.get_char(coords[1], coords[0]))

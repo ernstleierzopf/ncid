@@ -5,7 +5,7 @@ import random
 
 class BazeriesTest(CipherTestBase):
     cipher = Bazeries(CipherTestBase.ALPHABET.replace(b'j', b''), CipherTestBase.UNKNOWN_SYMBOL, CipherTestBase.UNKNOWN_SYMBOL_NUMBER)
-    plaintext = b'simplesubstitutionplustransposition'
+    plaintext = b'simple substitution plus transposition'
     ciphertext = b'acyyuxymrqkxkckgcrqiyitnkyxkcygqgci'
     decrypted_plaintext = b'simplesubstitutionplustransposition'
     key = (3752, b'threethousandsevenhundredfiftytwo')
@@ -14,7 +14,6 @@ class BazeriesTest(CipherTestBase):
         for _ in range(0, 100):
             key = self.cipher.generate_random_key()
             self.assertTrue(0 <= key[0] <= 1000000)
-            print(key)
 
     def test3filter_keep_unknown_symbols(self):
         self.run_test3filter_keep_unknown_symbols()
