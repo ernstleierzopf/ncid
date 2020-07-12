@@ -87,7 +87,7 @@ class CheckerboardTest(CipherTestBase):
                 if ct[i] == c:
                     found = True
                     break
-            self.assertTrue(found, 'i: %d, c: %s' % (i, bytes(c)))
+            self.assertTrue(found, 'ciphertext: %s, i: %d, c: %s' % (bytes(ciphertext), i, bytes([c])))
 
     def test6decrypt(self):
         ciphertext_numbers = map_text_into_numberspace(self.ciphertext[0], self.cipher.alphabet, self.UNKNOWN_SYMBOL_NUMBER)

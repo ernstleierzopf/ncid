@@ -149,6 +149,8 @@ def encrypt(plaintext, label, key_length, keep_unknown_symbols):
     elif isinstance(key, list) and (len(key) == 2 or len(key) == 3) and isinstance(key[0], bytes) and isinstance(key[1], bytes):
         key[0] = map_text_into_numberspace(key[0], cipher.alphabet, cipher.unknown_symbol_number)
         key[1] = map_text_into_numberspace(key[1], cipher.alphabet, cipher.unknown_symbol_number)
+    elif isinstance(key, list) and len(key) == 2 and isinstance(key[0], bytes) and isinstance(key[1], int):
+        key[0] = map_text_into_numberspace(key[0], cipher.alphabet, cipher.unknown_symbol_number)
     ciphertext = cipher.encrypt(plaintext_numberspace, key)
     return ciphertext
 
