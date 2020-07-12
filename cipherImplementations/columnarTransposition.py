@@ -1,9 +1,7 @@
 import numpy as np
 from cipherImplementations.cipher import Cipher
-import sys
-
-sys.path.append("../../../")
-from util import textUtils
+from util.textUtils import num_index_of
+import random
 
 
 def indices(word):
@@ -18,11 +16,23 @@ class ColumnarTransposition(Cipher):
         self.unknown_symbol = unknown_symbol
         self.unknown_symbol_number = unknown_symbol_number
 
+    def generate_random_key(self, length):
+        if length is None or length <= 0:
+            raise ValueError('The length of a key must be greater than 0 and must not be None.')
+        if not isinstance(length, int):
+            raise ValueError('Length must be of type integer.')
+        key = list(range(length))
+        random.shuffle(key)
+        return key
+
     def encrypt(self, plaintext, key):
         key = indices(key)
         ciphertext = []
+        plaintext = list(plaintext)
+        while len(plaintext) % len(key) != 0:
+            plaintext.append(self.alphabet.index(b'x'))
         for start in range(0, len(key)):
-            position = textUtils.num_index_of(key, start)
+            position = num_index_of(key, start)
             while position < len(plaintext):
                 p = plaintext[position]
                 if p > len(self.alphabet):
@@ -38,7 +48,7 @@ class ColumnarTransposition(Cipher):
         plaintext = [b'']*len(ciphertext)
         i = 0
         for start in range(0, len(key)):
-            position = textUtils.num_index_of(key, start)
+            position = num_index_of(key, start)
             while position < len(plaintext):
                 c = ciphertext[i]
                 i += 1

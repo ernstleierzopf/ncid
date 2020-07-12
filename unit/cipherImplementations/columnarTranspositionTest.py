@@ -5,13 +5,38 @@ from util.textUtils import map_text_into_numberspace
 
 class ColumnarTranspositionTest(CipherTestBase):
     cipher = ColumnarTransposition(CipherTestBase.ALPHABET, CipherTestBase.UNKNOWN_SYMBOL, CipherTestBase.UNKNOWN_SYMBOL_NUMBER)
-    plaintext = b'this is a plaintext with special characters!%%xy<'
-    ciphertext = b'tlwichaiatiitlesnhcritshssepaxaxeryptca'
-    decrypted_plaintext = b'thisisaplaintextwithspecialcharactersxy'
-    key = map_text_into_numberspace(b'aaabcdef', CipherTestBase.ALPHABET, CipherTestBase.UNKNOWN_SYMBOL_NUMBER)
+    plaintext = b'filled block'
+    key = [3, 1, 2]
+    ciphertext = b'ielkldoxflbc'
+    decrypted_plaintext = b'filledblockx'
 
     def test1generate_random_key_allowed_length(self):
-        self.run_test1generate_random_key_allowed_length()
+        length = 5
+        key = self.cipher.generate_random_key(length)
+        self.assertEqual(len(key), length)
+        alph = list(range(length))
+        for c in key:
+            self.assertTrue(c in alph)
+            alph.remove(c)
+        self.assertEqual(alph, [])
+
+        length = 19
+        key = self.cipher.generate_random_key(length)
+        self.assertEqual(len(key), length)
+        alph = list(range(length))
+        for c in key:
+            self.assertTrue(c in alph)
+            alph.remove(c)
+        self.assertEqual(alph, [])
+
+        length = 150
+        key = self.cipher.generate_random_key(length)
+        self.assertEqual(len(key), length)
+        alph = list(range(length))
+        for c in key:
+            self.assertTrue(c in alph)
+            alph.remove(c)
+        self.assertEqual(alph, [])
 
     def test2generate_random_key_wrong_length_parameter(self):
         self.run_test2generate_random_key_wrong_length_parameter()
@@ -20,7 +45,7 @@ class ColumnarTranspositionTest(CipherTestBase):
         self.run_test3filter_keep_unknown_symbols()
 
     def test4filter_delete_unknown_symbols(self):
-        self.run_test4filter_delete_unknown_symbols()
+        self.assertEqual(self.cipher.filter(self.plaintext, keep_unknown_symbols=False), self.decrypted_plaintext.replace(b'x', b''))
 
     def test5encrypt(self):
         self.run_test5encrypt()
