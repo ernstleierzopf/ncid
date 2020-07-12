@@ -1,6 +1,5 @@
 from cipherImplementations.bifid import Bifid
 from unit.cipherImplementations.CipherTestBase import CipherTestBase
-from util.textUtils import map_text_into_numberspace
 
 
 class BifidTest(CipherTestBase):

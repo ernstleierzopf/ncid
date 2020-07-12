@@ -29,7 +29,7 @@ class Polybius(Cipher):
                     wrchar = text[i].encode('utf-8')
                     raise Exception("Can't find char '" + wrchar + "' of text in alphabet!")
                 try:
-                    column = header.index(text[i+1])
+                    column = header.index(text[i + 1])
                 except ValueError:
                     wrchar = text[i+1].encode('utf-8')
                     raise Exception("Can't find char '" + wrchar + "' of text in alphabet!")

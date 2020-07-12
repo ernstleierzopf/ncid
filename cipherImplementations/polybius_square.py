@@ -38,7 +38,6 @@ class PolybiusSquare:
         for j in range(len(self.__alphabet)):
             if self.__alphabet[j] == char:
                 break
-
         row = int(j / self.__side)
         column = j % self.__side
         return row, column

@@ -2,7 +2,7 @@ import tensorflow as tf
 import cipherTypeDetection.config as config
 from cipherImplementations.simpleSubstitution import SimpleSubstitution
 import sys
-from util import textUtils
+from util.textUtils import map_text_into_numberspace
 import copy
 import math
 import multiprocessing
@@ -143,9 +143,12 @@ def encrypt(plaintext, label, key_length, keep_unknown_symbols):
     cipher = config.CIPHER_IMPLEMENTATIONS[label]
     plaintext = cipher.filter(plaintext, keep_unknown_symbols)
     key = cipher.generate_random_key(key_length)
-    plaintext_numberspace = textUtils.map_text_into_numberspace(plaintext, cipher.alphabet, cipher.unknown_symbol_number)
+    plaintext_numberspace = map_text_into_numberspace(plaintext, cipher.alphabet, cipher.unknown_symbol_number)
     if isinstance(key, bytes):
-        key = textUtils.map_text_into_numberspace(key, cipher.alphabet, cipher.unknown_symbol_number)
+        key = map_text_into_numberspace(key, cipher.alphabet, cipher.unknown_symbol_number)
+    elif isinstance(key, list) and (len(key) == 2 or len(key) == 3) and isinstance(key[0], bytes) and isinstance(key[1], bytes):
+        key[0] = map_text_into_numberspace(key[0], cipher.alphabet, cipher.unknown_symbol_number)
+        key[1] = map_text_into_numberspace(key[1], cipher.alphabet, cipher.unknown_symbol_number)
     ciphertext = cipher.encrypt(plaintext_numberspace, key)
     return ciphertext
 
