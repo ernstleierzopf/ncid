@@ -2,6 +2,7 @@
 venv/*
 *.pyc
 data/gutenberg_en/*
+data/gutenberg_en.zip
 *.h5
 weights.zip
 cipherTypeDetection/*_logs/**
