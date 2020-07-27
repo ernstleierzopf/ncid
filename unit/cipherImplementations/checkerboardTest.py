@@ -19,15 +19,15 @@ class CheckerboardTest(CipherTestBase):
         self.assertEqual(len(columnkey), length)
         alph = copy.copy(self.ALPHABET)
         for c in rowkey:
-            self.assertTrue(c in alph)
+            self.assertIn(c, alph)
             alph = alph.replace(bytes([c]), b'')
         alph = copy.copy(self.ALPHABET)
         for c in columnkey:
-            self.assertTrue(c in alph)
+            self.assertIn(c, alph)
             alph = alph.replace(bytes([c]), b'')
         alph = copy.copy(self.cipher.alphabet)
         for c in alphabet:
-            self.assertTrue(c in alph)
+            self.assertIn(c, alph)
             alph = alph.replace(bytes([c]), b'')
         self.assertEqual(alph, b'')
 
@@ -37,15 +37,15 @@ class CheckerboardTest(CipherTestBase):
         self.assertEqual(len(columnkey), length)
         alph = copy.copy(self.ALPHABET)
         for c in rowkey:
-            self.assertTrue(c in alph)
+            self.assertIn(c, alph)
             alph = alph.replace(bytes([c]), b'')
         alph = copy.copy(self.ALPHABET)
         for c in columnkey:
-            self.assertTrue(c in alph)
+            self.assertIn(c, alph)
             alph = alph.replace(bytes([c]), b'')
         alph = copy.copy(self.cipher.alphabet)
         for c in alphabet:
-            self.assertTrue(c in alph)
+            self.assertIn(c, alph)
             alph = alph.replace(bytes([c]), b'')
         self.assertEqual(alph, b'')
 
@@ -55,15 +55,15 @@ class CheckerboardTest(CipherTestBase):
         self.assertEqual(len(columnkey), length)
         alph = copy.copy(self.ALPHABET)
         for c in rowkey:
-            self.assertTrue(c in alph)
+            self.assertIn(c, alph)
             alph = alph.replace(bytes([c]), b'')
         alph = copy.copy(self.ALPHABET)
         for c in columnkey:
-            self.assertTrue(c in alph)
+            self.assertIn(c, alph)
             alph = alph.replace(bytes([c]), b'')
         alph = copy.copy(self.cipher.alphabet)
         for c in alphabet:
-            self.assertTrue(c in alph)
+            self.assertIn(c, alph)
             alph = alph.replace(bytes([c]), b'')
         self.assertEqual(alph, b'')
 

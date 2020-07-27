@@ -16,9 +16,9 @@ class CMBifidTest(CipherTestBase):
         self.assertEqual(len(key2), len(self.cipher.alphabet))
         self.assertEqual(leng, length)
         for c in key1:
-            self.assertTrue(c in self.ALPHABET)
+            self.assertIn(c, self.cipher.alphabet)
         for c in key2:
-            self.assertTrue(c in self.ALPHABET)
+            self.assertIn(c, self.cipher.alphabet)
 
         length = 19
         leng, key1, key2 = self.cipher.generate_random_key(length)
@@ -26,9 +26,9 @@ class CMBifidTest(CipherTestBase):
         self.assertEqual(len(key2), len(self.cipher.alphabet))
         self.assertEqual(leng, length)
         for c in key1:
-            self.assertTrue(c in self.ALPHABET)
+            self.assertIn(c, self.cipher.alphabet)
         for c in key2:
-            self.assertTrue(c in self.ALPHABET)
+            self.assertIn(c, self.cipher.alphabet)
 
         length = 150
         leng, key1, key2 = self.cipher.generate_random_key(length)
@@ -36,9 +36,9 @@ class CMBifidTest(CipherTestBase):
         self.assertEqual(len(key2), len(self.cipher.alphabet))
         self.assertEqual(leng, length)
         for c in key1:
-            self.assertTrue(c in self.ALPHABET)
+            self.assertIn(c, self.cipher.alphabet)
         for c in key2:
-            self.assertTrue(c in self.ALPHABET)
+            self.assertIn(c, self.cipher.alphabet)
 
     def test2generate_random_key_wrong_length_parameter(self):
         self.run_test2generate_random_key_wrong_length_parameter()

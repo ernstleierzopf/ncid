@@ -1,6 +1,5 @@
 from cipherImplementations.bazeries import Bazeries
 from unit.cipherImplementations.CipherTestBase import CipherTestBase
-import random
 
 
 class BazeriesTest(CipherTestBase):

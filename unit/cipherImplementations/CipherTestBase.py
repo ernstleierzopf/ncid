@@ -12,19 +12,19 @@ class CipherTestBase(unittest.TestCase):
         key = self.cipher.generate_random_key(length)
         self.assertEqual(len(key), length)
         for c in key:
-            self.assertTrue(c in self.ALPHABET)
+            self.assertIn(c, self.ALPHABET)
 
         length = 19
         key = self.cipher.generate_random_key(length)
         self.assertEqual(len(key), length)
         for c in key:
-            self.assertTrue(c in self.ALPHABET)
+            self.assertIn(c, self.ALPHABET)
 
         length = 150
         key = self.cipher.generate_random_key(length)
         self.assertEqual(len(key), length)
         for c in key:
-            self.assertTrue(c in self.ALPHABET)
+            self.assertIn(c, self.ALPHABET)
 
     def run_test2generate_random_key_wrong_length_parameter(self):
         self.assertRaises(ValueError, self.cipher.generate_random_key, 0)

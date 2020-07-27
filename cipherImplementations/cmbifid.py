@@ -11,9 +11,25 @@ class CMBifid(Bifid):
         self.unknown_symbol_number = unknown_symbol_number
 
     def generate_random_key(self, length):
-        key1 = super().generate_random_key(length)
-        key2 = super().generate_random_key(length)
-        return [length, key1[1], key2[1]]
+        if length is None or length <= 0:
+            raise ValueError('The length of a key must be greater than 0.')
+        if not isinstance(length, int):
+            raise ValueError('Length must be of type integer.')
+        alphabet2 = b'' + self.alphabet
+        key1 = b''
+        for _ in range(len(self.alphabet)):
+            position = int(random.randrange(0, len(alphabet2)))
+            char = bytes([alphabet2[position]])
+            key1 = key1 + char
+            alphabet2 = alphabet2.replace(char, b'')
+        alphabet2 = b'' + self.alphabet
+        key2 = b''
+        for _ in range(len(self.alphabet)):
+            position = int(random.randrange(0, len(alphabet2)))
+            char = bytes([alphabet2[position]])
+            key2 = key2 + char
+            alphabet2 = alphabet2.replace(char, b'')
+        return length, key1, key2
 
     def encrypt(self, plaintext, key):
         pt = []

@@ -7,7 +7,7 @@ class BifidTest(CipherTestBase):
     plaintext = b'Odd periods are popular.'
     ciphertext = b'mweingimgeoyyrlveywy'
     decrypted_plaintext = b'oddperiodsarepopular'
-    key = [7, b'extraklmpohwzqdgvusifcbyn']
+    key = (7, b'extraklmpohwzqdgvusifcbyn')
 
     def test1generate_random_key_allowed_length(self):
         length = 5
@@ -15,21 +15,21 @@ class BifidTest(CipherTestBase):
         self.assertEqual(len(key), len(self.cipher.alphabet))
         self.assertEqual(leng, length)
         for c in key:
-            self.assertTrue(c in self.ALPHABET)
+            self.assertIn(c, self.cipher.alphabet)
 
         length = 19
         leng, key = self.cipher.generate_random_key(length)
         self.assertEqual(len(key), len(self.cipher.alphabet))
         self.assertEqual(leng, length)
         for c in key:
-            self.assertTrue(c in self.ALPHABET)
+            self.assertIn(c, self.cipher.alphabet)
 
         length = 150
         leng, key = self.cipher.generate_random_key(length)
         self.assertEqual(len(key), len(self.cipher.alphabet))
         self.assertEqual(leng, length)
         for c in key:
-            self.assertTrue(c in self.ALPHABET)
+            self.assertIn(c, self.cipher.alphabet)
 
     def test2generate_random_key_wrong_length_parameter(self):
         self.run_test2generate_random_key_wrong_length_parameter()

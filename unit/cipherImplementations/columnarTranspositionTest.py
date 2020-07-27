@@ -16,7 +16,7 @@ class ColumnarTranspositionTest(CipherTestBase):
         self.assertEqual(len(key), length)
         alph = list(range(length))
         for c in key:
-            self.assertTrue(c in alph)
+            self.assertIn(c, alph)
             alph.remove(c)
         self.assertEqual(alph, [])
 
@@ -25,7 +25,7 @@ class ColumnarTranspositionTest(CipherTestBase):
         self.assertEqual(len(key), length)
         alph = list(range(length))
         for c in key:
-            self.assertTrue(c in alph)
+            self.assertIn(c, alph)
             alph.remove(c)
         self.assertEqual(alph, [])
 
@@ -34,7 +34,7 @@ class ColumnarTranspositionTest(CipherTestBase):
         self.assertEqual(len(key), length)
         alph = list(range(length))
         for c in key:
-            self.assertTrue(c in alph)
+            self.assertIn(c, alph)
             alph.remove(c)
         self.assertEqual(alph, [])
 

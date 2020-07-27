@@ -151,7 +151,18 @@ def encrypt(plaintext, label, key_length, keep_unknown_symbols):
         key[1] = map_text_into_numberspace(key[1], cipher.alphabet, cipher.unknown_symbol_number)
     elif isinstance(key, list) and len(key) == 2 and isinstance(key[0], bytes) and isinstance(key[1], int):
         key[0] = map_text_into_numberspace(key[0], cipher.alphabet, cipher.unknown_symbol_number)
+    elif isinstance(key, list) and len(key) == 3 and isinstance(key[0], int) and isinstance(key[1], bytes) and isinstance(key[2], bytes):
+        key[1] = map_text_into_numberspace(key[1], cipher.alphabet, cipher.unknown_symbol_number)
+        key[2] = map_text_into_numberspace(key[2], cipher.alphabet, cipher.unknown_symbol_number)
+    # keys of the following ciphers are intentionally not mapped into numberspace as the implementations would not work any more.
+    # -  Bazeries
+    # -  Bifid
+    # -  CMBifid
+
+    # '#' from the digrafid cipher must be replaced to be able to calculate features. As this let's the cipher be classified easily, it is
+    # just replaced by 'z'.
     ciphertext = cipher.encrypt(plaintext_numberspace, key)
+    ciphertext = [25 if x == 26 else x for x in ciphertext]
     return ciphertext
 
 

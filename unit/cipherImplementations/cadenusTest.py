@@ -19,7 +19,7 @@ class CadenusTest(CipherTestBase):
         self.assertEqual(len(keyword), length)
         alph = copy.copy(self.ALPHABET)
         for c in key:
-            self.assertTrue(c in alph)
+            self.assertIn(c, alph)
             alph.replace(bytes(c), b'')
 
         old_key = self.cipher.alphabet
@@ -28,7 +28,7 @@ class CadenusTest(CipherTestBase):
             self.assertEqual(len(key), len(self.cipher.alphabet) - 1)
             self.assertEqual(len(keyword), length)
             self.assertNotEqual(key, old_key)
-            self.assertTrue(b'w' not in key)
+            self.assertNotIn(b'w', key)
             old_key = key
 
         length = 17
@@ -37,7 +37,7 @@ class CadenusTest(CipherTestBase):
         self.assertEqual(len(keyword), length)
         alph = copy.copy(self.ALPHABET)
         for c in key:
-            self.assertTrue(c in alph)
+            self.assertIn(c, alph)
             alph.replace(bytes(c), b'')
 
         length = 25
@@ -46,7 +46,7 @@ class CadenusTest(CipherTestBase):
         self.assertEqual(len(keyword), length)
         alph = copy.copy(self.ALPHABET)
         for c in key:
-            self.assertTrue(c in alph)
+            self.assertIn(c, alph)
             alph.replace(bytes(c), b'')
 
     def test2generate_random_key_wrong_length_parameter(self):

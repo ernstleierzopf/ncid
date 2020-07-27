@@ -22,7 +22,7 @@ class Bifid(Cipher):
             char = bytes([alphabet2[position]])
             key = key + char
             alphabet2 = alphabet2.replace(char, b'')
-        return [length, key]
+        return length, key
 
     def encrypt(self, plaintext, key):
         pt = []
