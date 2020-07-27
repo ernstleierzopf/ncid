@@ -159,6 +159,10 @@ def encrypt(plaintext, label, key_length, keep_unknown_symbols):
     # -  Bifid
     # -  CMBifid
 
+    # Following keys are not mapped as the PolybiusSquare implementation needs the key unmapped:
+    # -  Checkerboard: key[2]
+    # -  Foursquare: key[0], key[1] -> keys are tuple not list.
+
     # '#' from the digrafid cipher must be replaced to be able to calculate features. As this let's the cipher be classified easily, it is
     # just replaced by 'z'.
     ciphertext = cipher.encrypt(plaintext_numberspace, key)
