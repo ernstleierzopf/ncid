@@ -34,7 +34,7 @@ class Foursquare(Cipher):
 
         odd = plaintext[1::2]
         even = plaintext[::2]
-        enc = []
+        ciphertext = []
 
         for i in range(len(even)):
             coords = square.get_coordinates(even[i])
@@ -45,12 +45,9 @@ class Foursquare(Cipher):
             row11 = coords[0]
             column11 = coords[1]
 
-            # enc += square01.get_char(row00, column11)
-            # enc += square10.get_char(row11, column00)
-
-            enc.append(square01.get_char(row00, column11))
-            enc.append(square10.get_char(row11, column00))
-        return enc
+            ciphertext.append(square01.get_char(row00, column11))
+            ciphertext.append(square10.get_char(row11, column00))
+        return ciphertext
 
     def decrypt(self, ciphertext, key):
         square01 = PolybiusSquare(self.alphabet, key[0])
@@ -59,7 +56,7 @@ class Foursquare(Cipher):
 
         odd = ciphertext[1::2]
         even = ciphertext[::2]
-        dec = []
+        plaintext = []
         for i in range(len(even)):
             coords = square01.get_coordinates(even[i])
             row00 = coords[0]
@@ -69,9 +66,9 @@ class Foursquare(Cipher):
             row11 = coords[0]
             column11 = coords[1]
 
-            dec.append(square.get_char(row00, column11))
-            dec.append(square.get_char(row11, column00))
-        return dec
+            plaintext.append(square.get_char(row00, column11))
+            plaintext.append(square.get_char(row11, column00))
+        return plaintext
 
     def filter(self, plaintext, keep_unknown_symbols=False):
         plaintext = plaintext.lower().replace(b'j', b'i')
