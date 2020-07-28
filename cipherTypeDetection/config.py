@@ -17,6 +17,7 @@ from cipherImplementations.digrafid import Digrafid
 from cipherImplementations.foursquare import Foursquare
 from cipherImplementations.fractionedMorse import FractionedMorse
 from cipherImplementations.grandpre import Grandpre
+from cipherImplementations.grille import Grille
 
 ALPHABET = b'abcdefghijklmnopqrstuvwxyz'
 UNKNOWN_SYMBOL = b'?'
@@ -24,7 +25,7 @@ UNKNOWN_SYMBOL_NUMBER = 90
 
 # CIPHER_TYPES = ['columnar_transposition', 'hill', 'playfair', 'simple_substitution', 'vigenere']
 CIPHER_TYPES = ['amsco', 'autokey', 'baconian', 'bazeries', 'beaufort', 'bifid', 'cadenus', 'checkboard', 'columnar_transposition', 'condi',
-                'cmbifid', 'digrafid', 'foursquare', 'fractioned_morse', 'grandpre']
+                'cmbifid', 'digrafid', 'foursquare', 'fractioned_morse', 'grandpre', 'grille']
 # CIPHER_IMPLEMENTATIONS = [ColumnarTransposition(ALPHABET, UNKNOWN_SYMBOL, UNKNOWN_SYMBOL_NUMBER),
 #                           Hill(ALPHABET, b'x', ord('x')),
 #                           Playfair(ALPHABET.replace(b'j', b''), b'x', ord('x')),
@@ -44,13 +45,14 @@ CIPHER_IMPLEMENTATIONS = [Amsco(ALPHABET, UNKNOWN_SYMBOL, UNKNOWN_SYMBOL_NUMBER)
                           Digrafid(ALPHABET, UNKNOWN_SYMBOL, UNKNOWN_SYMBOL_NUMBER),
                           Foursquare(ALPHABET.replace(b'j', b''), UNKNOWN_SYMBOL, UNKNOWN_SYMBOL_NUMBER),
                           FractionedMorse(ALPHABET + b' ', UNKNOWN_SYMBOL, UNKNOWN_SYMBOL_NUMBER),
-                          Grandpre(ALPHABET, UNKNOWN_SYMBOL, UNKNOWN_SYMBOL_NUMBER)]
+                          Grandpre(ALPHABET, UNKNOWN_SYMBOL, UNKNOWN_SYMBOL_NUMBER),
+                          Grille(ALPHABET, UNKNOWN_SYMBOL, UNKNOWN_SYMBOL_NUMBER)]
 
 # KEY_LENGTHS = [13, None, 13, None, 13]
 # KEY_LENGTHS = [list(range(4, 17)), [None]*13, list(range(4, 17)), [None]*13, list(range(4, 17))]
 # KEY_LENGTHS = [[5,10,20,25], [None]*4, [6,7,8,9], [None]*4, [5,10,20,25]]
 # KEY_LENGTHS = [[None]*4, [5,10,20,25]]
 KEY_LENGTHS = [[5,6,7,8], [5,6,7,8], [None]*4, [None]*4, [5,6,7,8], [5,6,7,8], [4,4,4,4], [5,10,15,20], [5,6,7,8], [None]*4, [5,6,7,8],
-               [5,6,7,8], [None]*4, [None]*4, [None]*4]
+               [5,6,7,8], [None]*4, [None]*4, [None]*4, [2,5,10,5]]
 MTC3 = 'mtc3'
 ACA = 'aca'

@@ -33,7 +33,7 @@ class GrandpreTest(CipherTestBase):
         old_key = self.cipher.alphabet
         for _ in range(0, 100):
             key = self.cipher.generate_random_key()
-            self.assertEqual(len(key),26)
+            self.assertEqual(len(key), 26)
             self.assertNotEqual(key, old_key)
             old_key = key
 
