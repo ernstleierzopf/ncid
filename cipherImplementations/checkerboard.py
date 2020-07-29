@@ -2,6 +2,7 @@ from cipherImplementations.cipher import Cipher
 from cipherImplementations.polybius import Polybius
 from cipherImplementations.polybius_square import PolybiusSquare
 import random
+import numpy as np
 
 
 class Checkerboard(Cipher):
@@ -58,20 +59,17 @@ class Checkerboard(Cipher):
             column += random.randint(0, column_size) * 5
             ciphertext.append(key[0][row])
             ciphertext.append(key[1][column])
-        return ciphertext
+        return np.array(ciphertext)
 
     def decrypt(self, ciphertext, key):
         __polybius = Polybius(self.alphabet, self.unknown_symbol, self.unknown_symbol_number)
-        code = __polybius.encrypt(ciphertext, key[2])
         square = PolybiusSquare(self.alphabet, key[2])
-        key[0] = list(key[0])
-        key[1] = list(key[1])
         plaintext = []
         for i in range(0, len(ciphertext) - 1, 2):
-            row = key[0].index(ciphertext[i])
-            column = key[1].index(ciphertext[i+1])
+            row = np.where(key[0] == ciphertext[i])[0][0]
+            column = np.where(key[1] == ciphertext[i+1])[0][0]
             plaintext.append(square.get_char(row, column))
-        return plaintext
+        return np.array(plaintext)
 
     def filter(self, plaintext, keep_unknown_symbols=False):
         plaintext = plaintext.lower().replace(b'j', b'i')

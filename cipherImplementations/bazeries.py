@@ -1,6 +1,7 @@
 from cipherImplementations.cipher import Cipher
 from cipherImplementations.polybius_square import PolybiusSquare
 import random
+import numpy as np
 
 
 ones = ["", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "eleven", "twelve", "thirteen",
@@ -105,4 +106,4 @@ class Bazeries(Cipher):
             for char in revtext:
                 coords = square2.get_coordinates(char)
                 ret.append(square1.get_char(coords[1], coords[0]))
-        return ret
+        return np.array(ret)

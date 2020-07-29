@@ -1,6 +1,7 @@
 from cipherImplementations.cipher import Cipher
 from util.textUtils import remove_unknown_symbols
 import random
+import numpy as np
 
 
 class FractionedMorse(Cipher):
@@ -37,13 +38,12 @@ class FractionedMorse(Cipher):
         ciphertext = []
         for i in range(0, len(morse_code) - 2, 3):
             ciphertext.append(key[self.key_morse.index(morse_code[i:i+3])])
-        return ciphertext
+        return np.array(ciphertext)
 
     def decrypt(self, ciphertext, key):
         morse_code = ''
-        key = list(key)
         for c in ciphertext:
-            morse_code += self.key_morse[key.index(c)]
+            morse_code += self.key_morse[np.where(key == c)[0][0]]
 
         plaintext = []
         tmp = ''
@@ -58,7 +58,7 @@ class FractionedMorse(Cipher):
             else:
                 plaintext.append(self.morse_codes.index(tmp))
                 tmp = 'x'
-        return plaintext[:-1]
+        return np.array(plaintext[:-1])
 
     def filter(self, plaintext, keep_unknown_symbols=False):
         plaintext = plaintext.lower()

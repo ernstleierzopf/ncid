@@ -154,6 +154,8 @@ def encrypt(plaintext, label, key_length, keep_unknown_symbols):
     elif isinstance(key, list) and len(key) == 3 and isinstance(key[0], int) and isinstance(key[1], bytes) and isinstance(key[2], bytes):
         key[1] = map_text_into_numberspace(key[1], cipher.alphabet, cipher.unknown_symbol_number)
         key[2] = map_text_into_numberspace(key[2], cipher.alphabet, cipher.unknown_symbol_number)
+    elif isinstance(key, list) and len(key) == 2 and isinstance(key[0], list) and len(key[0]) == 5 and isinstance(key[1], bytes):
+        key[1] = map_text_into_numberspace(key[1], cipher.alphabet, cipher.unknown_symbol_number)
     elif isinstance(key, dict):
         new_key_dict = {}
         for k in key:

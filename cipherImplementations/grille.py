@@ -47,7 +47,7 @@ class Grille(Cipher):
                 # 3 times rotated as numpy's rot90 function goes counter clock wise, but we need clockwise rotation
                 key = np.rot90(key, 3)
             ciphertext += list(np.array(ct).flatten())
-        return ciphertext
+        return np.array(ciphertext)
 
     def decrypt(self, ciphertext, key):
         length = len(key)

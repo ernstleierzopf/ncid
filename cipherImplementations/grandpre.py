@@ -1,5 +1,6 @@
 import random
 from cipherImplementations.cipher import Cipher
+import numpy as np
 
 
 class Grandpre(Cipher):
@@ -49,11 +50,10 @@ class Grandpre(Cipher):
                 upper += 1
             rand = (random.randint(0, upper))
             ciphertext.append(rand * 10 + column)
-        return ciphertext
+        return np.array(ciphertext)
 
     def decrypt(self, ciphertext, key):
         plaintext = []
-        keys = key.keys()
         values = list(key.values())
         for i in range(0, len(ciphertext), 2):
             row = ciphertext[i] % 10
@@ -61,6 +61,5 @@ class Grandpre(Cipher):
             for i, val in enumerate(values):
                 if (row, column) in val:
                     break
-
             plaintext.append(i)
-        return plaintext
+        return np.array(plaintext)

@@ -28,8 +28,9 @@ class ColumnarTransposition(Cipher):
     def encrypt(self, plaintext, key):
         key = indices(key)
         ciphertext = []
-        plaintext = list(plaintext)
         while len(plaintext) % len(key) != 0:
+            if not isinstance(plaintext, list):
+                plaintext = list(plaintext)
             plaintext.append(self.alphabet.index(b'x'))
         for start in range(0, len(key)):
             position = num_index_of(key, start)

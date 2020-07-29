@@ -33,7 +33,7 @@ class Hill(Cipher):
         return np.array(ciphertext)
 
     def decrypt(self, ciphertext, key):
-        raise Exception('Interface method called')
+        raise Exception('Not implmplemented yet..')
 
     def filter(self, plaintext, keep_unknown_symbols=False):
         plaintext = super().filter(plaintext, keep_unknown_symbols)

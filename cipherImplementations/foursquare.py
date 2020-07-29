@@ -1,6 +1,7 @@
 from cipherImplementations.cipher import Cipher
 from cipherImplementations.polybius_square import PolybiusSquare
 import random
+import numpy as np
 
 
 class Foursquare(Cipher):
@@ -47,7 +48,7 @@ class Foursquare(Cipher):
 
             ciphertext.append(square01.get_char(row00, column11))
             ciphertext.append(square10.get_char(row11, column00))
-        return ciphertext
+        return np.array(ciphertext)
 
     def decrypt(self, ciphertext, key):
         square01 = PolybiusSquare(self.alphabet, key[0])
@@ -68,7 +69,7 @@ class Foursquare(Cipher):
 
             plaintext.append(square.get_char(row00, column11))
             plaintext.append(square.get_char(row11, column00))
-        return plaintext
+        return np.array(plaintext)
 
     def filter(self, plaintext, keep_unknown_symbols=False):
         plaintext = plaintext.lower().replace(b'j', b'i')

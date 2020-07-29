@@ -1,4 +1,5 @@
 from cipherImplementations.cipher import Cipher
+import numpy as np
 import random
 import copy
 
@@ -44,8 +45,8 @@ class Cadenus(Cipher):
                              'plaintext must be divisible by 25.')
         ciphertext = []
         pt_table = split_text(plaintext, len(key[0]))
-        keyword = list(key[0])
-        keyalphabet = list(key[1])
+        keyword = key[0]
+        keyalphabet = key[1]
         ordered_keyword = copy.copy(keyword)
         ordered_keyword.sort()
         for i in range(len(pt_table)):
@@ -53,10 +54,10 @@ class Cadenus(Cipher):
                 r = c
                 if r == 22:  # c = 'w' -> c = 'v'
                     r = 21
-                ciphertext.append(pt_table[keyalphabet.index(r)][keyword.index(c)])
+                ciphertext.append(pt_table[np.where(keyalphabet == r)[0][0]][np.where(keyword == c)[0][0]])
             pt_table.append(pt_table[0])
             pt_table = pt_table[1:]
-        return ciphertext
+        return np.array(ciphertext)
 
     def decrypt(self, ciphertext, key):
         if len(ciphertext) % 25 != 0 or len(ciphertext) / 25 != len(key[0]):
@@ -65,8 +66,8 @@ class Cadenus(Cipher):
         plaintext = []
         ct_table = split_text(ciphertext, len(key[0]))
         pt_table = [[0]*len(key[0]) for _ in range(len(ct_table))]
-        keyword = list(key[0])
-        keyalphabet = list(key[1])
+        keyword = key[0]
+        keyalphabet = key[1]
         ordered_keyword = copy.copy(keyword)
         ordered_keyword.sort()
         for i in range(len(pt_table)):
@@ -74,7 +75,8 @@ class Cadenus(Cipher):
                 r = c
                 if r == 22:  # c = 'w' -> c = 'v'
                     r = 21
-                pt_table[(keyalphabet.index(r)+i) % len(pt_table)][keyword.index(c)] = ct_table[i][ordered_keyword.index(c)]
+                pt_table[(np.where(keyalphabet == r)[0][0] + i) % len(pt_table)][np.where(keyword == c)[0][0]] = ct_table[i][
+                    np.where(ordered_keyword == c)[0][0]]
         for i in range(len(pt_table)):
             plaintext += pt_table[i]
-        return plaintext
+        return np.array(plaintext)

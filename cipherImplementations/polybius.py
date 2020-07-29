@@ -1,5 +1,6 @@
 from cipherImplementations.cipher import Cipher
 from cipherImplementations.polybius_square import PolybiusSquare
+import numpy as np
 
 
 class Polybius(Cipher):

@@ -1,5 +1,6 @@
 from cipherImplementations.cipher import Cipher
 import random
+import numpy as np
 
 
 def calc_column_number(key_length, string_length, char_num):
@@ -72,7 +73,7 @@ class Amsco(Cipher):
         ciphertext = []
         for i in range(key_length):
             ciphertext += chopped[i]
-        return ciphertext
+        return np.array(ciphertext)
 
     def decrypt(self, ciphertext, key):
         # setup
@@ -95,12 +96,12 @@ class Amsco(Cipher):
         # put decrypted message together
         key_counter = 0
         counter = string_length
-        decryted_message = []
+        plaintext = []
         while counter > 0:
             index_column = int(key[key_counter]) - 1
             for i in range(self.char_num):
                 if len(chopped[index_column]) > i:
-                    decryted_message.append(chopped[index_column][i])
+                    plaintext.append(chopped[index_column][i])
             chopped[index_column] = chopped[index_column][self.char_num:]
             counter -= self.char_num
             key_counter = (key_counter + 1) % key_length
@@ -110,4 +111,4 @@ class Amsco(Cipher):
                 self.char_num = 1
             if self.char_num == 2 and counter == 1:
                 self.char_num = 1
-        return decryted_message
+        return np.array(plaintext)

@@ -1,5 +1,6 @@
 from cipherImplementations.cipher import Cipher
 import random
+import numpy as np
 
 
 def arrange_table(size,  text, horizontal_vertical_flag):
@@ -97,7 +98,7 @@ class Digrafid(Cipher):
             add += 1
             ciphertext.append(horizontal_table[int(pos / 3)][horizontal])
             ciphertext.append(vertical_table[vertical][pos % 3])
-        return ciphertext
+        return np.array(ciphertext)
 
     def decrypt(self, ciphertext, key):
         horizontal_table = arrange_table(3, key[1], True)
@@ -141,4 +142,4 @@ class Digrafid(Cipher):
             vertical = plaintext_table[2][i]
             plaintext.append(horizontal_table[int(pos / 3)][horizontal])
             plaintext.append(vertical_table[vertical][pos % 3])
-        return plaintext
+        return np.array(plaintext)

@@ -1,4 +1,5 @@
 from cipherImplementations.cipher import Cipher
+import numpy as np
 
 
 class Beaufort(Cipher):
@@ -20,4 +21,4 @@ class Beaufort(Cipher):
             char = text[i]
             keychar = key[i % len(key)]
             ans.append((keychar - char) % len(alphabet))
-        return ans
+        return np.array(ans)

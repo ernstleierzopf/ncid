@@ -1,6 +1,7 @@
 from cipherImplementations.bifid import Bifid
 from cipherImplementations.polybius import Polybius
 import random
+import numpy as np
 
 
 class CMBifid(Bifid):
@@ -49,7 +50,7 @@ class CMBifid(Bifid):
         ciphertext = []
         for c in ct:
             ciphertext.append(self.alphabet.index(key[2][c]))
-        return ciphertext
+        return np.array(ciphertext)
 
     def decrypt(self, ciphertext, key):
         ct = []
@@ -78,4 +79,4 @@ class CMBifid(Bifid):
         plaintext = []
         for p in pt:
             plaintext.append(self.alphabet.index(key[1][p]))
-        return plaintext
+        return np.array(plaintext)

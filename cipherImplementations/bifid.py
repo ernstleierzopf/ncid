@@ -1,6 +1,7 @@
 from cipherImplementations.cipher import Cipher
 from cipherImplementations.polybius import Polybius
 import random
+import numpy as np
 
 
 class Bifid(Cipher):
@@ -42,7 +43,7 @@ class Bifid(Cipher):
         ciphertext = []
         for c in ct:
             ciphertext.append(self.alphabet.index(key[1][c]))
-        return ciphertext
+        return np.array(ciphertext)
 
     def decrypt(self, ciphertext, key):
         ct = []
@@ -71,7 +72,7 @@ class Bifid(Cipher):
         plaintext = []
         for p in pt:
             plaintext.append(self.alphabet.index(key[1][p]))
-        return plaintext
+        return np.array(plaintext)
 
     def filter(self, plaintext, keep_unknown_symbols=False):
         plaintext = plaintext.lower().replace(b'j', b'i')

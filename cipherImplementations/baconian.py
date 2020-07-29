@@ -1,5 +1,6 @@
 from cipherImplementations.cipher import Cipher
 import random
+import numpy as np
 
 
 class Baconian(Cipher):
@@ -24,7 +25,7 @@ class Baconian(Cipher):
                 if r == 9 or r == 21:  # remove j and v
                     r -= 1
                 ciphertext.append(r)
-        return ciphertext
+        return np.array(ciphertext)
 
     def decrypt(self, ciphertext, key):
         plaintext = []
@@ -34,4 +35,4 @@ class Baconian(Cipher):
             if len(tmp) == 5:
                 plaintext.append(key.index(tmp))
                 tmp = []
-        return plaintext
+        return np.array(plaintext)

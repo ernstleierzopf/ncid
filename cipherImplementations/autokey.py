@@ -1,4 +1,5 @@
 from cipherImplementations.cipher import Cipher
+import numpy as np
 
 
 class Autokey(Cipher):
@@ -17,6 +18,7 @@ class Autokey(Cipher):
     def __enc_dec(self, message, key, mode):
         cipher = []
         k_index = 0
+        # here the key has to be converted back to a list as it must be extended.
         key = list(key)
         for i in message:
             text = i
@@ -30,4 +32,4 @@ class Autokey(Cipher):
             text %= len(self.alphabet)
             k_index += 1
             cipher.append(text)
-        return cipher
+        return np.array(cipher)
