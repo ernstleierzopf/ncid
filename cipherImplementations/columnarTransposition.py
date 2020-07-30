@@ -1,13 +1,6 @@
 import numpy as np
 from cipherImplementations.cipher import Cipher
-from util.textUtils import num_index_of
 import random
-
-
-def indices(word):
-    t1 = [(word[i], i) for i in range(len(word))]
-    t2 = [(k[1], i) for i, k in enumerate(sorted(t1))]
-    return [q[1] for q in sorted(t2)]
 
 
 class ColumnarTransposition(Cipher):
@@ -27,7 +20,6 @@ class ColumnarTransposition(Cipher):
         return key
 
     def encrypt(self, plaintext, key):
-        key = indices(key)
         ciphertext = []
         if self.fill_blocks:
             while len(plaintext) % len(key) != 0:
@@ -35,7 +27,7 @@ class ColumnarTransposition(Cipher):
                     plaintext = list(plaintext)
                 plaintext.append(self.alphabet.index(b'x'))
         for start in range(0, len(key)):
-            position = num_index_of(key, start)
+            position = key.index(start)
             while position < len(plaintext):
                 p = plaintext[position]
                 if p > len(self.alphabet):
@@ -47,11 +39,10 @@ class ColumnarTransposition(Cipher):
         return np.array(ciphertext)
 
     def decrypt(self, ciphertext, key):
-        key = indices(key)
         plaintext = [b'']*len(ciphertext)
         i = 0
         for start in range(0, len(key)):
-            position = num_index_of(key, start)
+            position = key.index(start)
             while position < len(plaintext):
                 c = ciphertext[i]
                 i += 1

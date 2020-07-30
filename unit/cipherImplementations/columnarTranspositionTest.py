@@ -6,7 +6,7 @@ class ColumnarTranspositionTest(CipherTestBase):
     cipher = ColumnarTransposition(CipherTestBase.ALPHABET, CipherTestBase.UNKNOWN_SYMBOL, CipherTestBase.UNKNOWN_SYMBOL_NUMBER,
                                    fill_blocks=True)
     plaintext = b'filled block'
-    key = [3, 1, 2]
+    key = [2,0,1]
     ciphertext = b'ielkldoxflbc'
     decrypted_plaintext = b'filledblockx'
 
