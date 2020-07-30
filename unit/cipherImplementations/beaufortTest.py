@@ -8,7 +8,7 @@ class BeaufortTest(CipherTestBase):
     plaintext = b'C equals K minus P'
     ciphertext = b'pamopgwsodekkt'
     decrypted_plaintext = b'cequalskminusp'
-    key = map_text_into_numberspace(b'reciprocal', cipher.alphabet, cipher.unknown_symbol_number)
+    key = map_text_into_numberspace(b'reciprocal', CipherTestBase.ALPHABET, cipher.unknown_symbol_number)
 
     def test1generate_random_key_allowed_length(self):
         self.run_test1generate_random_key_allowed_length()

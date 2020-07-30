@@ -4,11 +4,11 @@ from unit.cipherImplementations.CipherTestBase import CipherTestBase
 
 class ColumnarTranspositionTest(CipherTestBase):
     cipher = ColumnarTransposition(CipherTestBase.ALPHABET, CipherTestBase.UNKNOWN_SYMBOL, CipherTestBase.UNKNOWN_SYMBOL_NUMBER,
-                                   fill_blocks=True)
-    plaintext = b'filled block'
+                                   fill_blocks=False)
+    plaintext = b'Unfilled block'
     key = [3, 1, 2]
-    ciphertext = b'ielkldoxflbc'
-    decrypted_plaintext = b'filledblockx'
+    ciphertext = b'nldoflbcuielk'
+    decrypted_plaintext = b'unfilledblock'
 
     def test1generate_random_key_allowed_length(self):
         length = 5
@@ -45,7 +45,7 @@ class ColumnarTranspositionTest(CipherTestBase):
         self.run_test3filter_keep_unknown_symbols()
 
     def test4filter_delete_unknown_symbols(self):
-        self.assertEqual(self.cipher.filter(self.plaintext, keep_unknown_symbols=False), self.decrypted_plaintext.replace(b'x', b''))
+        self.assertEqual(self.cipher.filter(self.plaintext, keep_unknown_symbols=False), self.decrypted_plaintext)
 
     def test5encrypt(self):
         self.run_test5encrypt()

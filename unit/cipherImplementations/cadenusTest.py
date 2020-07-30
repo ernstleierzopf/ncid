@@ -9,8 +9,8 @@ class CadenusTest(CipherTestBase):
     plaintext = b'A severe limitation on the usefulness of the Cadenus is that every message must be a multiple of twenty-five letters long'
     ciphertext = b'systretomtattlusoatleeesfiyheasdfnmschbhneuvsnpmtofarenuseieeieltarlmentieetogevesitfaisltngeeuvowul'
     decrypted_plaintext = b'aseverelimitationontheusefulnessofthecadenusisthateverymessagemustbeamultipleoftwentyfiveletterslong'
-    key = [map_text_into_numberspace(b'easy', cipher.alphabet, cipher.unknown_symbol_number),
-           map_text_into_numberspace(b'azyxvutsrqponmlkjihgfedcb', cipher.alphabet, cipher.unknown_symbol_number)]
+    key = [map_text_into_numberspace(b'easy', CipherTestBase.ALPHABET, cipher.unknown_symbol_number),
+           map_text_into_numberspace(b'azyxvutsrqponmlkjihgfedcb', CipherTestBase.ALPHABET, cipher.unknown_symbol_number)]
 
     def test1generate_random_key_allowed_length(self):
         length = 5

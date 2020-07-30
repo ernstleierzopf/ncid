@@ -8,7 +8,8 @@ class GromarkTest(CipherTestBase):
     plaintext = b'thereareuptotensubstitutesperletter'
     ciphertext = b'nfyckbtijcnwzycacjnaynlqpwwstwpjqfl'
     decrypted_plaintext = b'thereareuptotensubstitutesperletter'
-    key = [[2,3,4,5,2], map_text_into_numberspace(b'ajrxebksygfpvidoumhqwncltz', CipherTestBase.ALPHABET, CipherTestBase.UNKNOWN_SYMBOL_NUMBER)]
+    key = [[2,3,4,5,2], map_text_into_numberspace(b'ajrxebksygfpvidoumhqwncltz', CipherTestBase.ALPHABET,
+           CipherTestBase.UNKNOWN_SYMBOL_NUMBER)]
 
     def test1generate_random_key(self):
         old_key = self.cipher.alphabet

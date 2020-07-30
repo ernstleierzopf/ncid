@@ -154,7 +154,8 @@ def encrypt(plaintext, label, key_length, keep_unknown_symbols):
     elif isinstance(key, list) and len(key) == 3 and isinstance(key[0], int) and isinstance(key[1], bytes) and isinstance(key[2], bytes):
         key[1] = map_text_into_numberspace(key[1], cipher.alphabet, cipher.unknown_symbol_number)
         key[2] = map_text_into_numberspace(key[2], cipher.alphabet, cipher.unknown_symbol_number)
-    elif isinstance(key, list) and len(key) == 2 and isinstance(key[0], list) and len(key[0]) == 5 and isinstance(key[1], bytes):
+    elif isinstance(key, list) and len(key) == 2 and isinstance(key[0], list) and (len(key[0]) == 5 or len(key[0]) == 10) and \
+            isinstance(key[1], bytes):
         key[1] = map_text_into_numberspace(key[1], cipher.alphabet, cipher.unknown_symbol_number)
     elif isinstance(key, dict):
         new_key_dict = {}
@@ -173,8 +174,17 @@ def encrypt(plaintext, label, key_length, keep_unknown_symbols):
     # '#' from the digrafid cipher must be replaced to be able to calculate features. As this let's the cipher be classified easily, it is
     # just replaced by 'z'.
     ciphertext = cipher.encrypt(plaintext_numberspace, key)
+    if b'j' not in cipher.alphabet:
+        normalize_text(ciphertext, 9)
     ciphertext = [25 if x == 26 else x for x in ciphertext]
     return ciphertext
+
+
+def normalize_text(text, pos):
+    for i in range(len(text)):
+        if text[i] >= pos:
+            text[i] += 1
+    return text
 
 
 def calculate_statistics(datum):

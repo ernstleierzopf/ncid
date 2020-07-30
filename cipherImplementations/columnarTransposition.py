@@ -11,10 +11,11 @@ def indices(word):
 
 
 class ColumnarTransposition(Cipher):
-    def __init__(self, alphabet, unknown_symbol, unknown_symbol_number):
+    def __init__(self, alphabet, unknown_symbol, unknown_symbol_number, fill_blocks):
         self.alphabet = alphabet
         self.unknown_symbol = unknown_symbol
         self.unknown_symbol_number = unknown_symbol_number
+        self.fill_blocks = fill_blocks
 
     def generate_random_key(self, length):
         if length is None or length <= 0:
@@ -28,10 +29,11 @@ class ColumnarTransposition(Cipher):
     def encrypt(self, plaintext, key):
         key = indices(key)
         ciphertext = []
-        while len(plaintext) % len(key) != 0:
-            if not isinstance(plaintext, list):
-                plaintext = list(plaintext)
-            plaintext.append(self.alphabet.index(b'x'))
+        if self.fill_blocks:
+            while len(plaintext) % len(key) != 0:
+                if not isinstance(plaintext, list):
+                    plaintext = list(plaintext)
+                plaintext.append(self.alphabet.index(b'x'))
         for start in range(0, len(key)):
             position = num_index_of(key, start)
             while position < len(plaintext):

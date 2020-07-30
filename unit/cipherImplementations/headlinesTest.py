@@ -13,8 +13,6 @@ class HeadlinesTest(CipherTestBase):
                  b'cynzqdgbuqhhfdegqhhpayqdkphdwfdnbfdpdfrupyxwbjwgsaqyuioygwqhcvijyjqpyqiuuiyqjsxgvvg'
     decrypted_plaintext = b'bushsignsintelligenceoverhaullegislationbinladenurgesfighterstostrikeoilfacilitiespfizerpainkillermayposeinc' \
                           b'reasedcardiovascularriskcarreymastersdisguisesinlemonysnicketmartinezblastsexteammateschilli'
-    decrypted_plaintext = b'bushsignsintelligenceoverhaullegislationbinladenurgesfighterstostrikeoilfacilitiespfizerpainkillermayposeinc' \
-                          b'reasedcardiovascularriskcarreymastersdisguisesinlemonysnicketmartinezblastsexteammateschilli'
     key = [map_text_into_numberspace(b'drugs', CipherTestBase.ALPHABET, CipherTestBase.UNKNOWN_SYMBOL_NUMBER),
            map_text_into_numberspace(b'cfuaptosnzilyejwhgvbqmkxdr', CipherTestBase.ALPHABET, CipherTestBase.UNKNOWN_SYMBOL_NUMBER)]
 
