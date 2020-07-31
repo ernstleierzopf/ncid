@@ -6,16 +6,10 @@ from unit.cipherImplementations.CipherTestBase import CipherTestBase
 class MorbitTest(CipherTestBase):
     cipher = Morbit(CipherTestBase.ALPHABET + b' ', CipherTestBase.UNKNOWN_SYMBOL, CipherTestBase.UNKNOWN_SYMBOL_NUMBER)
     plaintext = b'Once upon a time.'
-    # ciphertext = b'27435881512827465679378'
+    ciphertext = b'27435881512827465679378'
     # ct = []
-    # import random
     # for c in ciphertext:
-    #     c = int(bytes([c]))
-    #     upper = 1
-    #     if c < 6:
-    #         upper += 1
-    #     rand = (random.randint(0, upper))
-    #     ct.append(rand * 10 + c)
+    #     ct.append(int(bytes([c])))
     # ciphertext = map_numbers_into_textspace(ct, cipher.alphabet, cipher.unknown_symbol)
     # print(ciphertext)
     ciphertext = [2,7,4,3,5,8,8,1,5,1,2,8,2,7,4,6,5,6,7,9,3,7,8]
@@ -48,7 +42,7 @@ class MorbitTest(CipherTestBase):
             cntr += 1
 
     def test6decrypt(self):
-        ciphertext = b'whenpsibzbwsmhogpghtdri'
+        ciphertext = b'chedfiibfbcichegfghjdhi'
         ciphertext_numbers = map_text_into_numberspace(ciphertext, self.cipher.alphabet, self.UNKNOWN_SYMBOL_NUMBER)
         plaintext_numbers = self.cipher.decrypt(ciphertext_numbers, self.key)
         plaintext = map_numbers_into_textspace(plaintext_numbers, self.cipher.alphabet, self.UNKNOWN_SYMBOL)

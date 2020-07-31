@@ -8,14 +8,8 @@ class MonomeDinomeTest(CipherTestBase):
     plaintext = b'highfrequencykeysshortenciphertext'
     # ciphertext = b'6006760627539325168346553444608795168038605795359'
     # ct = []
-    # import random
     # for c in ciphertext:
-    #     c = int(bytes([c]))
-    #     upper = 1
-    #     if c < 6:
-    #         upper += 1
-    #     rand = (random.randint(0, upper))
-    #     ct.append(rand * 10 + c)
+    #     ct.append(int(bytes([c])))
     # ciphertext = map_numbers_into_textspace(ct, cipher.alphabet, cipher.unknown_symbol)
     # print(ciphertext)
     ciphertext = [60,0,67,60,62,7,5,39,32,5,1,68,34,65,5,34,4,4,60,8,7,9,5,1,68,0,38,60,5,7,9,5,35,9]
@@ -55,7 +49,7 @@ class MonomeDinomeTest(CipherTestBase):
             cntr += 1
 
     def test6decrypt(self):
-        ciphertext = b'gukghgagcrzxjnwzbqixegppnoyegashjplqiaxsgkzrtzxfj'
+        ciphertext = b'gaaghgagchfdjdcfbgidegffdeeegaihjfbgiadigafhjfdfj'
         ciphertext_numbers = map_text_into_numberspace(ciphertext, self.cipher.alphabet, self.UNKNOWN_SYMBOL_NUMBER)
         plaintext_numbers = self.cipher.decrypt(ciphertext_numbers, self.key)
         plaintext = map_numbers_into_textspace(plaintext_numbers, self.cipher.alphabet, self.UNKNOWN_SYMBOL)

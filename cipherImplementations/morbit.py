@@ -34,17 +34,13 @@ class Morbit(Cipher):
         ciphertext = []
         for i in range(0, len(morse_code) - 1, 2):
             value = key[self.key_morse.index(morse_code[i:i+2])]
-            upper = 1
-            if value < 6:
-                upper += 1
-            rand = (random.randint(0, upper))
-            ciphertext.append(rand * 10 + value)
+            ciphertext.append(value)
         return np.array(ciphertext)
 
     def decrypt(self, ciphertext, key):
         morse_code = ''
         for c in ciphertext:
-            c = c % 10
+            c = c
             morse_code += self.key_morse[np.where(key == c)[0][0]]
         morse_code += 'x'
 

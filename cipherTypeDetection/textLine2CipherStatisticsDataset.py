@@ -171,11 +171,12 @@ def encrypt(plaintext, label, key_length, keep_unknown_symbols):
     # -  Checkerboard: key[2]
     # -  Foursquare: key[0], key[1] -> keys are tuple not list.
 
-    # '#' from the digrafid cipher must be replaced to be able to calculate features. As this let's the cipher be classified easily, it is
-    # just replaced by 'z'.
     ciphertext = cipher.encrypt(plaintext_numberspace, key)
     if b'j' not in cipher.alphabet:
         normalize_text(ciphertext, 9)
+
+    # '#' from the digrafid cipher must be replaced to be able to calculate features. As this let's the cipher be classified easily, it is
+    # just replaced by 'z'.
     ciphertext = [25 if x == 26 else x for x in ciphertext]
     return ciphertext
 

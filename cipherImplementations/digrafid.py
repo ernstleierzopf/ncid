@@ -126,14 +126,14 @@ class Digrafid(Cipher):
             j = 0
             while ciphertext[i] not in horizontal_table[j]:
                 j += 1
-            plaintext_table[int(cntr / (rest)) % 3].append(horizontal_table[j].index(ciphertext[i]))
+            plaintext_table[int(cntr / rest) % 3].append(horizontal_table[j].index(ciphertext[i]))
             cntr += 2
             k = 0
             while ciphertext[i + 1] not in vertical_table[k]:
                 k += 1
-            plaintext_table[int(cntr / (rest)) % 3].append(j * 3 + vertical_table[k].index(ciphertext[i + 1]))
+            plaintext_table[int(cntr / rest) % 3].append(j * 3 + vertical_table[k].index(ciphertext[i + 1]))
             cntr += 2
-            plaintext_table[int(cntr / (rest)) % 3].append(k)
+            plaintext_table[int(cntr / rest) % 3].append(k)
             cntr += 2
         plaintext = []
         for i in range(len(plaintext_table[0])):

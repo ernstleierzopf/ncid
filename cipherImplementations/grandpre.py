@@ -36,30 +36,18 @@ class Grandpre(Cipher):
         ciphertext = []
         for p in plaintext:
             rand = random.randint(0, len(key[p]) - 1)
-            row = key[p][rand][0]
-            column = key[p][rand][1]
-
-            upper = 1
-            if row < 6:
-                upper += 1
-            rand = (random.randint(0, upper))
-            ciphertext.append(rand * 10 + row)
-
-            upper = 1
-            if column < 6:
-                upper += 1
-            rand = (random.randint(0, upper))
-            ciphertext.append(rand * 10 + column)
+            ciphertext.append(key[p][rand][0])
+            ciphertext.append(key[p][rand][1])
         return np.array(ciphertext)
 
     def decrypt(self, ciphertext, key):
         plaintext = []
         values = list(key.values())
         for i in range(0, len(ciphertext), 2):
-            row = ciphertext[i] % 10
-            column = ciphertext[i+1] % 10
-            for i, val in enumerate(values):
+            row = ciphertext[i]
+            column = ciphertext[i+1]
+            for j, val in enumerate(values):
                 if (row, column) in val:
                     break
-            plaintext.append(i)
+            plaintext.append(j)
         return np.array(plaintext)

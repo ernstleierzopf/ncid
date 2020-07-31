@@ -8,16 +8,11 @@ class GrandpreTest(CipherTestBase):
     plaintext = b'The first column is the keyword.'
     # ciphertext = b'8427823456717726445464637852666584278236618873547113'
     # ct = []
-    # import random
     # for c in ciphertext:
-    #     c = int(bytes([c])) - 1
-    #     upper = 1
-    #     if c < 6:
-    #         upper += 1
-    #     rand = (random.randint(0, upper))
-    #     ct.append(rand * 10 + c)
+    #     ct.append(int(bytes([c])) - 1)
     # ciphertext = map_numbers_into_textspace(ct, cipher.alphabet, cipher.unknown_symbol)
-    ciphertext = b'hxvghvmnezqkgqlfddynfdzwgrylzzfohdvghvcfpuhrgwyngukc'
+    # print(ciphertext)
+    ciphertext = b'hdbghbcdefgaggbfddedfdfcghebfffehdbghbcffahhgcedgaac'
     decrypted_plaintext = b'thefirstcolumnisthekeyword'
     key = map_text_into_numberspace(b'ladybugsazimuthscalfskinquackishunjovialevulsionrowdyismsextuply', CipherTestBase.ALPHABET,
                                     CipherTestBase.UNKNOWN_SYMBOL_NUMBER)

@@ -27,27 +27,14 @@ class Homophonic(Cipher):
                 ct = p - key[rand] + 25 * rand
             else:
                 ct = len(self.alphabet) + p - key[rand] + 25 * rand
-            nr1 = int(ct / 10)
-            nr2 = ct % 10
-
-            upper = 1
-            if nr1 < 6:
-                upper += 1
-            rand = (random.randint(0, upper))
-            ciphertext.append(rand * 10 + nr1)
-
-            upper = 1
-            if nr2 < 6:
-                upper += 1
-            rand = (random.randint(0, upper))
-            ciphertext.append(rand * 10 + nr2)
-
+            ciphertext.append(int(ct / 10))
+            ciphertext.append(ct % 10)
         return np.array(ciphertext)
 
     def decrypt(self, ciphertext, key):
         plaintext = []
         for i in range(0, len(ciphertext), 2):
-            ct = (ciphertext[i] % 10) * 10 + ciphertext[i + 1] % 10
+            ct = (ciphertext[i]) * 10 + ciphertext[i + 1]
             rand = int(ct / 25)
             if ct < key[rand]:
                 p = ct + key[rand] - 25 * rand
