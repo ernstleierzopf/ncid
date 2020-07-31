@@ -1,12 +1,13 @@
 from cipherImplementations.columnarTransposition import ColumnarTransposition
 from unit.cipherImplementations.CipherTestBase import CipherTestBase
+import numpy as np
 
 
 class IncompleteColumnarTranspositionTest(CipherTestBase):
     cipher = ColumnarTransposition(CipherTestBase.ALPHABET, CipherTestBase.UNKNOWN_SYMBOL, CipherTestBase.UNKNOWN_SYMBOL_NUMBER,
                                    fill_blocks=False)
     plaintext = b'Unfilled block'
-    key = [2,0,1]
+    key = np.array([2,0,1])
     ciphertext = b'nldoflbcuielk'
     decrypted_plaintext = b'unfilledblock'
 

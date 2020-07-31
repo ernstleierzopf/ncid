@@ -4,10 +4,10 @@ from unit.cipherImplementations.CipherTestBase import CipherTestBase
 
 class VigenereTest(CipherTestBase):
     cipher = Vigenere(CipherTestBase.ALPHABET, CipherTestBase.UNKNOWN_SYMBOL, CipherTestBase.UNKNOWN_SYMBOL_NUMBER)
-    plaintext = b'this is a plaintext with special characters!%%xy<'
-    ciphertext = b'thitkveulaiovhbywitiusihialdjdvfctesuac'
-    decrypted_plaintext = b'thisisaplaintextwithspecialcharactersxy'
-    key = map_text_into_numberspace(b'aaabcdef', CipherTestBase.ALPHABET, CipherTestBase.UNKNOWN_SYMBOL_NUMBER)
+    plaintext = b'In the Vigenere, C equals K plus P where A is zero, B is one, etc'
+    ciphertext = b'xbefegxneoikmetefyldzwlvwiejtfpyidolrpfbaqcsprc'
+    decrypted_plaintext = b'inthevigenerecequalskpluspwhereaiszerobisoneetc'
+    key = map_text_into_numberspace(b'polyalphabetic', CipherTestBase.ALPHABET, CipherTestBase.UNKNOWN_SYMBOL_NUMBER)
 
     def test1generate_random_key_allowed_length(self):
         self.run_test1generate_random_key_allowed_length()

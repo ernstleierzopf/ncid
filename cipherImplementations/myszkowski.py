@@ -21,7 +21,7 @@ class Myszkowski(Cipher):
         for i in range(length):
             rand = random.randint(0, value_size)
             key.append(rand)
-        return key
+        return np.array(key)
 
     def encrypt(self, plaintext, key):
         ciphertext = []

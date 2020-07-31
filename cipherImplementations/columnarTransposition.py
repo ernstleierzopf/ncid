@@ -17,7 +17,7 @@ class ColumnarTransposition(Cipher):
             raise ValueError('Length must be of type integer.')
         key = list(range(length))
         random.shuffle(key)
-        return key
+        return np.array(key)
 
     def encrypt(self, plaintext, key):
         ciphertext = []
@@ -26,8 +26,8 @@ class ColumnarTransposition(Cipher):
                 if not isinstance(plaintext, list):
                     plaintext = list(plaintext)
                 plaintext.append(self.alphabet.index(b'x'))
-        for start in range(0, len(key)):
-            position = key.index(start)
+        for start in range(len(key)):
+            position = np.where(key == start)[0][0]
             while position < len(plaintext):
                 p = plaintext[position]
                 if p > len(self.alphabet):
@@ -41,8 +41,8 @@ class ColumnarTransposition(Cipher):
     def decrypt(self, ciphertext, key):
         plaintext = [b'']*len(ciphertext)
         i = 0
-        for start in range(0, len(key)):
-            position = key.index(start)
+        for start in range(len(key)):
+            position = np.where(key == start)[0][0]
             while position < len(plaintext):
                 c = ciphertext[i]
                 i += 1

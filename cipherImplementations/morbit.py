@@ -20,7 +20,7 @@ class Morbit(Cipher):
         for i in range(9):
             numbers.append(i)
         random.shuffle(numbers)
-        return numbers
+        return np.array(numbers)
 
     def encrypt(self, plaintext, key):
         morse_code = ''

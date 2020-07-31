@@ -17,7 +17,7 @@ class Gronsfeld(Cipher):
         key = []
         for i in range(length):
             key.append(random.randint(0, 9))
-        return key
+        return np.array(key)
 
     def encrypt(self, plaintext, key):
         ciphertext = []
