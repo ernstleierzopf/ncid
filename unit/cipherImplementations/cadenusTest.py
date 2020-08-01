@@ -17,37 +17,34 @@ class CadenusTest(CipherTestBase):
         keyword, key = self.cipher.generate_random_key(length)
         self.assertEqual(len(key), len(self.cipher.alphabet) - 1)
         self.assertEqual(len(keyword), length)
-        alph = copy.copy(self.ALPHABET)
-        for c in key:
-            self.assertIn(c, alph)
-            alph.replace(bytes(c), b'')
-
-        old_key = self.cipher.alphabet
+        self.assertEqual(key, b'azyxvutsrqponmlkjihgfedcb')
         for _ in range(0, 100):
             keyword, key = self.cipher.generate_random_key(length)
             self.assertEqual(len(key), len(self.cipher.alphabet) - 1)
             self.assertEqual(len(keyword), length)
-            self.assertNotEqual(key, old_key)
             self.assertNotIn(b'w', key)
-            old_key = key
 
         length = 17
         keyword, key = self.cipher.generate_random_key(length)
         self.assertEqual(len(key), len(self.cipher.alphabet) - 1)
         self.assertEqual(len(keyword), length)
-        alph = copy.copy(self.ALPHABET)
-        for c in key:
-            self.assertIn(c, alph)
-            alph.replace(bytes(c), b'')
+        self.assertEqual(key, b'azyxvutsrqponmlkjihgfedcb')
+        for _ in range(0, 100):
+            keyword, key = self.cipher.generate_random_key(length)
+            self.assertEqual(len(key), len(self.cipher.alphabet) - 1)
+            self.assertEqual(len(keyword), length)
+            self.assertNotIn(b'w', key)
 
         length = 25
         keyword, key = self.cipher.generate_random_key(length)
         self.assertEqual(len(key), len(self.cipher.alphabet) - 1)
         self.assertEqual(len(keyword), length)
-        alph = copy.copy(self.ALPHABET)
-        for c in key:
-            self.assertIn(c, alph)
-            alph.replace(bytes(c), b'')
+        self.assertEqual(key, b'azyxvutsrqponmlkjihgfedcb')
+        for _ in range(0, 100):
+            keyword, key = self.cipher.generate_random_key(length)
+            self.assertEqual(len(key), len(self.cipher.alphabet) - 1)
+            self.assertEqual(len(keyword), length)
+            self.assertNotIn(b'w', key)
 
     def test2generate_random_key_wrong_length_parameter(self):
         self.run_test2generate_random_key_wrong_length_parameter()

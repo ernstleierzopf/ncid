@@ -40,13 +40,13 @@ class CMBifid(Bifid):
         __polybius = Polybius(key[1], self.unknown_symbol, self.unknown_symbol_number)
         if not key[0] > 0:
             key[0] = len(plaintext)
-        code = __polybius.encrypt(plaintext)
+        code = __polybius.encrypt(plaintext, [i for i in range(len(self.alphabet))])
         even = code[::2]
         odd = code[1::2]
         ret = []
         for i in range(0, len(even), key[0]):
             ret += even[i:i + key[0]] + odd[i:i + key[0]]
-        ct = __polybius.decrypt(ret)
+        ct = __polybius.decrypt(ret, [i for i in range(len(self.alphabet))])
         ciphertext = []
         for c in ct:
             ciphertext.append(self.alphabet.index(key[2][c]))
@@ -60,7 +60,7 @@ class CMBifid(Bifid):
         __polybius = Polybius(key[1], self.unknown_symbol, self.unknown_symbol_number)
         if not key[0] > 0:
             key[0] = len(ciphertext)
-        code = __polybius.encrypt(ciphertext)
+        code = __polybius.encrypt(ciphertext, [i for i in range(len(self.alphabet))])
         even = ''
         odd = ''
         rem = len(code) % (key[0] << 1)
@@ -75,7 +75,7 @@ class CMBifid(Bifid):
         code = []
         for i in range(len(even)):
             code += even[i] + odd[i]
-        pt = __polybius.decrypt(code)
+        pt = __polybius.decrypt(code, [i for i in range(len(self.alphabet))])
         plaintext = []
         for p in pt:
             plaintext.append(self.alphabet.index(key[1][p]))

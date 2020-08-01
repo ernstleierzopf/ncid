@@ -1,4 +1,4 @@
-from cipherImplementations.cipher import Cipher
+from cipherImplementations.cipher import Cipher, generate_random_keyword
 import numpy as np
 import random
 import copy
@@ -22,22 +22,7 @@ class Cadenus(Cipher):
             raise ValueError('The length of a key must be greater than 0 and smaller than the size of the alphabet.')
         if not isinstance(length, int):
             raise ValueError('Length must be of type integer.')
-        alphabet2 = b'' + self.alphabet
-        keyword = b''
-        for _ in range(length):
-            position = int(random.randrange(0, len(alphabet2)))
-            char = bytes([alphabet2[position]])
-            keyword = keyword + char
-            alphabet2 = alphabet2.replace(char, b'')
-
-        alphabet2 = b'' + self.alphabet.replace(b'w', b'')
-        key = b''
-        for _ in range(len(self.alphabet) - 1):
-            position = int(random.randrange(0, len(alphabet2)))
-            char = bytes([alphabet2[position]])
-            key = key + char
-            alphabet2 = alphabet2.replace(char, b'')
-        return [keyword, key]
+        return [generate_random_keyword(self.alphabet, length, unique=True), b'azyxvutsrqponmlkjihgfedcb']
 
     def encrypt(self, plaintext, key):
         if len(plaintext) % 25 != 0 or len(plaintext) / 25 != len(key[0]):

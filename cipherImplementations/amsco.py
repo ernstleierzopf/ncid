@@ -1,5 +1,4 @@
-from cipherImplementations.cipher import Cipher
-import random
+from cipherImplementations.cipher import Cipher, generate_random_list_of_unique_digits
 import numpy as np
 
 
@@ -33,14 +32,7 @@ class Amsco(Cipher):
     def generate_random_key(self, length):
         if not isinstance(length, int) or not 1 < length < 10:
             raise ValueError('The AMSCO cipher can handle only keys with the length 2-9.')
-        numbers = []
-        for i in range(length):
-            numbers.append(i + 1)
-        random.shuffle(numbers)
-        key = ''
-        for n in numbers:
-            key += str(n)
-        return key
+        return generate_random_list_of_unique_digits(length)
 
     def encrypt(self, plaintext, key):
         # setup: get the number of characters in each column

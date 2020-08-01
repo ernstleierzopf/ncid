@@ -1,6 +1,5 @@
-from cipherImplementations.cipher import Cipher
+from cipherImplementations.cipher import Cipher, generate_random_keyword, generate_keyword_alphabet
 from cipherImplementations.polybius_square import PolybiusSquare
-import random
 import numpy as np
 
 
@@ -10,28 +9,15 @@ class Foursquare(Cipher):
         self.unknown_symbol = unknown_symbol
         self.unknown_symbol_number = unknown_symbol_number
 
-    def generate_random_key(self, length=None):
-        alphabet2 = b'' + self.alphabet
-        key1 = b''
-        for _ in range(len(self.alphabet)):
-            position = int(random.randrange(0, len(alphabet2)))
-            char = bytes([alphabet2[position]])
-            key1 = key1 + char
-            alphabet2 = alphabet2.replace(char, b'')
-
-        alphabet2 = b'' + self.alphabet
-        key2 = b''
-        for _ in range(len(self.alphabet)):
-            position = int(random.randrange(0, len(alphabet2)))
-            char = bytes([alphabet2[position]])
-            key2 = key2 + char
-            alphabet2 = alphabet2.replace(char, b'')
-        return key1, key2
+    def generate_random_key(self, length):
+        key1 = generate_keyword_alphabet(self.alphabet, generate_random_keyword(self.alphabet, length))
+        key2 = generate_keyword_alphabet(self.alphabet, generate_random_keyword(self.alphabet, length), vertical=True)
+        return [key1, key2]
 
     def encrypt(self, plaintext, key):
         square01 = PolybiusSquare(self.alphabet, key[0])
         square10 = PolybiusSquare(self.alphabet, key[1])
-        square = PolybiusSquare(self.alphabet, None)
+        square = PolybiusSquare(self.alphabet, [i for i in range(len(self.alphabet))])
 
         odd = plaintext[1::2]
         even = plaintext[::2]
@@ -53,7 +39,7 @@ class Foursquare(Cipher):
     def decrypt(self, ciphertext, key):
         square01 = PolybiusSquare(self.alphabet, key[0])
         square10 = PolybiusSquare(self.alphabet, key[1])
-        square = PolybiusSquare(self.alphabet, None)
+        square = PolybiusSquare(self.alphabet, [i for i in range(len(self.alphabet))])
 
         odd = ciphertext[1::2]
         even = ciphertext[::2]

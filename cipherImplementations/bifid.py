@@ -1,6 +1,5 @@
-from cipherImplementations.cipher import Cipher
+from cipherImplementations.cipher import Cipher, generate_random_keyword, generate_keyword_alphabet
 from cipherImplementations.polybius import Polybius
-import random
 import numpy as np
 
 
@@ -12,55 +11,44 @@ class Bifid(Cipher):
         self.unknown_symbol_number = unknown_symbol_number
 
     def generate_random_key(self, length):
-        if length is None or length <= 0:
-            raise ValueError('The length of a key must be greater than 0.')
-        if not isinstance(length, int):
-            raise ValueError('Length must be of type integer.')
-        alphabet2 = b'' + self.alphabet
-        key = b''
-        for _ in range(len(self.alphabet)):
-            position = int(random.randrange(0, len(alphabet2)))
-            char = bytes([alphabet2[position]])
-            key = key + char
-            alphabet2 = alphabet2.replace(char, b'')
-        return length, key
+        return [generate_keyword_alphabet(self.alphabet, generate_random_keyword(self.alphabet, length)), length]
 
     def encrypt(self, plaintext, key):
         pt = []
         for p in plaintext:
-            pt.append(key[1].index(self.alphabet[p]))
+            pt.append(np.where(key[0] == p)[0][0])
         plaintext = pt
-        __polybius = Polybius(key[1], self.unknown_symbol, self.unknown_symbol_number)
-        if not key[0] > 0:
-            key[0] = len(plaintext)
-        code = __polybius.encrypt(plaintext)
+        __polybius = Polybius(key[0], self.unknown_symbol, self.unknown_symbol_number)
+        if not key[1] > 0:
+            key[1] = len(plaintext)
+        code = __polybius.encrypt(plaintext, [i for i in range(len(self.alphabet))])
         even = code[::2]
         odd = code[1::2]
         ret = []
-        for i in range(0, len(even), key[0]):
-            ret += even[i:i + key[0]] + odd[i:i + key[0]]
-        ct = __polybius.decrypt(ret)
+        for i in range(0, len(even), key[1]):
+            ret += even[i:i + key[1]] + odd[i:i + key[1]]
+        ct = __polybius.decrypt(ret, [i for i in range(len(self.alphabet))])
         ciphertext = []
         for c in ct:
-            ciphertext.append(self.alphabet.index(key[1][c]))
+            ciphertext.append(key[0][c])
         return np.array(ciphertext)
 
     def decrypt(self, ciphertext, key):
         ct = []
         for c in ciphertext:
-            ct.append(key[1].index(self.alphabet[c]))
+            ct.append(np.where(key[0] == c)[0][0])
         ciphertext = ct
-        __polybius = Polybius(key[1], self.unknown_symbol, self.unknown_symbol_number)
-        if not key[0] > 0:
-            key[0] = len(ciphertext)
-        code = __polybius.encrypt(ciphertext)
+        __polybius = Polybius(key[0], self.unknown_symbol, self.unknown_symbol_number)
+        if not key[1] > 0:
+            key[1] = len(ciphertext)
+        code = __polybius.encrypt(ciphertext, [i for i in range(len(self.alphabet))])
         even = ''
         odd = ''
-        rem = len(code) % (key[0] << 1)
-        for i in range(0, len(code) - rem, key[0] << 1):
-            ikey = i + key[0]
+        rem = len(code) % (key[1] << 1)
+        for i in range(0, len(code) - rem, key[1] << 1):
+            ikey = i + key[1]
             even += code[i:ikey]
-            odd += code[ikey:ikey + key[0]]
+            odd += code[ikey:ikey + key[1]]
 
         even += code[-rem:-(rem >> 1)]
         odd += code[-(rem >> 1):]
@@ -68,10 +56,10 @@ class Bifid(Cipher):
         code = []
         for i in range(len(even)):
             code += even[i] + odd[i]
-        pt = __polybius.decrypt(code)
+        pt = __polybius.decrypt(code, [i for i in range(len(self.alphabet))])
         plaintext = []
         for p in pt:
-            plaintext.append(self.alphabet.index(key[1][p]))
+            plaintext.append(key[0][p])
         return np.array(plaintext)
 
     def filter(self, plaintext, keep_unknown_symbols=False):

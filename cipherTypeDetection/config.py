@@ -72,8 +72,8 @@ CIPHER_IMPLEMENTATIONS = [Amsco(ALPHABET, UNKNOWN_SYMBOL, UNKNOWN_SYMBOL_NUMBER)
 # KEY_LENGTHS = [list(range(4, 17)), [None]*13, list(range(4, 17)), [None]*13, list(range(4, 17))]
 # KEY_LENGTHS = [[5,10,20,25], [None]*4, [6,7,8,9], [None]*4, [5,10,20,25]]
 # KEY_LENGTHS = [[None]*4, [5,10,20,25]]
-KEY_LENGTHS = [[5,6,7,8], [5,6,7,8], [None]*4, [None]*4, [5,6,7,8], [5,6,7,8], [4,4,4,4], [5,10,15,20], [5,6,7,8], [None]*4, [5,6,7,8],
-               [5,6,7,8], [None]*4, [None]*4, [None]*4, [2,5,10,5], [None]*4, [5,6,7,8], [None]*4, [None]*4, [None]*4, [None]*4, [5,6,7,8],
+KEY_LENGTHS = [[5,6,7,8], [5,6,7,8], [None]*4, [None]*4, [5,6,7,8], [5,6,7,8], [4,4,4,4], [5,10,15,20], [5,6,7,8], [5,6,7,8], [5,6,7,8],
+               [5,6,7,8], [5,6,7,8], [5,6,7,8], [None]*4, [2,5,10,5], [5,6,7,8], [5,6,7,8], [5,6,7,8], [None]*4, [None]*4, [None]*4, [5,6,7,8],
                [5,6,7,8]]
 MTC3 = 'mtc3'
 ACA = 'aca'

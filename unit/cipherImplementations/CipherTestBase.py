@@ -1,5 +1,7 @@
 import unittest
 from util.textUtils import map_text_into_numberspace, map_numbers_into_textspace
+import random
+import numpy as np
 
 
 class CipherTestBase(unittest.TestCase):
@@ -25,6 +27,12 @@ class CipherTestBase(unittest.TestCase):
         self.assertEqual(len(key), length)
         for c in key:
             self.assertIn(c, self.ALPHABET)
+
+    def run_test1_generate_random_list_of_unique_digits(self):
+        for i in range(1, 100):
+            length = random.randint(i)
+            key = self.cipher.generate_random_key(length)
+            self.assertEqual(length, len(np.unique(key)))
 
     def run_test2generate_random_key_wrong_length_parameter(self):
         self.assertRaises(ValueError, self.cipher.generate_random_key, 0)

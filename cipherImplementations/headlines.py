@@ -1,6 +1,5 @@
-import random
 import numpy as np
-from cipherImplementations.cipher import Cipher
+from cipherImplementations.cipher import Cipher, generate_random_keyword, generate_keyword_alphabet
 
 
 class Headlines(Cipher):
@@ -11,22 +10,10 @@ class Headlines(Cipher):
         self.unknown_symbol = unknown_symbol
         self.unknown_symbol_number = unknown_symbol_number
 
-    def generate_random_key(self, length=None):
-        alphabet2 = b'' + self.alphabet
-        setting = b''
-        for _ in range(5):
-            position = int(random.randrange(0, len(alphabet2)))
-            char = bytes([alphabet2[position]])
-            setting = setting + char
-            alphabet2 = alphabet2.replace(char, b'')
-
-        alphabet2 = b'' + self.alphabet
-        key = b''
-        for _ in range(len(self.alphabet)):
-            position = int(random.randrange(0, len(alphabet2)))
-            char = bytes([alphabet2[position]])
-            key = key + char
-            alphabet2 = alphabet2.replace(char, b'')
+    def generate_random_key(self, length):
+        setting = generate_random_keyword(self.alphabet, 5, unique=True)
+        key = generate_keyword_alphabet(self.alphabet, generate_random_keyword(self.alphabet, length), indexed_kw_transposition=True,
+                                        second_index_kw=generate_random_keyword(self.alphabet, length))
         return [setting, key]
 
     def encrypt(self, plaintext, key):

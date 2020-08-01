@@ -1,5 +1,4 @@
-import random
-from cipherImplementations.cipher import Cipher
+from cipherImplementations.cipher import Cipher, generate_keyword_alphabet, generate_random_keyword, generate_random_list_of_unique_digits
 import numpy as np
 
 
@@ -10,18 +9,8 @@ class MonomeDinome(Cipher):
         self.unknown_symbol_number = unknown_symbol_number
 
     def generate_random_key(self, length=None):
-        alphabet2 = b'' + self.alphabet
-        key = b''
-        for _ in range(len(self.alphabet)):
-            position = int(random.randrange(0, len(alphabet2)))
-            char = bytes([alphabet2[position]])
-            key = key + char
-            alphabet2 = alphabet2.replace(char, b'')
-
-        numbers = []
-        for i in range(10):
-            numbers.append(i)
-        random.shuffle(numbers)
+        key = generate_keyword_alphabet(self.alphabet, generate_random_keyword(self.alphabet, 8))
+        numbers = generate_random_list_of_unique_digits(10)
         return [numbers, key]
 
     def encrypt(self, plaintext, key):

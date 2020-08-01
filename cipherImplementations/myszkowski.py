@@ -1,6 +1,5 @@
 import numpy as np
-from cipherImplementations.cipher import Cipher
-import random
+from cipherImplementations.cipher import Cipher, generate_random_list_of_unique_digits
 
 
 class Myszkowski(Cipher):
@@ -17,10 +16,9 @@ class Myszkowski(Cipher):
         # if the length is not even add 1.
         addition = length % 2
         value_size = int(length / 2) + addition
-        key = []
-        for i in range(length):
-            rand = random.randint(0, value_size)
-            key.append(rand)
+        key = list(generate_random_list_of_unique_digits(value_size)) + list(generate_random_list_of_unique_digits(value_size))
+        if addition == 1:
+            key = key[:-1]
         return np.array(key)
 
     def encrypt(self, plaintext, key):

@@ -1,4 +1,4 @@
-from cipherImplementations.cipher import Cipher
+from cipherImplementations.cipher import Cipher, generate_random_keyword, generate_keyword_alphabet
 from cipherImplementations.polybius import Polybius
 from cipherImplementations.polybius_square import PolybiusSquare
 import random
@@ -14,31 +14,11 @@ class Checkerboard(Cipher):
     def generate_random_key(self, length):
         if length is None or length <= 0 or length > len(self.alphabet):
             raise ValueError('The length of a key must be greater than 0 and smaller or equal the size of the alphabet.')
-        if not isinstance(length, int):
-            raise ValueError('Length must be of type integer.')
-        alphabet2 = b'' + self.alphabet
-        rowkey = b''
-        for _ in range(length):
-            position = int(random.randrange(0, len(alphabet2)))
-            char = bytes([alphabet2[position]])
-            rowkey = rowkey + char
-            alphabet2 = alphabet2.replace(char, b'')
-
-        alphabet2 = b'' + self.alphabet
-        columnkey = b''
-        for _ in range(length):
-            position = int(random.randrange(0, len(alphabet2)))
-            char = bytes([alphabet2[position]])
-            columnkey = columnkey + char
-            alphabet2 = alphabet2.replace(char, b'')
-
-        alphabet2 = b'' + self.alphabet
-        alphabet = b''
-        for _ in range(len(self.alphabet)):
-            position = int(random.randrange(0, len(alphabet2)))
-            char = bytes([alphabet2[position]])
-            alphabet = alphabet + char
-            alphabet2 = alphabet2.replace(char, b'')
+        if length % 5 != 0:
+            raise ValueError('The length of a key must be divisible by 5.')
+        rowkey = generate_random_keyword(self.alphabet, length, unique=True)
+        columnkey = generate_random_keyword(self.alphabet, length, unique=True)
+        alphabet = generate_keyword_alphabet(self.alphabet, generate_random_keyword(self.alphabet, length))
         return [rowkey, columnkey, alphabet]
 
     def encrypt(self, plaintext, key):

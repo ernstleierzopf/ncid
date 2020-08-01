@@ -14,8 +14,8 @@ class GromarkTest(CipherTestBase):
     def test1generate_random_key(self):
         old_key = self.cipher.alphabet
         old_primer = [2,3,4,5,2]
-        for _ in range(0, 100):
-            primer, key = self.cipher.generate_random_key()
+        for i in range(3, 25):
+            primer, key = self.cipher.generate_random_key(i)
             self.assertEqual(26, len(key))
             self.assertNotEqual(key, old_key)
             self.assertEqual(5, len(primer))
@@ -25,6 +25,9 @@ class GromarkTest(CipherTestBase):
                 self.assertTrue(p < 10)
             old_primer = primer
             old_key = key
+
+    def test2generate_random_key_wrong_length_parameter(self):
+        self.run_test2generate_random_key_wrong_length_parameter()
 
     def test3filter_keep_unknown_symbols(self):
         self.run_test3filter_keep_unknown_symbols()

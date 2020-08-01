@@ -1,5 +1,5 @@
 import random
-from cipherImplementations.cipher import Cipher
+from cipherImplementations.cipher import Cipher, generate_random_keyword
 import numpy as np
 
 
@@ -12,14 +12,14 @@ class Grandpre(Cipher):
     def generate_random_key(self, length=None):
         alphabet2 = b'' + self.alphabet * 50
         key = self.alphabet
-        for _ in range(64 - len(self.alphabet)):
+        for _ in range(56 - len(self.alphabet)):
             position = int(random.randrange(0, len(alphabet2)))
             char = bytes([alphabet2[position]])
             key = key + char
             alphabet2 = alphabet2[0:position:] + alphabet2[position+1::]
         key = list(key)
         random.shuffle(key)
-        new_key = b''
+        new_key = generate_random_keyword(self.alphabet, 8)
         for k in key:
             new_key += bytes([k])
         key = new_key

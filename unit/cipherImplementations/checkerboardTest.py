@@ -10,7 +10,8 @@ class CheckerboardTest(CipherTestBase):
     ciphertext = [b'hrrysgsseaoaoyesrshrrsegoyrgssearyoyeaeyrsoyesrgrgoaeyhahrrsoseaoy', b'bhatcwcekililtkeaebhaekwltawcekiatltkiktaeltkeawawliktbibhaelekilt']
     decrypted_plaintext = b'numberscanalsobeusedascoordinates'
     key = [map_text_into_numberspace(b'horseblack', cipher.alphabet, cipher.unknown_symbol_number), map_text_into_numberspace(
-           b'grayswhite', cipher.alphabet, cipher.unknown_symbol_number), b'knighpqrstoyzuamxwvblfedc']
+           b'grayswhite', cipher.alphabet, cipher.unknown_symbol_number), map_text_into_numberspace(
+        b'knighpqrstoyzuamxwvblfedc', cipher.alphabet, cipher.unknown_symbol_number)]
 
     def test1generate_random_key_allowed_length(self):
         length = 5
@@ -31,7 +32,7 @@ class CheckerboardTest(CipherTestBase):
             alph = alph.replace(bytes([c]), b'')
         self.assertEqual(alph, b'')
 
-        length = 19
+        length = 10
         rowkey, columnkey, alphabet = self.cipher.generate_random_key(length)
         self.assertEqual(len(rowkey), length)
         self.assertEqual(len(columnkey), length)

@@ -19,8 +19,8 @@ class HeadlinesTest(CipherTestBase):
     def test1generate_random_key(self):
         old_key = self.cipher.alphabet
         old_setting = b'drugs'
-        for _ in range(0, 100):
-            setting, key = self.cipher.generate_random_key()
+        for i in range(1, 25):
+            setting, key = self.cipher.generate_random_key(i)
             self.assertEqual(26, len(key))
             self.assertNotEqual(key, old_key)
             self.assertEqual(5, len(setting))

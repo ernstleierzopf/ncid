@@ -1,5 +1,6 @@
 from cipherImplementations.bifid import Bifid
 from unit.cipherImplementations.CipherTestBase import CipherTestBase
+from util.textUtils import map_text_into_numberspace
 
 
 class BifidTest(CipherTestBase):
@@ -7,25 +8,25 @@ class BifidTest(CipherTestBase):
     plaintext = b'Odd periods are popular.'
     ciphertext = b'mweingimgeoyyrlveywy'
     decrypted_plaintext = b'oddperiodsarepopular'
-    key = (7, b'extraklmpohwzqdgvusifcbyn')
+    key = [map_text_into_numberspace(b'extraklmpohwzqdgvusifcbyn', cipher.alphabet, cipher.unknown_symbol_number), 7]
 
     def test1generate_random_key_allowed_length(self):
         length = 5
-        leng, key = self.cipher.generate_random_key(length)
+        key, leng = self.cipher.generate_random_key(length)
         self.assertEqual(len(key), len(self.cipher.alphabet))
         self.assertEqual(leng, length)
         for c in key:
             self.assertIn(c, self.cipher.alphabet)
 
         length = 19
-        leng, key = self.cipher.generate_random_key(length)
+        key, leng = self.cipher.generate_random_key(length)
         self.assertEqual(len(key), len(self.cipher.alphabet))
         self.assertEqual(leng, length)
         for c in key:
             self.assertIn(c, self.cipher.alphabet)
 
         length = 150
-        leng, key = self.cipher.generate_random_key(length)
+        key, leng = self.cipher.generate_random_key(length)
         self.assertEqual(len(key), len(self.cipher.alphabet))
         self.assertEqual(leng, length)
         for c in key:

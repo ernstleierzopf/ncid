@@ -9,10 +9,11 @@ class CipherTest(CipherTestBase):
     decrypted_plaintext = b'thisisaplaintextwithspecialcharactersxy'
 
     def test1generate_random_key_allowed_length(self):
-        self.run_test1generate_random_key_allowed_length()
+        length = 5
+        self.assertRaises(Exception, self.cipher.generate_random_key, length)
 
     def test2generate_random_key_wrong_length_parameter(self):
-        self.run_test2generate_random_key_wrong_length_parameter()
+        self.assertRaises(Exception, self.cipher.generate_random_key, 0)
 
     def test3filter_keep_unknown_symbols(self):
         self.run_test3filter_keep_unknown_symbols()

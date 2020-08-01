@@ -1,6 +1,5 @@
-from cipherImplementations.cipher import Cipher
+from cipherImplementations.cipher import Cipher, generate_keyword_alphabet, generate_random_keyword
 from util.textUtils import remove_unknown_symbols
-import random
 import numpy as np
 
 
@@ -16,15 +15,9 @@ class FractionedMorse(Cipher):
         self.key_morse = ['...', '..-', '..x', '.-.', '.--', '.-x', '.x.', '.x-', '.xx', '-..', '-.-', '-.x', '--.', '---', '--x', '-x.',
                           '-x-', '-xx', 'x..', 'x.-', 'x.x', 'x-.', 'x--', 'x-x', 'xx.', 'xx-']
 
-    def generate_random_key(self, length=None):
-        alphabet2 = b'' + self.alphabet.replace(b' ', b'')
-        key = b''
-        for _ in range(len(self.alphabet.replace(b' ', b''))):
-            position = int(random.randrange(0, len(alphabet2)))
-            char = bytes([alphabet2[position]])
-            key = key + char
-            alphabet2 = alphabet2.replace(char, b'')
-        return key
+    def generate_random_key(self, length):
+        alphabet = self.alphabet.replace(b' ', b'')
+        return generate_keyword_alphabet(alphabet, generate_random_keyword(alphabet, length))
 
     def encrypt(self, plaintext, key):
         morse_code = ''

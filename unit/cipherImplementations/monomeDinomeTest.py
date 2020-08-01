@@ -1,6 +1,7 @@
 from cipherImplementations.monomeDinome import MonomeDinome
 from util.textUtils import map_text_into_numberspace, map_numbers_into_textspace
 from unit.cipherImplementations.CipherTestBase import CipherTestBase
+import numpy as np
 
 
 class MonomeDinomeTest(CipherTestBase):
@@ -14,7 +15,7 @@ class MonomeDinomeTest(CipherTestBase):
     # print(ciphertext)
     ciphertext = [60,0,67,60,62,7,5,39,32,5,1,68,34,65,5,34,4,4,60,8,7,9,5,1,68,0,38,60,5,7,9,5,35,9]
     decrypted_plaintext = b'highfrequencykeysshortenciphertext'
-    key = [[6,3,1,8,9,2,7,0,5,4], map_text_into_numberspace(b'notariesbcdfghklmpquvwxy', cipher.alphabet, cipher.unknown_symbol_number)]
+    key = [np.array([6,3,1,8,9,2,7,0,5,4]), map_text_into_numberspace(b'notariesbcdfghklmpquvwxy', cipher.alphabet, cipher.unknown_symbol_number)]
 
     def test1generate_random_key(self):
         old_key = self.cipher.alphabet
@@ -24,7 +25,7 @@ class MonomeDinomeTest(CipherTestBase):
             self.assertEqual(26, len(key))
             self.assertNotEqual(key, old_key)
             self.assertEqual(10, len(numbers))
-            self.assertNotEqual(numbers, old_numbers)
+            self.assertFalse(np.array_equal(numbers, old_numbers))
             old_key = key
             old_numbers = numbers
 

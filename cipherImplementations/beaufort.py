@@ -1,4 +1,4 @@
-from cipherImplementations.cipher import Cipher
+from cipherImplementations.cipher import Cipher, generate_random_keyword
 import numpy as np
 
 
@@ -8,6 +8,9 @@ class Beaufort(Cipher):
         self.alphabet = alphabet
         self.unknown_symbol = unknown_symbol
         self.unknown_symbol_number = unknown_symbol_number
+
+    def generate_random_key(self, length):
+        return generate_random_keyword(self.alphabet, length)
 
     def encrypt(self, plaintext, key):
         return self.__enc_dec(self.alphabet, plaintext, key)

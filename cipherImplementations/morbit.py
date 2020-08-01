@@ -1,6 +1,5 @@
-from cipherImplementations.cipher import Cipher
+from cipherImplementations.cipher import Cipher, generate_random_list_of_unique_digits
 from util.textUtils import remove_unknown_symbols
-import random
 import numpy as np
 
 
@@ -16,11 +15,7 @@ class Morbit(Cipher):
         self.key_morse = ['..', '.-', '.x', '-.', '--', '-x', 'x.', 'x-', 'xx']
 
     def generate_random_key(self, length=None):
-        numbers = []
-        for i in range(9):
-            numbers.append(i)
-        random.shuffle(numbers)
-        return np.array(numbers)
+        return generate_random_list_of_unique_digits(9)
 
     def encrypt(self, plaintext, key):
         morse_code = ''

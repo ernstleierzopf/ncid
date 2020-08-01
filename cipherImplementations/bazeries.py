@@ -1,4 +1,4 @@
-from cipherImplementations.cipher import Cipher
+from cipherImplementations.cipher import Cipher, generate_keyword_alphabet
 from cipherImplementations.polybius_square import PolybiusSquare
 import random
 import numpy as np
@@ -56,7 +56,7 @@ class Bazeries(Cipher):
 
     def generate_random_key(self, length=None):
         number = random.randint(0, 1000000)
-        return number, num2word(number)
+        return [generate_keyword_alphabet(self.alphabet, num2word(number)), number]
 
     def encrypt(self, plaintext, key):
         return self.__enc_dec(self.alphabet, plaintext, key, True)
@@ -70,13 +70,13 @@ class Bazeries(Cipher):
         return plaintext
 
     def __enc_dec(self, alphabet, text, key, is_encrypt=True):
-        square1 = PolybiusSquare(alphabet)
+        square1 = PolybiusSquare(alphabet, [i for i in range(len(alphabet))])
 
         # key is a number, make it a string
-        square2 = PolybiusSquare(alphabet, key[1])
+        square2 = PolybiusSquare(alphabet, key[0])
 
         # prepare text: group and reverse
-        temp = key[0]
+        temp = key[1]
         groups = []
         while temp > 0:
             rmd = temp % 10

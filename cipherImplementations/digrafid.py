@@ -1,5 +1,5 @@
-from cipherImplementations.cipher import Cipher
-import random
+from cipherImplementations.cipher import Cipher, generate_keyword_alphabet, generate_random_keyword
+from cipherImplementations.columnarTransposition import ColumnarTransposition
 import numpy as np
 
 
@@ -27,26 +27,12 @@ class Digrafid(Cipher):
         self.alphabet = alphabet
         self.unknown_symbol = unknown_symbol
         self.unknown_symbol_number = unknown_symbol_number
+        self.col_trans = ColumnarTransposition(alphabet, self.unknown_symbol, self.unknown_symbol_number, False)
 
     def generate_random_key(self, length):
-        if length is None or length <= 0:
-            raise ValueError('The length of a key length must be greater than 0.')
-        if not isinstance(length, int):
-            raise ValueError('Length must be of type integer.')
-        alphabet2 = b'' + self.alphabet.replace(b'#', b'')
-        key1 = b''
-        for _ in range(len(alphabet2)):
-            position = int(random.randrange(0, len(alphabet2)))
-            char = bytes([alphabet2[position]])
-            key1 = key1 + char
-            alphabet2 = alphabet2.replace(char, b'')
-        alphabet2 = b'' + self.alphabet.replace(b'#', b'')
-        key2 = b''
-        for _ in range(len(alphabet2)):
-            position = int(random.randrange(0, len(alphabet2)))
-            char = bytes([alphabet2[position]])
-            key2 = key2 + char
-            alphabet2 = alphabet2.replace(char, b'')
+        alphabet = self.alphabet.replace(b'#', b'')
+        key1 = generate_keyword_alphabet(alphabet, generate_random_keyword(alphabet, length))
+        key2 = generate_keyword_alphabet(alphabet, generate_random_keyword(alphabet, length), vertical=True)
         return [length, key1, key2]
 
     def encrypt(self, plaintext, key):

@@ -1,7 +1,6 @@
 import numpy as np
-from cipherImplementations.cipher import Cipher
+from cipherImplementations.cipher import Cipher, generate_random_keyword
 from cipherImplementations.vigenere import Vigenere
-import random
 
 
 class Nicodemus(Cipher):
@@ -16,14 +15,7 @@ class Nicodemus(Cipher):
             raise ValueError('The length of a key must be greater than 0 and smaller than the length of the alphabet and must not be None.')
         if not isinstance(length, int):
             raise ValueError('Length must be of type integer.')
-        alphabet2 = b'' + self.alphabet
-        key = b''
-        for _ in range(length):
-            position = int(random.randrange(0, len(alphabet2)))
-            char = bytes([alphabet2[position]])
-            key = key + char
-            alphabet2 = alphabet2.replace(char, b'')
-        return key
+        return generate_random_keyword(self.alphabet, length, unique=True)
 
     def encrypt(self, plaintext, key):
         transposition_key = np.argsort(key)

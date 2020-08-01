@@ -1,6 +1,5 @@
 import numpy as np
-from cipherImplementations.cipher import Cipher
-import random
+from cipherImplementations.cipher import Cipher, generate_random_list_of_unique_digits
 
 
 class ColumnarTransposition(Cipher):
@@ -11,13 +10,7 @@ class ColumnarTransposition(Cipher):
         self.fill_blocks = fill_blocks
 
     def generate_random_key(self, length):
-        if length is None or length <= 0:
-            raise ValueError('The length of a key must be greater than 0 and must not be None.')
-        if not isinstance(length, int):
-            raise ValueError('Length must be of type integer.')
-        key = list(range(length))
-        random.shuffle(key)
-        return np.array(key)
+        return generate_random_list_of_unique_digits(length)
 
     def encrypt(self, plaintext, key):
         ciphertext = []

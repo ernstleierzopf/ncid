@@ -1,6 +1,6 @@
 import random
 import numpy as np
-from cipherImplementations.cipher import Cipher
+from cipherImplementations.cipher import Cipher, generate_random_keyword
 
 
 class Homophonic(Cipher):
@@ -10,14 +10,7 @@ class Homophonic(Cipher):
         self.unknown_symbol_number = unknown_symbol_number
 
     def generate_random_key(self, length=None):
-        alphabet2 = b'' + self.alphabet
-        key = b''
-        for _ in range(4):
-            position = int(random.randrange(0, len(alphabet2)))
-            char = bytes([alphabet2[position]])
-            key = key + char
-            alphabet2 = alphabet2.replace(char, b'')
-        return key
+        return generate_random_keyword(self.alphabet, 4, unique=True)
 
     def encrypt(self, plaintext, key):
         ciphertext = []

@@ -12,11 +12,13 @@ class FractionedMorseTest(CipherTestBase):
 
     def test1generate_random_key(self):
         old_key = self.cipher.alphabet
-        for _ in range(0, 100):
-            key = self.cipher.generate_random_key()
+        for i in range(1, 25):
+            key = self.cipher.generate_random_key(i)
             self.assertEqual(26, len(key))
             self.assertNotEqual(key, old_key)
-            old_key = key
+
+    def test2generate_random_key_wrong_length_parameter(self):
+        self.run_test2generate_random_key_wrong_length_parameter()
 
     def test3filter_keep_unknown_symbols(self):
         self.run_test3filter_keep_unknown_symbols()

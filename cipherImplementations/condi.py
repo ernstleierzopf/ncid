@@ -1,4 +1,4 @@
-from cipherImplementations.cipher import Cipher
+from cipherImplementations.cipher import Cipher, generate_random_keyword, generate_keyword_alphabet
 import random
 import numpy as np
 
@@ -10,14 +10,10 @@ class Condi(Cipher):
         self.unknown_symbol = unknown_symbol
         self.unknown_symbol_number = unknown_symbol_number
 
-    def generate_random_key(self, length=None):
-        alphabet2 = b'' + self.alphabet
-        key = b''
-        for _ in range(len(self.alphabet)):
-            position = int(random.randrange(0, len(alphabet2)))
-            char = bytes([alphabet2[position]])
-            key = key + char
-            alphabet2 = alphabet2.replace(char, b'')
+    def generate_random_key(self, length):
+        if length is None or 0 >= length <= len(self.alphabet) :
+            raise ValueError('The length of a key must be greater than 0 and smaller than the size of the alphabet and must not be None.')
+        key = generate_keyword_alphabet(self.alphabet, generate_random_keyword(self.alphabet, length, unique=True), shift_randomly=True)
         return [key, random.randint(0, len(self.alphabet)-1)]
 
     def encrypt(self, plaintext, key):

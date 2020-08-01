@@ -1,6 +1,5 @@
-import random
 import numpy as np
-from cipherImplementations.cipher import Cipher
+from cipherImplementations.cipher import Cipher, generate_random_list_of_unique_digits
 
 
 class Gronsfeld(Cipher):
@@ -10,14 +9,7 @@ class Gronsfeld(Cipher):
         self.unknown_symbol_number = unknown_symbol_number
 
     def generate_random_key(self, length):
-        if length is None or length <= 0:
-            raise ValueError('The length of a key must be greater than 0 and must not be None.')
-        if not isinstance(length, int):
-            raise ValueError('Length must be of type integer.')
-        key = []
-        for i in range(length):
-            key.append(random.randint(0, 9))
-        return np.array(key)
+        return generate_random_list_of_unique_digits(length)
 
     def encrypt(self, plaintext, key):
         ciphertext = []

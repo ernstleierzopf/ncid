@@ -1,6 +1,6 @@
 import random
 import numpy as np
-from cipherImplementations.cipher import Cipher
+from cipherImplementations.cipher import Cipher, generate_random_keyword, generate_keyword_alphabet
 
 
 class Gromark(Cipher):
@@ -9,18 +9,11 @@ class Gromark(Cipher):
         self.unknown_symbol = unknown_symbol
         self.unknown_symbol_number = unknown_symbol_number
 
-    def generate_random_key(self, length=None):
+    def generate_random_key(self, length):
         primer = []
         for i in range(5):
             primer.append(random.randint(0, 9))
-
-        alphabet2 = b'' + self.alphabet
-        key = b''
-        for _ in range(len(self.alphabet)):
-            position = int(random.randrange(0, len(alphabet2)))
-            char = bytes([alphabet2[position]])
-            key = key + char
-            alphabet2 = alphabet2.replace(char, b'')
+        key = generate_keyword_alphabet(self.alphabet, generate_random_keyword(self.alphabet, length, unique=True), indexed_kw_transposition=True)
         return [primer, key]
 
     def encrypt(self, plaintext, key):
