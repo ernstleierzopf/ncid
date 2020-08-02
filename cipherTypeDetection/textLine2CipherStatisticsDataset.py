@@ -166,14 +166,6 @@ def encrypt(plaintext, label, key_length, keep_unknown_symbols):
         for k in key:
             new_key_dict[cipher.alphabet.index(k)] = key[k]
         key = new_key_dict
-    # keys of the following ciphers are intentionally not mapped into numberspace as the implementations would not work any more.
-    # -  Bazeries
-    # -  Bifid
-    # -  CMBifid
-
-    # Following keys are not mapped as the PolybiusSquare implementation needs the key unmapped:
-    # -  Checkerboard: key[2]
-    # -  Foursquare: key[0], key[1] -> keys are tuple not list.
 
     ciphertext = cipher.encrypt(plaintext_numberspace, key)
     if b'j' not in cipher.alphabet:

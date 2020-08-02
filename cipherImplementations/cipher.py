@@ -37,6 +37,15 @@ def generate_random_keyword(alphabet, length, unique=False):
 
 
 def generate_keyword_alphabet(alphabet, keyword, shift_randomly=False, vertical=False, indexed_kw_transposition=False, second_index_kw=None):
+    if GENERATE_RANDOM_ALPHABETS:
+        alphabet2 = b'' + alphabet
+        key = b''
+        for _ in range(len(alphabet)):
+            char = bytes([alphabet2[random.randint(0, len(alphabet2) - 1)]])
+            key += char
+            alphabet2 = alphabet2.replace(char, b'')
+        return key
+
     key = []
     for char in keyword:
         key.append(alphabet.index(char))
