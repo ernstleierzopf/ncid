@@ -1,12 +1,13 @@
 from cipherImplementations.morbit import Morbit
 from util.textUtils import map_text_into_numberspace, map_numbers_into_textspace
 from unit.cipherImplementations.CipherTestBase import CipherTestBase
+import numpy as np
 
 
 class MorbitTest(CipherTestBase):
     cipher = Morbit(CipherTestBase.ALPHABET + b' ', CipherTestBase.UNKNOWN_SYMBOL, CipherTestBase.UNKNOWN_SYMBOL_NUMBER)
     plaintext = b'Once upon a time.'
-    ciphertext = b'27435881512827465679378'
+    # ciphertext = b'27435881512827465679378'
     # ct = []
     # for c in ciphertext:
     #     ct.append(int(bytes([c])))
@@ -14,7 +15,7 @@ class MorbitTest(CipherTestBase):
     # print(ciphertext)
     ciphertext = [2,7,4,3,5,8,8,1,5,1,2,8,2,7,4,6,5,6,7,9,3,7,8]
     decrypted_plaintext = b'once upon a time'
-    key = [9,5,8,4,2,7,1,3,6]
+    key = np.array([9,5,8,4,2,7,1,3,6])
 
     def test1generate_random_key(self):
         for _ in range(0, 100):

@@ -28,11 +28,19 @@ class CipherTestBase(unittest.TestCase):
         for c in key:
             self.assertIn(c, self.ALPHABET)
 
-    def run_test1_generate_random_list_of_unique_digits(self):
+    def run_test1generate_random_list_of_unique_digits(self):
         for i in range(1, 100):
             length = random.randint(i)
             key = self.cipher.generate_random_key(length)
             self.assertEqual(length, len(np.unique(key)))
+
+    def run_test1generate_random_alphabet(self):
+        old_key = self.cipher.alphabet
+        for _ in range(0, 100):
+            key = self.cipher.generate_random_key()
+            self.assertEqual(26, len(key))
+            self.assertNotEqual(key, old_key)
+            old_key = key
 
     def run_test2generate_random_key_wrong_length_parameter(self):
         self.assertRaises(ValueError, self.cipher.generate_random_key, 0)

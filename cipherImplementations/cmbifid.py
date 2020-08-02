@@ -1,6 +1,6 @@
 from cipherImplementations.bifid import Bifid
+from cipherImplementations.cipher import generate_random_keyword, generate_keyword_alphabet
 from cipherImplementations.polybius import Polybius
-import random
 import numpy as np
 
 
@@ -12,30 +12,14 @@ class CMBifid(Bifid):
         self.unknown_symbol_number = unknown_symbol_number
 
     def generate_random_key(self, length):
-        if length is None or length <= 0:
-            raise ValueError('The length of a key must be greater than 0.')
-        if not isinstance(length, int):
-            raise ValueError('Length must be of type integer.')
-        alphabet2 = b'' + self.alphabet
-        key1 = b''
-        for _ in range(len(self.alphabet)):
-            position = int(random.randrange(0, len(alphabet2)))
-            char = bytes([alphabet2[position]])
-            key1 = key1 + char
-            alphabet2 = alphabet2.replace(char, b'')
-        alphabet2 = b'' + self.alphabet
-        key2 = b''
-        for _ in range(len(self.alphabet)):
-            position = int(random.randrange(0, len(alphabet2)))
-            char = bytes([alphabet2[position]])
-            key2 = key2 + char
-            alphabet2 = alphabet2.replace(char, b'')
-        return length, key1, key2
+        key1 = generate_keyword_alphabet(self.alphabet, generate_random_keyword(self.alphabet, length))
+        key2 = generate_keyword_alphabet(self.alphabet, generate_random_keyword(self.alphabet, length), vertical=True)
+        return [length, key1, key2]
 
     def encrypt(self, plaintext, key):
         pt = []
         for p in plaintext:
-            pt.append(key[1].index(self.alphabet[p]))
+            pt.append(np.where(key[1] == p)[0][0])
         plaintext = pt
         __polybius = Polybius(key[1], self.unknown_symbol, self.unknown_symbol_number)
         if not key[0] > 0:
@@ -49,13 +33,13 @@ class CMBifid(Bifid):
         ct = __polybius.decrypt(ret, [i for i in range(len(self.alphabet))])
         ciphertext = []
         for c in ct:
-            ciphertext.append(self.alphabet.index(key[2][c]))
+            ciphertext.append(key[2][c])
         return np.array(ciphertext)
 
     def decrypt(self, ciphertext, key):
         ct = []
         for c in ciphertext:
-            ct.append(key[2].index(self.alphabet[c]))
+            ct.append(np.where(key[2] == c)[0][0])
         ciphertext = ct
         __polybius = Polybius(key[1], self.unknown_symbol, self.unknown_symbol_number)
         if not key[0] > 0:
@@ -78,5 +62,5 @@ class CMBifid(Bifid):
         pt = __polybius.decrypt(code, [i for i in range(len(self.alphabet))])
         plaintext = []
         for p in pt:
-            plaintext.append(self.alphabet.index(key[1][p]))
+            plaintext.append(key[1][p])
         return np.array(plaintext)

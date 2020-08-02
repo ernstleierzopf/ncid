@@ -1,5 +1,6 @@
 from cipherImplementations.cmbifid import CMBifid
 from unit.cipherImplementations.CipherTestBase import CipherTestBase
+from util.textUtils import map_text_into_numberspace
 
 
 class CMBifidTest(CipherTestBase):
@@ -7,7 +8,8 @@ class CMBifidTest(CipherTestBase):
     plaintext = b'Odd periods are popular.'
     ciphertext = b'fanxzexfenukkrbynkak'
     decrypted_plaintext = b'oddperiodsarepopular'
-    key = [7, b'extraklmpohwzqdgvusifcbyn', b'ncdrsobfquvagpweyhmxltikz']
+    key = [7, map_text_into_numberspace(b'extraklmpohwzqdgvusifcbyn', cipher.alphabet, cipher.unknown_symbol_number),
+           map_text_into_numberspace(b'ncdrsobfquvagpweyhmxltikz', cipher.alphabet, cipher.unknown_symbol_number)]
 
     def test1generate_random_key_allowed_length(self):
         length = 5

@@ -22,6 +22,7 @@ from cipherImplementations.gromark import Gromark
 from cipherImplementations.gronsfeld import Gronsfeld
 from cipherImplementations.headlines import Headlines
 from cipherImplementations.homophonic import Homophonic
+from cipherImplementations.keyPhrase import KeyPhrase
 from cipherImplementations.monomeDinome import MonomeDinome
 from cipherImplementations.morbit import Morbit
 from cipherImplementations.myszkowski import Myszkowski
@@ -34,7 +35,7 @@ UNKNOWN_SYMBOL_NUMBER = 90
 # CIPHER_TYPES = ['columnar_transposition', 'hill', 'playfair', 'simple_substitution', 'vigenere']
 CIPHER_TYPES = ['amsco', 'autokey', 'baconian', 'bazeries', 'beaufort', 'bifid', 'cadenus', 'checkboard', 'columnar_transposition', 'condi',
                 'cmbifid', 'digrafid', 'foursquare', 'fractioned_morse', 'grandpre', 'grille', 'gromark', 'gronsfeld', 'headlines',
-                'homophonic',  # , 'incomplete_columnar_transposition'
+                'key_phrase', 'homophonic',  # , 'incomplete_columnar_transposition'
                 'monome_dinome', 'morbit', 'myszkowski', 'nicodemus']
 # CIPHER_IMPLEMENTATIONS = [ColumnarTransposition(ALPHABET, UNKNOWN_SYMBOL, UNKNOWN_SYMBOL_NUMBER),
 #                           Hill(ALPHABET, b'x', ord('x')),
@@ -63,6 +64,7 @@ CIPHER_IMPLEMENTATIONS = [Amsco(ALPHABET, UNKNOWN_SYMBOL, UNKNOWN_SYMBOL_NUMBER)
                           Homophonic(ALPHABET.replace(b'j', b''), UNKNOWN_SYMBOL, UNKNOWN_SYMBOL_NUMBER),
                           # incomplete Columnar Transposition: how is it differentiable to the normal columnar transposition?
                           # ColumnarTransposition(ALPHABET, UNKNOWN_SYMBOL, UNKNOWN_SYMBOL_NUMBER, fill_blocks=True)
+                          KeyPhrase(ALPHABET, UNKNOWN_SYMBOL, UNKNOWN_SYMBOL_NUMBER),
                           MonomeDinome(ALPHABET, UNKNOWN_SYMBOL, UNKNOWN_SYMBOL_NUMBER),
                           Morbit(ALPHABET + b' ', UNKNOWN_SYMBOL, UNKNOWN_SYMBOL_NUMBER),
                           Myszkowski(ALPHABET, UNKNOWN_SYMBOL, UNKNOWN_SYMBOL_NUMBER),
@@ -73,7 +75,7 @@ CIPHER_IMPLEMENTATIONS = [Amsco(ALPHABET, UNKNOWN_SYMBOL, UNKNOWN_SYMBOL_NUMBER)
 # KEY_LENGTHS = [[5,10,20,25], [None]*4, [6,7,8,9], [None]*4, [5,10,20,25]]
 # KEY_LENGTHS = [[None]*4, [5,10,20,25]]
 KEY_LENGTHS = [[5,6,7,8], [5,6,7,8], [None]*4, [None]*4, [5,6,7,8], [5,6,7,8], [4,4,4,4], [5,10,15,20], [5,6,7,8], [5,6,7,8], [5,6,7,8],
-               [5,6,7,8], [5,6,7,8], [5,6,7,8], [None]*4, [2,5,10,5], [5,6,7,8], [5,6,7,8], [5,6,7,8], [None]*4, [None]*4, [None]*4, [5,6,7,8],
-               [5,6,7,8]]
+               [5,6,7,8], [5,6,7,8], [5,6,7,8], [None]*4, [2,5,10,5], [5,6,7,8], [5,6,7,8], [5,6,7,8], [None]*4, [None]*4, [None]*4,
+               [None]*4, [5,6,7,8], [5,6,7,8]]
 MTC3 = 'mtc3'
 ACA = 'aca'

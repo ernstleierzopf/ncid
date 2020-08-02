@@ -1,4 +1,3 @@
-import unittest
 from cipherImplementations.hill import Hill
 from unit.cipherImplementations.CipherTestBase import CipherTestBase
 

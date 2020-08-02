@@ -1,11 +1,12 @@
 from cipherImplementations.myszkowski import Myszkowski
 from unit.cipherImplementations.CipherTestBase import CipherTestBase
+import numpy as np
 
 
 class MyszkowskiTest(CipherTestBase):
     cipher = Myszkowski(CipherTestBase.ALPHABET, CipherTestBase.UNKNOWN_SYMBOL, CipherTestBase.UNKNOWN_SYMBOL_NUMBER)
     plaintext = b'Incomplete columnar with pattern word key and letters under same number taken off by row from top to bottom.'
-    key = [1,0,2,0,2,0]
+    key = np.array([1,0,2,0,2,0])
     ciphertext = b'nopeeounrihatrwrkynltesnesmnmetknfbrwrmotbtoillwtoatderootocmtcmatpendederuraubaefyfopotm'
     decrypted_plaintext = b'incompletecolumnarwithpatternwordkeyandlettersundersamenumbertakenoffbyrowfromtoptobottom'
 
