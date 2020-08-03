@@ -18,21 +18,25 @@ def generate_random_list_of_unique_digits(length):
     return np.array(key)
 
 
-def generate_random_keyword(alphabet, length, unique=False):
-    if length is None or length <= 0:
+def generate_random_keyword(alphabet, length, unique=False, middle_char=None):
+    if (length is None or length <= 0) and middle_char is None:
         raise ValueError('The length of a key must be greater than 0 and must not be None.')
-    if not isinstance(length, int):
+    if not isinstance(length, int) and middle_char is None:
         raise ValueError('Length must be of type integer.')
     if USE_DICTIONARY:
         raise Exception('Dictionary key generation not implemented yet..')
 
+    if length is None:
+        length = random.randint(1, 5) * 2
     key = bytearray()
     alphabet2 = b'' + alphabet
-    for _ in range(length):
+    for i in range(length):
         char = alphabet2[random.randint(0, len(alphabet2) - 1)]
         key.append(char)
         if unique:
             alphabet2 = alphabet2.replace(bytes([char]), b'')
+        if middle_char is not None and i == (length / 2 - 1):
+            key.append(middle_char)
     return bytes(key)
 
 
