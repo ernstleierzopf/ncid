@@ -1,5 +1,5 @@
 import numpy as np
-from cipherImplementations.cipher import Cipher
+from cipherImplementations.cipher import Cipher, generate_random_keyword, generate_keyword_alphabet
 import sys
 import random
 
@@ -41,30 +41,17 @@ class Playfair(Cipher):
         self.unknown_symbol = unknown_symbol
         self.unknown_symbol_number = unknown_symbol_number
 
-    def generate_random_key(self, length=10):
-        if length is None or length <= 0 or length > len(self.alphabet):
-            raise ValueError('The length of a key must be greater than 0 and smaller than the size of the alphabet.')
-        if not isinstance(length, int):
-            raise ValueError('Length must be of type integer.')
-        original = bytearray(self.alphabet)
-        key = b''
-        for _ in range(0, length):
-            char = original[random.randrange(0, len(original))]
-            original = original.replace(bytes([char]), b'')
-            key = key + bytes([char])
-
-        for _ in range(0, len(original)):
-            char = original[0]
-            original = original.replace(bytes([char]), b'')
-            key = key + bytes([char])
-        return key
+    def generate_random_key(self, length):
+        if length is None or length >= len(self.alphabet):
+            raise ValueError('The length must not be greater than the length of the alphabet.')
+        return generate_keyword_alphabet(self.alphabet, generate_random_keyword(self.alphabet, length))
 
     def encrypt(self, plaintext, key):
         ciphertext = []
         for position in range(1, len(plaintext), 2):
             p0, p1 = plaintext[position-1], plaintext[position]
-            index0 = int(textUtils.num_index_of(key, p0))
-            index1 = int(textUtils.num_index_of(key, p1))
+            index0 = np.where(key == p0)[0][0]
+            index1 = np.where(key == p1)[0][0]
             row_p0 = int(index0 / 5)
             row_p1 = int(index1 / 5)
             col_p0 = index0 % 5
@@ -86,8 +73,8 @@ class Playfair(Cipher):
         plaintext = []
         for position in range(1, len(ciphertext), 2):
             c0, c1 = ciphertext[position - 1], ciphertext[position]
-            index0 = int(textUtils.num_index_of(key, c0))
-            index1 = int(textUtils.num_index_of(key, c1))
+            index0 = np.where(key == c0)[0][0]
+            index1 = np.where(key == c1)[0][0]
             row_p0 = int(index0 / 5)
             row_p1 = int(index1 / 5)
             col_p0 = index0 % 5

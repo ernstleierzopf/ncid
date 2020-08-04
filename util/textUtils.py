@@ -29,10 +29,3 @@ def remove_unknown_symbols(text, alphabet):
         else:
             i += 1
     return text
-
-
-def num_index_of(array, value):
-    for position, val in enumerate(array):
-        if val == value:
-            return position
-    return -1

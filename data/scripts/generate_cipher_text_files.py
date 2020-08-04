@@ -141,6 +141,8 @@ if __name__ == "__main__":
         cipher_types.append(config.CIPHER_TYPES[28])
         cipher_types.append(config.CIPHER_TYPES[29])
         cipher_types.append(config.CIPHER_TYPES[30])
+        cipher_types.append(config.CIPHER_TYPES[31])
+        cipher_types.append(config.CIPHER_TYPES[32])
     if not os.path.exists(args.save_folder):
         Path(args.save_folder).mkdir(parents=True, exist_ok=True)
 

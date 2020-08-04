@@ -1,14 +1,14 @@
 from cipherImplementations.playfair import Playfair
 from unit.cipherImplementations.CipherTestBase import CipherTestBase
-from util.textUtils import map_text_into_numberspace, map_numbers_into_textspace
+from util.textUtils import map_text_into_numberspace
 
 
 class PlayfairTest(CipherTestBase):
-    cipher = Playfair(CipherTestBase.ALPHABET.replace(b'j', b''), b'x', ord('x'))
-    plaintext = b'this is a plaintext with special characters!%xzll'
-    ciphertext = b'xdnonoboickiudtutmxdoqfbodqfdyozavgpxycmvn'
-    decrypted_plaintext = b'thisisaplaintextwithspecialcharactersxzlxl'
-    key = map_text_into_numberspace(b'abczydefghiklmnopqrstuvwx', cipher.alphabet, cipher.unknown_symbol_number)
+    cipher = Playfair(CipherTestBase.ALPHABET.replace(b'j', b''), CipherTestBase.UNKNOWN_SYMBOL, CipherTestBase.UNKNOWN_SYMBOL_NUMBER)
+    plaintext = b'come quickly we need help'
+    ciphertext = b'dlhfsncncrzxcqqgfeeqon'
+    decrypted_plaintext = b'comequicklywenexedhelp'
+    key = map_text_into_numberspace(b'logarithmbcdefknpqsuvwxyz', cipher.alphabet, cipher.unknown_symbol_number)
 
     def test1generate_random_key_allowed_length(self):
         length = 5
@@ -23,12 +23,9 @@ class PlayfairTest(CipherTestBase):
         for c in key:
             self.assertTrue(c in self.ALPHABET)
 
-        length = 150
-        self.assertRaises(ValueError, self.cipher.generate_random_key, length)
-
     def test2generate_random_key_wrong_length_parameter(self):
         self.run_test2generate_random_key_wrong_length_parameter()
-        self.assertRaises(ValueError, self.cipher.generate_random_key, 27)
+        self.assertRaises(ValueError, self.cipher.generate_random_key, 26)
 
     def test4filter_delete_unknown_symbols(self):
         self.run_test4filter_delete_unknown_symbols()

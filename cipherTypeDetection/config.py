@@ -33,6 +33,7 @@ from cipherImplementations.numberedKey import NumberedKey
 from cipherImplementations.periodicGromark import PeriodicGromark
 from cipherImplementations.phillips import Phillips
 from cipherImplementations.phillipsRC import PhillipsRC
+from cipherImplementations.plaintext import Plaintext
 
 ALPHABET = b'abcdefghijklmnopqrstuvwxyz'
 UNKNOWN_SYMBOL = b'?'
@@ -43,7 +44,7 @@ CIPHER_TYPES = ['amsco', 'autokey', 'baconian', 'bazeries', 'beaufort', 'bifid',
                 'cmbifid', 'digrafid', 'foursquare', 'fractioned_morse', 'grandpre', 'grille', 'gromark', 'gronsfeld', 'headlines',
                 'key_phrase', 'homophonic',  # , 'incomplete_columnar_transposition'
                 'monome_dinome', 'morbit', 'myszkowski', 'nicodemus', 'nihilist_transposition', 'null', 'numbered_key', 'periodic_gromark',
-                'phillips', 'phillips_rc']
+                'phillips', 'phillips_rc', 'plaintext', 'playfair']
 # CIPHER_IMPLEMENTATIONS = [ColumnarTransposition(ALPHABET, UNKNOWN_SYMBOL, UNKNOWN_SYMBOL_NUMBER),
 #                           Hill(ALPHABET, b'x', ord('x')),
 #                           Playfair(ALPHABET.replace(b'j', b''), b'x', ord('x')),
@@ -81,7 +82,9 @@ CIPHER_IMPLEMENTATIONS = [Amsco(ALPHABET, UNKNOWN_SYMBOL, UNKNOWN_SYMBOL_NUMBER)
                           NumberedKey(ALPHABET, UNKNOWN_SYMBOL, UNKNOWN_SYMBOL_NUMBER),
                           PeriodicGromark(ALPHABET, UNKNOWN_SYMBOL, UNKNOWN_SYMBOL_NUMBER),
                           Phillips(ALPHABET.replace(b'j', b''), UNKNOWN_SYMBOL, UNKNOWN_SYMBOL_NUMBER),
-                          PhillipsRC(ALPHABET.replace(b'j', b''), UNKNOWN_SYMBOL, UNKNOWN_SYMBOL_NUMBER)]
+                          PhillipsRC(ALPHABET.replace(b'j', b''), UNKNOWN_SYMBOL, UNKNOWN_SYMBOL_NUMBER),
+                          Plaintext(ALPHABET, UNKNOWN_SYMBOL, UNKNOWN_SYMBOL_NUMBER),
+                          Playfair(ALPHABET.replace(b'j', b''), UNKNOWN_SYMBOL, UNKNOWN_SYMBOL_NUMBER)]
 
 # KEY_LENGTHS = [13, None, 13, None, 13]
 # KEY_LENGTHS = [list(range(4, 17)), [None]*13, list(range(4, 17)), [None]*13, list(range(4, 17))]
@@ -89,6 +92,6 @@ CIPHER_IMPLEMENTATIONS = [Amsco(ALPHABET, UNKNOWN_SYMBOL, UNKNOWN_SYMBOL_NUMBER)
 # KEY_LENGTHS = [[None]*4, [5,10,20,25]]
 KEY_LENGTHS = [[5,6,7,8], [5,6,7,8], [None]*4, [None]*4, [5,6,7,8], [5,6,7,8], [4,4,4,4], [5,10,15,20], [5,6,7,8], [5,6,7,8], [5,6,7,8],
                [5,6,7,8], [5,6,7,8], [5,6,7,8], [None]*4, [2,5,10,5], [5,6,7,8], [5,6,7,8], [5,6,7,8], [None]*4, [None]*4, [None]*4,
-               [None]*4, [5,6,7,8], [5,6,7,8], [10,10,10,10], [None]*4, [5,6,7,8], [5,6,7,8], [5,6,7,8], [5,6,7,8]]
+               [None]*4, [5,6,7,8], [5,6,7,8], [10,10,10,10], [None]*4, [5,6,7,8], [5,6,7,8], [5,6,7,8], [5,6,7,8], [None]*4, [5,6,7,8]]
 MTC3 = 'mtc3'
 ACA = 'aca'
