@@ -1,6 +1,5 @@
 import numpy as np
 from cipherImplementations.cipher import Cipher, generate_random_keyword, generate_keyword_alphabet
-import copy
 
 
 class Phillips(Cipher):
@@ -18,14 +17,7 @@ class Phillips(Cipher):
         key_shift_cntr = 0
         for i, p in enumerate(plaintext):
             if i % 5 == 0 and i != 0:
-                tmp = new_key[key_shift_cntr:key_shift_cntr + 5]
-                new_key[key_shift_cntr:key_shift_cntr + 5] = new_key[(key_shift_cntr + 5) % 25:(key_shift_cntr + 10) % 25]
-                new_key[key_shift_cntr + 5:key_shift_cntr + 10] = tmp
-                key_shift_cntr += 5
-                if key_shift_cntr == 20:
-                    key_shift_cntr = 0
-                if i % 40 == 0:
-                    new_key = list(key)
+                new_key, key_shift_cntr = self.shift_key(i, key, key_shift_cntr, new_key)
             pos = new_key.index(p)
             pos += 1
             if pos % 5 != 0:
@@ -40,14 +32,7 @@ class Phillips(Cipher):
         key_shift_cntr = 0
         for i, p in enumerate(ciphertext):
             if i % 5 == 0 and i != 0:
-                tmp = new_key[key_shift_cntr:key_shift_cntr + 5]
-                new_key[key_shift_cntr:key_shift_cntr + 5] = new_key[(key_shift_cntr + 5) % 25:(key_shift_cntr + 10) % 25]
-                new_key[key_shift_cntr + 5:key_shift_cntr + 10] = tmp
-                key_shift_cntr += 5
-                if key_shift_cntr == 20:
-                    key_shift_cntr = 0
-                if i % 40 == 0:
-                    new_key = list(key)
+                new_key, key_shift_cntr = self.shift_key(i, key, key_shift_cntr, new_key)
             pos = new_key.index(p)
             if pos % 5 != 0:
                 pos -= 5
@@ -55,6 +40,18 @@ class Phillips(Cipher):
             pos = pos % len(self.alphabet)
             plaintext.append(new_key[pos])
         return np.array(plaintext)
+
+    def shift_key(self, i, key, key_shift_cntr, new_key):
+        row_shift = 5 * key_shift_cntr
+        tmp = new_key[row_shift:row_shift + 5]
+        new_key[row_shift:row_shift + 5] = new_key[row_shift + 5:row_shift + 10]
+        new_key[row_shift + 5:row_shift + 10] = tmp
+        key_shift_cntr += 1
+        if key_shift_cntr == 4:
+            key_shift_cntr = 0
+        if i % 40 == 0:
+            new_key = list(key)
+        return new_key, key_shift_cntr
 
     def filter(self, plaintext, keep_unknown_symbols=False):
         plaintext = plaintext.lower().replace(b'j', b'i')
