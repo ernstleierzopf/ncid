@@ -29,3 +29,27 @@ def remove_unknown_symbols(text, alphabet):
         else:
             i += 1
     return text
+
+
+# morse code in alphabetical order
+morse_codes = ['.-', '-...', '-.-.', '-..', '.', '..-.', '--.', '....', '..', '.---', '-.-', '.-..', '--', '-.', '---', '.--.',
+               '--.-', '.-.', '...', '-', '..-', '...-', '.--', '-..-', '-.--', '--..']
+
+
+def encrypt_morse(plaintext):
+    morse_code = ''
+    for c in plaintext:
+        if c == 26:
+            morse_code += 'x'
+            continue
+        morse_code += morse_codes[c] + 'x'
+    morse_code += 'x'
+    return morse_code
+
+
+def decrypt_morse(ciphertext, key_morse, key):
+    morse_code = ''
+    for c in ciphertext:
+        morse_code += key_morse[np.where(key == c)[0][0]]
+    morse_code += 'x'
+    return morse_code

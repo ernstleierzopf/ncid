@@ -1,5 +1,5 @@
 from cipherImplementations.cipher import Cipher, generate_keyword_alphabet, generate_random_keyword
-from util.textUtils import remove_unknown_symbols
+from util.textUtils import remove_unknown_symbols, encrypt_morse, decrypt_morse, morse_codes
 import numpy as np
 
 
@@ -8,9 +8,6 @@ class FractionedMorse(Cipher):
         self.alphabet = alphabet
         self.unknown_symbol = unknown_symbol
         self.unknown_symbol_number = unknown_symbol_number
-        # morse code in alphabetical order
-        self.morse_codes = ['.-', '-...', '-.-.', '-..', '.', '..-.', '--.', '....', '..', '.---', '-.-', '.-..', '--', '-.', '---', '.--.',
-                            '--.-', '.-.', '...', '-', '..-', '...-', '.--', '-..-', '-.--', '--..']
         # key letter substitution
         self.key_morse = ['...', '..-', '..x', '.-.', '.--', '.-x', '.x.', '.x-', '.xx', '-..', '-.-', '-.x', '--.', '---', '--x', '-x.',
                           '-x-', '-xx', 'x..', 'x.-', 'x.x', 'x-.', 'x--', 'x-x', 'xx.', 'xx-']
@@ -20,13 +17,7 @@ class FractionedMorse(Cipher):
         return generate_keyword_alphabet(alphabet, generate_random_keyword(alphabet, length))
 
     def encrypt(self, plaintext, key):
-        morse_code = ''
-        for c in plaintext:
-            if c == 26:
-                morse_code += 'x'
-                continue
-            morse_code += self.morse_codes[c] + 'x'
-        morse_code += 'x'
+        morse_code = encrypt_morse(plaintext)
 
         ciphertext = []
         for i in range(0, len(morse_code) - 2, 3):
@@ -49,7 +40,7 @@ class FractionedMorse(Cipher):
                     tmp = ''
                 tmp += c
             else:
-                plaintext.append(self.morse_codes.index(tmp))
+                plaintext.append(morse_codes.index(tmp))
                 tmp = 'x'
         return np.array(plaintext[:-1])
 

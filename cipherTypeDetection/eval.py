@@ -328,6 +328,7 @@ if __name__ == "__main__":
         cipher_types.append(config.CIPHER_TYPES[30])
         cipher_types.append(config.CIPHER_TYPES[31])
         cipher_types.append(config.CIPHER_TYPES[32])
+        cipher_types.append(config.CIPHER_TYPES[33])
     args.ciphers = cipher_types
 
     print("Loading Model...")

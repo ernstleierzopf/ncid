@@ -1,25 +1,28 @@
 from cipherImplementations.cipher import Cipher, generate_random_list_of_unique_digits
 from util.textUtils import remove_unknown_symbols, encrypt_morse, decrypt_morse, morse_codes
 import numpy as np
+import random
 
 
-class Morbit(Cipher):
+class Pollux(Cipher):
     def __init__(self, alphabet, unknown_symbol, unknown_symbol_number):
         self.alphabet = alphabet
         self.unknown_symbol = unknown_symbol
         self.unknown_symbol_number = unknown_symbol_number
         # key letter substitution
-        self.key_morse = ['..', '.-', '.x', '-.', '--', '-x', 'x.', 'x-', 'xx']
+        self.key_morse = ['.', 'x', '-', '.', '.', 'x', '.', '-', '-', 'x']
 
     def generate_random_key(self, length=None):
-        return generate_random_list_of_unique_digits(9)
+        return generate_random_list_of_unique_digits(10)
 
     def encrypt(self, plaintext, key):
         morse_code = encrypt_morse(plaintext)
 
         ciphertext = []
-        for i in range(0, len(morse_code) - 1, 2):
-            value = key[self.key_morse.index(morse_code[i:i+2])]
+        for i in range(len(morse_code)):
+            indices = [j for j, x in enumerate(self.key_morse) if x == morse_code[i]]
+            pos = random.randint(0, len(indices) - 1)
+            value = key[indices[pos]]
             ciphertext.append(value)
         return np.array(ciphertext)
 
@@ -39,7 +42,7 @@ class Morbit(Cipher):
             else:
                 plaintext.append(morse_codes.index(tmp))
                 tmp = 'x'
-        return np.array(plaintext[:-1])
+        return np.array(plaintext)
 
     def filter(self, plaintext, keep_unknown_symbols=False):
         plaintext = plaintext.lower()
