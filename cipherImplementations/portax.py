@@ -30,7 +30,10 @@ def enc_dec(text, key):
     for i in range(0, int(len(text) / 2), 1):
         pos = int(i / len(key)) * len(key) + i
         t0 = text[pos]
-        t1 = text[pos + len(key)]
+        if pos + len(key) * 2 < len(text) or (len(text) % len(key) == 0):
+            t1 = text[pos + len(key)]
+        else:
+            t1 = text[pos + int((len(text) % len(key)) / 2)]
         k = int(key[pos % len(key)] / 2)
         pos1 = np.where(a2_keys[t1 % 2] == t1)[0]
         if pos1[0] <= k + t0:
@@ -53,5 +56,8 @@ def enc_dec(text, key):
         if pos1 < 0:
             pos1 = pos1 % 13
         text2[pos] = pos1
-        text2[pos + len(key)] = pos2
+        if pos + len(key) * 2 < len(text) or (len(text) % len(key) == 0):
+            text2[pos + len(key)] = pos2
+        else:
+            text2[pos + int((len(text) % len(key)) / 2)] = pos2
     return np.array(text2)
