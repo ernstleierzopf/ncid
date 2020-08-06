@@ -1,4 +1,4 @@
-from cipherImplementations.cipher import Cipher, generate_keyword_alphabet, generate_random_keyword
+from cipherImplementations.cipher import Cipher, generate_keyword_alphabet, generate_random_keyword, OUTPUT_ALPHABET
 from cipherImplementations.polybius import Polybius
 import numpy as np
 
@@ -40,11 +40,12 @@ class NihilistSubstitution(Cipher):
 
         ciphertext = []
         for c in ct:
-            ciphertext.append(int(c / 10))
-            ciphertext.append(c % 10)
+            ciphertext.append(OUTPUT_ALPHABET.index(bytes(str(int(c / 10)), 'utf-8')))
+            ciphertext.append(OUTPUT_ALPHABET.index(bytes(str(int(c % 10)), 'utf-8')))
         return np.array(ciphertext)
 
     def decrypt(self, ciphertext, key):
+        ciphertext = np.array([int(bytes([OUTPUT_ALPHABET[c]])) for c in ciphertext])
         __polybius = Polybius(key[1], self.unknown_symbol, self.unknown_symbol_number)
         kw = []
         for k in key[0]:

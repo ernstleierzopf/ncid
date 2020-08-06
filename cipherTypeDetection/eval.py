@@ -70,19 +70,30 @@ def benchmark(args, model):
     iteration = 0
     epoch = 0
     results = []
+    run = None
+    run1 = None
+    processes = []
     while dataset.iteration < args.max_iter:
-        for run in dataset:
-            for batch, labels in run:
-                results.append(model.evaluate(batch, labels, batch_size=args.batch_size))
-                cntr += 1
-                iteration = args.dataset_size * cntr
+        if run1 is None:
+            epoch = 0
+            processes, run1 = dataset.__next__()
+        if run is None:
+            for process in processes:
+                process.join()
+            run = run1
+            dataset.iteration += dataset.batch_size * dataset.dataset_workers
+            if dataset.iteration < args.max_iter:
                 epoch = dataset.epoch
-                if epoch > 0:
-                    epoch = iteration // (dataset.iteration // dataset.epoch)
-                print("Epoch: %d, Iteration: %d" % (epoch, iteration))
-                if iteration >= args.max_iter:
-                    break
-            if dataset.iteration >= args.max_iter:
+                processes, run1 = dataset.__next__()
+        for batch, labels in run:
+            results.append(model.evaluate(batch, labels, batch_size=args.batch_size))
+            cntr += 1
+            iteration = args.dataset_size * cntr
+            epoch = dataset.epoch
+            if epoch > 0:
+                epoch = iteration // (dataset.iteration // dataset.epoch)
+            print("Epoch: %d, Iteration: %d" % (epoch, iteration))
+            if iteration >= args.max_iter:
                 break
         if dataset.iteration >= args.max_iter:
             break
@@ -125,7 +136,7 @@ def evaluate(args, model):
                 for line in fd.readlines():
                     # remove newline
                     line = line[:-1]
-                    ciphertext = map_text_into_numberspace(line, config.ALPHABET, config.UNKNOWN_SYMBOL_NUMBER)
+                    ciphertext = map_text_into_numberspace(line, config.OUTPUT_ALPHABET, config.UNKNOWN_SYMBOL_NUMBER)
                     statistics = calculate_statistics(ciphertext)
                     batch.append(statistics)
                     iterations += 1
@@ -165,7 +176,7 @@ def predict_single_line(args, model):
         # remove newline
         line = line[:-1]
         print(line)
-        ciphertext = map_text_into_numberspace(line, config.ALPHABET, config.UNKNOWN_SYMBOL_NUMBER)
+        ciphertext = map_text_into_numberspace(line, config.OUTPUT_ALPHABET, config.UNKNOWN_SYMBOL_NUMBER)
         statistics = calculate_statistics(ciphertext)
         result = model.predict(tf.convert_to_tensor([statistics]), args.batch_size, verbose=0)
         if args.verbose:
@@ -336,6 +347,7 @@ if __name__ == "__main__":
         cipher_types.append(config.CIPHER_TYPES[38])
         cipher_types.append(config.CIPHER_TYPES[39])
         cipher_types.append(config.CIPHER_TYPES[40])
+        cipher_types.append(config.CIPHER_TYPES[41])
     args.ciphers = cipher_types
 
     print("Loading Model...")

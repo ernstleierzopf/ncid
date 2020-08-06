@@ -8,13 +8,7 @@ class NihilistSubstitutionTest(CipherTestBase):
     plaintext = b'The early bird'
     key = [map_text_into_numberspace(b'easy', cipher.alphabet, cipher.unknown_symbol_number),
            map_text_into_numberspace(b'simpleabcdfghknoqrtuvwxyz', cipher.alphabet, cipher.unknown_symbol_number)]
-    # ct = [65, 55, 32, 75, 43, 65, 26, 8, 44, 34, 54, 79]
-    # ciphertext = b''
-    # for c in ct:
-    #     ciphertext += bytes([CipherTestBase.ALPHABET[int(c / 10)]])
-    #     ciphertext += bytes([CipherTestBase.ALPHABET[int(c % 10)]])
-    # print(ciphertext)
-    ciphertext = b'gfffdchfedgfcgaieedefehj'
+    ciphertext = b'655532754365260844345479'
     decrypted_plaintext = b'theearlybird'
 
     def test1generate_random_key_allowed_length(self):

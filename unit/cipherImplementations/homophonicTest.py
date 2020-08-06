@@ -1,22 +1,16 @@
 from cipherImplementations.homophonic import Homophonic
 from util.textUtils import map_text_into_numberspace, map_numbers_into_textspace
 from unit.cipherImplementations.CipherTestBase import CipherTestBase
+from cipherImplementations.cipher import OUTPUT_ALPHABET
 
 
 class HomophonicTest(CipherTestBase):
     cipher = Homophonic(CipherTestBase.ALPHABET.replace(b'j', b''), CipherTestBase.UNKNOWN_SYMBOL, CipherTestBase.UNKNOWN_SYMBOL_NUMBER)
     plaintext = b'word divisions may be kept'
-    ciphertext = [b'bdgj', b'fdb', b'acfi', b'hfd', b'bcfi', b'aig', b'cegj', b'cai', b'cegj', b'cai', b'aeh', b'cfdi', b'bdgj', b'eca',
-                  b'aeh', b'cfdi', b'bcfi', b'bjh', b'aeh', b'cfdi', b'acfi', b'hfd', b'aefi', b'gjc', b'bcfi', b'bjh', b'aefi', b'fib',
-                  b'bdgj', b'jhf', b'bdgj', b'hfd', b'cdgj', b'aig', b'cegj', b'dbj', b'aeh', b'dgej', b'cegj', b'dbj', b'acfi', b'ige',
-                  b'bdfi', b'cai']
-    # ct = [16, 26, 11, 99, 69, 46, 33, 3, 88, 79, 54, 83, 12, 6, 38, 94, 67, 24, 4, 0, 27, 89]
-    # ciphertext = b''
-    # for c in ct:
-    #     c -= 1
-    #     ciphertext += bytes([CipherTestBase.ALPHABET[int(c / 10)]])
-    #     ciphertext += bytes([CipherTestBase.ALPHABET[int(c % 10)]])
-    # print(ciphertext)
+    ciphertext = [b'1369', b'642', b'0258', b'864', b'1258', b'197', b'2469', b'319', b'2469', b'319', b'047', b'3649', b'1369', b'531',
+                  b'047', b'3649', b'1358', b'208', b'047', b'3649', b'0258', b'864', b'058', b'703', b'1358', b'208', b'0458', b'692',
+                  b'2369', b'086', b'1369', b'864', b'2369', b'197', b'2470', b'420', b'0478', b'4750', b'2470', b'420', b'0258', b'975',
+                  b'1358', b'319']
     decrypted_plaintext = b'worddivisionsmaybekept'
     key = map_text_into_numberspace(b'golf', cipher.alphabet, CipherTestBase.UNKNOWN_SYMBOL_NUMBER)
 
@@ -38,14 +32,14 @@ class HomophonicTest(CipherTestBase):
         plaintext = self.cipher.filter(self.plaintext, keep_unknown_symbols=False)
         plaintext_numbers = map_text_into_numberspace(plaintext, self.cipher.alphabet, self.UNKNOWN_SYMBOL_NUMBER)
         ciphertext_numbers = self.cipher.encrypt(plaintext_numbers, self.key)
-        ciphertext = map_numbers_into_textspace(ciphertext_numbers, CipherTestBase.ALPHABET, self.UNKNOWN_SYMBOL)
+        ciphertext = map_numbers_into_textspace(ciphertext_numbers, OUTPUT_ALPHABET, self.UNKNOWN_SYMBOL)
         for i, c in enumerate(ciphertext):
             c = bytes([c])
             self.assertIn(c, self.ciphertext[i])
 
     def test6decrypt(self):
-        ct = b'bfahbaccccacbeacbbacahagbbafbkbhcacdadcdaibc'
-        ciphertext_numbers = map_text_into_numberspace(ct, self.cipher.alphabet, self.UNKNOWN_SYMBOL_NUMBER)
+        ct = b'16261199694633038879548312063894672404002789'
+        ciphertext_numbers = map_text_into_numberspace(ct, OUTPUT_ALPHABET, self.UNKNOWN_SYMBOL_NUMBER)
         plaintext_numbers = self.cipher.decrypt(ciphertext_numbers, self.key)
         plaintext = map_numbers_into_textspace(plaintext_numbers, self.cipher.alphabet, self.UNKNOWN_SYMBOL)
         self.assertEqual(self.decrypted_plaintext, plaintext)

@@ -39,66 +39,66 @@ from cipherImplementations.porta import Porta
 from cipherImplementations.portax import Portax
 from cipherImplementations.progressiveKey import ProgressiveKey
 from cipherImplementations.quagmire import Quagmire
+from cipherImplementations.ragbaby import Ragbaby
+from cipherImplementations.cipher import OUTPUT_ALPHABET, INPUT_ALPHABET, UNKNOWN_SYMBOL, UNKNOWN_SYMBOL_NUMBER
 
-ALPHABET = b'abcdefghijklmnopqrstuvwxyz'
-UNKNOWN_SYMBOL = b'?'
-UNKNOWN_SYMBOL_NUMBER = 90
 
 # CIPHER_TYPES = ['columnar_transposition', 'hill', 'playfair', 'simple_substitution', 'vigenere']
-CIPHER_TYPES = ['amsco', 'autokey', 'baconian', 'bazeries', 'beaufort', 'bifid', 'cadenus', 'checkboard', 'columnar_transposition', 'condi',
-                'cmbifid', 'digrafid', 'foursquare', 'fractioned_morse', 'grandpre', 'grille', 'gromark', 'gronsfeld', 'headlines',
-                'key_phrase', 'homophonic',  # , 'incomplete_columnar_transposition'
+CIPHER_TYPES = ['amsco', 'autokey', 'baconian', 'bazeries', 'beaufort', 'bifid', 'cadenus', 'checkerboard', 'columnar_transposition',
+                'condi', 'cmbifid', 'digrafid', 'foursquare', 'fractioned_morse', 'grandpre', 'grille', 'gromark', 'gronsfeld', 'headlines',
+                'homophonic', 'key_phrase',  # , 'incomplete_columnar_transposition'
                 'monome_dinome', 'morbit', 'myszkowski', 'nicodemus', 'nihilist_transposition', 'null', 'numbered_key', 'periodic_gromark',
                 'phillips', 'phillips_rc', 'plaintext', 'playfair', 'pollux', 'porta', 'portax', 'progressive_key', 'quagmire1',
-                'quagmire2', 'quagmire3', 'quagmire4']
-# CIPHER_IMPLEMENTATIONS = [ColumnarTransposition(ALPHABET, UNKNOWN_SYMBOL, UNKNOWN_SYMBOL_NUMBER),
-#                           Hill(ALPHABET, b'x', ord('x')),
-#                           Playfair(ALPHABET.replace(b'j', b''), b'x', ord('x')),
-#                           SimpleSubstitution(ALPHABET, UNKNOWN_SYMBOL, UNKNOWN_SYMBOL_NUMBER),
-#                           Vigenere(ALPHABET, UNKNOWN_SYMBOL, UNKNOWN_SYMBOL_NUMBER)]
-CIPHER_IMPLEMENTATIONS = [Amsco(ALPHABET, UNKNOWN_SYMBOL, UNKNOWN_SYMBOL_NUMBER),
-                          Autokey(ALPHABET, UNKNOWN_SYMBOL, UNKNOWN_SYMBOL_NUMBER),
-                          Baconian(ALPHABET, UNKNOWN_SYMBOL, UNKNOWN_SYMBOL_NUMBER),
-                          Bazeries(ALPHABET.replace(b'j', b''), UNKNOWN_SYMBOL, UNKNOWN_SYMBOL_NUMBER),
-                          Beaufort(ALPHABET, UNKNOWN_SYMBOL, UNKNOWN_SYMBOL_NUMBER),
-                          Bifid(ALPHABET.replace(b'j', b''), UNKNOWN_SYMBOL, UNKNOWN_SYMBOL_NUMBER),
-                          Cadenus(ALPHABET, UNKNOWN_SYMBOL, UNKNOWN_SYMBOL_NUMBER),
-                          Checkerboard(ALPHABET.replace(b'j', b''), UNKNOWN_SYMBOL, UNKNOWN_SYMBOL_NUMBER),
-                          ColumnarTransposition(ALPHABET, UNKNOWN_SYMBOL, UNKNOWN_SYMBOL_NUMBER, fill_blocks=True),
-                          Condi(ALPHABET, UNKNOWN_SYMBOL, UNKNOWN_SYMBOL_NUMBER),
-                          CMBifid(ALPHABET.replace(b'j', b''), UNKNOWN_SYMBOL, UNKNOWN_SYMBOL_NUMBER),
-                          Digrafid(ALPHABET + b'#', UNKNOWN_SYMBOL, UNKNOWN_SYMBOL_NUMBER),
-                          Foursquare(ALPHABET.replace(b'j', b''), UNKNOWN_SYMBOL, UNKNOWN_SYMBOL_NUMBER),
-                          FractionedMorse(ALPHABET + b' ', UNKNOWN_SYMBOL, UNKNOWN_SYMBOL_NUMBER),
-                          Grandpre(ALPHABET, UNKNOWN_SYMBOL, UNKNOWN_SYMBOL_NUMBER),
-                          Grille(ALPHABET, UNKNOWN_SYMBOL, UNKNOWN_SYMBOL_NUMBER),
-                          Gromark(ALPHABET, UNKNOWN_SYMBOL, UNKNOWN_SYMBOL_NUMBER),
-                          Gronsfeld(ALPHABET, UNKNOWN_SYMBOL, UNKNOWN_SYMBOL_NUMBER),
-                          Headlines(ALPHABET, UNKNOWN_SYMBOL, UNKNOWN_SYMBOL_NUMBER),
-                          Homophonic(ALPHABET.replace(b'j', b''), UNKNOWN_SYMBOL, UNKNOWN_SYMBOL_NUMBER),
+                'quagmire2', 'quagmire3', 'quagmire4', 'ragbaby']
+# CIPHER_IMPLEMENTATIONS = [ColumnarTransposition(INPUT_ALPHABET, UNKNOWN_SYMBOL, UNKNOWN_SYMBOL_NUMBER, fill_blocks=False),
+#                           Hill(INPUT_ALPHABET, b'x', ord('x')),
+#                           Playfair(INPUT_ALPHABET.replace(b'j', b''), b'x', ord('x')),
+#                           SimpleSubstitution(INPUT_ALPHABET, UNKNOWN_SYMBOL, UNKNOWN_SYMBOL_NUMBER),
+#                           Vigenere(INPUT_ALPHABET, UNKNOWN_SYMBOL, UNKNOWN_SYMBOL_NUMBER)]
+CIPHER_IMPLEMENTATIONS = [Amsco(INPUT_ALPHABET, UNKNOWN_SYMBOL, UNKNOWN_SYMBOL_NUMBER),
+                          Autokey(INPUT_ALPHABET, UNKNOWN_SYMBOL, UNKNOWN_SYMBOL_NUMBER),
+                          Baconian(INPUT_ALPHABET, UNKNOWN_SYMBOL, UNKNOWN_SYMBOL_NUMBER),
+                          Bazeries(INPUT_ALPHABET.replace(b'j', b''), UNKNOWN_SYMBOL, UNKNOWN_SYMBOL_NUMBER),
+                          Beaufort(INPUT_ALPHABET, UNKNOWN_SYMBOL, UNKNOWN_SYMBOL_NUMBER),
+                          Bifid(INPUT_ALPHABET.replace(b'j', b''), UNKNOWN_SYMBOL, UNKNOWN_SYMBOL_NUMBER),
+                          Cadenus(INPUT_ALPHABET, UNKNOWN_SYMBOL, UNKNOWN_SYMBOL_NUMBER),
+                          Checkerboard(INPUT_ALPHABET.replace(b'j', b''), UNKNOWN_SYMBOL, UNKNOWN_SYMBOL_NUMBER),
+                          ColumnarTransposition(INPUT_ALPHABET, UNKNOWN_SYMBOL, UNKNOWN_SYMBOL_NUMBER, fill_blocks=True),
+                          Condi(INPUT_ALPHABET, UNKNOWN_SYMBOL, UNKNOWN_SYMBOL_NUMBER),
+                          CMBifid(INPUT_ALPHABET.replace(b'j', b''), UNKNOWN_SYMBOL, UNKNOWN_SYMBOL_NUMBER),
+                          Digrafid(INPUT_ALPHABET + b'#', UNKNOWN_SYMBOL, UNKNOWN_SYMBOL_NUMBER),
+                          Foursquare(INPUT_ALPHABET.replace(b'j', b''), UNKNOWN_SYMBOL, UNKNOWN_SYMBOL_NUMBER),
+                          FractionedMorse(INPUT_ALPHABET + b' ', UNKNOWN_SYMBOL, UNKNOWN_SYMBOL_NUMBER),
+                          Grandpre(INPUT_ALPHABET, UNKNOWN_SYMBOL, UNKNOWN_SYMBOL_NUMBER),
+                          Grille(INPUT_ALPHABET, UNKNOWN_SYMBOL, UNKNOWN_SYMBOL_NUMBER),
+                          Gromark(INPUT_ALPHABET, UNKNOWN_SYMBOL, UNKNOWN_SYMBOL_NUMBER),
+                          Gronsfeld(INPUT_ALPHABET, UNKNOWN_SYMBOL, UNKNOWN_SYMBOL_NUMBER),
+                          Headlines(INPUT_ALPHABET + b' ', UNKNOWN_SYMBOL, UNKNOWN_SYMBOL_NUMBER),
+                          Homophonic(INPUT_ALPHABET.replace(b'j', b''), UNKNOWN_SYMBOL, UNKNOWN_SYMBOL_NUMBER),
                           # incomplete Columnar Transposition: how is it differentiable to the normal columnar transposition?
-                          # ColumnarTransposition(ALPHABET, UNKNOWN_SYMBOL, UNKNOWN_SYMBOL_NUMBER, fill_blocks=True)
-                          KeyPhrase(ALPHABET, UNKNOWN_SYMBOL, UNKNOWN_SYMBOL_NUMBER),
-                          MonomeDinome(ALPHABET, UNKNOWN_SYMBOL, UNKNOWN_SYMBOL_NUMBER),
-                          Morbit(ALPHABET + b' ', UNKNOWN_SYMBOL, UNKNOWN_SYMBOL_NUMBER),
-                          Myszkowski(ALPHABET, UNKNOWN_SYMBOL, UNKNOWN_SYMBOL_NUMBER),
-                          Nicodemus(ALPHABET, UNKNOWN_SYMBOL, UNKNOWN_SYMBOL_NUMBER),
-                          NihilistTransposition(ALPHABET, UNKNOWN_SYMBOL, UNKNOWN_SYMBOL_NUMBER),
-                          Null(ALPHABET + b' ', UNKNOWN_SYMBOL, UNKNOWN_SYMBOL_NUMBER),
-                          NumberedKey(ALPHABET, UNKNOWN_SYMBOL, UNKNOWN_SYMBOL_NUMBER),
-                          PeriodicGromark(ALPHABET, UNKNOWN_SYMBOL, UNKNOWN_SYMBOL_NUMBER),
-                          Phillips(ALPHABET.replace(b'j', b''), UNKNOWN_SYMBOL, UNKNOWN_SYMBOL_NUMBER),
-                          PhillipsRC(ALPHABET.replace(b'j', b''), UNKNOWN_SYMBOL, UNKNOWN_SYMBOL_NUMBER),
-                          Plaintext(ALPHABET, UNKNOWN_SYMBOL, UNKNOWN_SYMBOL_NUMBER),
-                          Playfair(ALPHABET.replace(b'j', b''), UNKNOWN_SYMBOL, UNKNOWN_SYMBOL_NUMBER),
-                          Pollux(ALPHABET + b' ', UNKNOWN_SYMBOL, UNKNOWN_SYMBOL_NUMBER),
-                          Porta(ALPHABET, UNKNOWN_SYMBOL, UNKNOWN_SYMBOL_NUMBER),
-                          Portax(ALPHABET, UNKNOWN_SYMBOL, UNKNOWN_SYMBOL_NUMBER),
-                          ProgressiveKey(ALPHABET, UNKNOWN_SYMBOL, UNKNOWN_SYMBOL_NUMBER),
-                          Quagmire(ALPHABET, UNKNOWN_SYMBOL, UNKNOWN_SYMBOL_NUMBER, keyword_type=1),
-                          Quagmire(ALPHABET, UNKNOWN_SYMBOL, UNKNOWN_SYMBOL_NUMBER, keyword_type=2),
-                          Quagmire(ALPHABET, UNKNOWN_SYMBOL, UNKNOWN_SYMBOL_NUMBER, keyword_type=3),
-                          Quagmire(ALPHABET, UNKNOWN_SYMBOL, UNKNOWN_SYMBOL_NUMBER, keyword_type=4)]
+                          # ColumnarTransposition(INPUT_ALPHABET, UNKNOWN_SYMBOL, UNKNOWN_SYMBOL_NUMBER, fill_blocks=True)
+                          KeyPhrase(INPUT_ALPHABET + b' ', UNKNOWN_SYMBOL, UNKNOWN_SYMBOL_NUMBER),
+                          MonomeDinome(INPUT_ALPHABET, UNKNOWN_SYMBOL, UNKNOWN_SYMBOL_NUMBER),
+                          Morbit(INPUT_ALPHABET + b' ', UNKNOWN_SYMBOL, UNKNOWN_SYMBOL_NUMBER),
+                          Myszkowski(INPUT_ALPHABET, UNKNOWN_SYMBOL, UNKNOWN_SYMBOL_NUMBER),
+                          Nicodemus(INPUT_ALPHABET, UNKNOWN_SYMBOL, UNKNOWN_SYMBOL_NUMBER),
+                          NihilistTransposition(INPUT_ALPHABET, UNKNOWN_SYMBOL, UNKNOWN_SYMBOL_NUMBER),
+                          Null(INPUT_ALPHABET + b' ', UNKNOWN_SYMBOL, UNKNOWN_SYMBOL_NUMBER),
+                          NumberedKey(INPUT_ALPHABET, UNKNOWN_SYMBOL, UNKNOWN_SYMBOL_NUMBER),
+                          PeriodicGromark(INPUT_ALPHABET, UNKNOWN_SYMBOL, UNKNOWN_SYMBOL_NUMBER),
+                          Phillips(INPUT_ALPHABET.replace(b'j', b''), UNKNOWN_SYMBOL, UNKNOWN_SYMBOL_NUMBER),
+                          PhillipsRC(INPUT_ALPHABET.replace(b'j', b''), UNKNOWN_SYMBOL, UNKNOWN_SYMBOL_NUMBER),
+                          Plaintext(INPUT_ALPHABET, UNKNOWN_SYMBOL, UNKNOWN_SYMBOL_NUMBER),
+                          Playfair(INPUT_ALPHABET.replace(b'j', b''), UNKNOWN_SYMBOL, UNKNOWN_SYMBOL_NUMBER),
+                          Pollux(INPUT_ALPHABET + b' ', UNKNOWN_SYMBOL, UNKNOWN_SYMBOL_NUMBER),
+                          Porta(INPUT_ALPHABET, UNKNOWN_SYMBOL, UNKNOWN_SYMBOL_NUMBER),
+                          Portax(INPUT_ALPHABET, UNKNOWN_SYMBOL, UNKNOWN_SYMBOL_NUMBER),
+                          ProgressiveKey(INPUT_ALPHABET, UNKNOWN_SYMBOL, UNKNOWN_SYMBOL_NUMBER),
+                          Quagmire(INPUT_ALPHABET, UNKNOWN_SYMBOL, UNKNOWN_SYMBOL_NUMBER, keyword_type=1),
+                          Quagmire(INPUT_ALPHABET, UNKNOWN_SYMBOL, UNKNOWN_SYMBOL_NUMBER, keyword_type=2),
+                          Quagmire(INPUT_ALPHABET, UNKNOWN_SYMBOL, UNKNOWN_SYMBOL_NUMBER, keyword_type=3),
+                          Quagmire(INPUT_ALPHABET, UNKNOWN_SYMBOL, UNKNOWN_SYMBOL_NUMBER, keyword_type=4),
+                          Ragbaby(INPUT_ALPHABET.replace(b'j', b'').replace(b'x', b'') + b' ', UNKNOWN_SYMBOL, UNKNOWN_SYMBOL_NUMBER)]
 
 # KEY_LENGTHS = [13, None, 13, None, 13]
 # KEY_LENGTHS = [list(range(4, 17)), [None]*13, list(range(4, 17)), [None]*13, list(range(4, 17))]
@@ -107,6 +107,6 @@ CIPHER_IMPLEMENTATIONS = [Amsco(ALPHABET, UNKNOWN_SYMBOL, UNKNOWN_SYMBOL_NUMBER)
 KEY_LENGTHS = [[5,6,7,8], [5,6,7,8], [None]*4, [None]*4, [5,6,7,8], [5,6,7,8], [4,4,4,4], [5,10,15,20], [5,6,7,8], [5,6,7,8], [5,6,7,8],
                [5,6,7,8], [5,6,7,8], [5,6,7,8], [None]*4, [2,5,10,5], [5,6,7,8], [5,6,7,8], [5,6,7,8], [None]*4, [None]*4, [None]*4,
                [None]*4, [5,6,7,8], [5,6,7,8], [10,10,10,10], [None]*4, [5,6,7,8], [5,6,7,8], [5,6,7,8], [5,6,7,8], [None]*4, [5,6,7,8],
-               [None]*4, [5,6,7,8], [5,6,7,8], [5,6,7,8], [5,6,7,8], [5,6,7,8], [5,6,7,8], [5,6,7,8]]
+               [None]*4, [5,6,7,8], [5,6,7,8], [5,6,7,8], [5,6,7,8], [5,6,7,8], [5,6,7,8], [5,6,7,8], [5,6,7,8]]
 MTC3 = 'mtc3'
 ACA = 'aca'

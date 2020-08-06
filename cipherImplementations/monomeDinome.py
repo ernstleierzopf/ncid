@@ -1,4 +1,4 @@
-from cipherImplementations.cipher import Cipher, generate_keyword_alphabet, generate_random_keyword, generate_random_list_of_unique_digits
+from cipherImplementations.cipher import Cipher, generate_keyword_alphabet, generate_random_keyword, generate_random_list_of_unique_digits, OUTPUT_ALPHABET
 import numpy as np
 
 
@@ -18,22 +18,21 @@ class MonomeDinome(Cipher):
         for p in plaintext:
             index = np.where(key[1] == p)[0][0]
             if int(index / 8) > 0:
-                ciphertext.append(key[0][int(index / 8) - 1])
-            ciphertext.append(key[0][index % 8 + 2])
-
+                ciphertext.append(OUTPUT_ALPHABET.index(bytes(str(key[0][int(index / 8) - 1]), 'utf-8')))
+            ciphertext.append(OUTPUT_ALPHABET.index(bytes(str(key[0][index % 8 + 2]), 'utf-8')))
         return np.array(ciphertext)
 
     def decrypt(self, ciphertext, key):
         plaintext = []
         cntr = 0
         while cntr < len(ciphertext):
-            p = ciphertext[cntr]
+            p = int(bytes([OUTPUT_ALPHABET[ciphertext[cntr]]]))
             cntr += 1
             row = 0
             index = np.where(key[0] == p)[0][0]
             if index < 2:
                 row = index + 1
-                p = ciphertext[cntr]
+                p = int(bytes([OUTPUT_ALPHABET[ciphertext[cntr]]]))
                 cntr += 1
             plaintext.append(key[1][row * 8 + np.where(key[0] == p)[0][0] - 2])
         return np.array(plaintext)

@@ -17,23 +17,37 @@ class Headlines(Cipher):
         return [setting, key]
 
     def encrypt(self, plaintext, key):
-        if len(plaintext) % 5 != 0:
+        space_index = self.alphabet.index(b' ')
+        spaces = np.count_nonzero(plaintext == space_index)
+        if (len(plaintext) - spaces) % 5 != 0:
             raise ValueError('The length of the plaintext must be divisible by 5.')
-        split_size = len(plaintext) / 5
+        split_size = (len(plaintext) - spaces) / 5
         setting = key[0]
         key = key[1]
         ciphertext = []
+        cnt = 0
         for i, p in enumerate(plaintext):
-            ciphertext.append(key[(np.where(key == p)[0][0] + np.where(key == setting[int(i / split_size)])[0][0]) % len(key)])
+            if p != space_index:
+                ciphertext.append(key[(np.where(key == p)[0][0] + np.where(key == setting[int((i - cnt) / split_size)])[0][0]) % len(key)])
+            else:
+                ciphertext.append(space_index)
+                cnt += 1
         return np.array(ciphertext)
 
     def decrypt(self, ciphertext, key):
-        if len(ciphertext) % 5 != 0:
+        space_index = self.alphabet.index(b' ')
+        spaces = np.count_nonzero(ciphertext == space_index)
+        if (len(ciphertext) - spaces) % 5 != 0:
             raise ValueError('The length of the ciphertext must be divisible by 5.')
-        split_size = len(ciphertext) / 5
+        split_size = (len(ciphertext) - spaces) / 5
         setting = key[0]
         key = key[1]
         plaintext = []
+        cnt = 0
         for i, c in enumerate(ciphertext):
-            plaintext.append(key[(np.where(key == c)[0][0] - np.where(key == setting[int(i / split_size)])[0][0]) % len(key)])
+            if c != space_index:
+                plaintext.append(key[(np.where(key == c)[0][0] - np.where(key == setting[int((i - cnt) / split_size)])[0][0]) % len(key)])
+            else:
+                plaintext.append(space_index)
+                cnt += 1
         return np.array(plaintext)

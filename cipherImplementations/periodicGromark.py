@@ -1,6 +1,6 @@
 import random
 import numpy as np
-from cipherImplementations.cipher import Cipher, generate_random_keyword, generate_keyword_alphabet
+from cipherImplementations.cipher import Cipher, generate_random_keyword, generate_keyword_alphabet, OUTPUT_ALPHABET
 from util.textUtils import map_text_into_numberspace
 
 
@@ -27,27 +27,32 @@ class PeriodicGromark(Cipher):
         return [primer, np.array(periodic_key), key]
 
     def encrypt(self, plaintext, key):
-        primer = key[0]
+        primer = list(key[0])
         periodic_key = key[1]
+        ciphertext = []
+        for k in primer[:len(key[0])]:
+            ciphertext.append(OUTPUT_ALPHABET.index(bytes(str(k), 'utf-8')))
+
         i = 0
         while len(primer) < len(plaintext):
             primer.append((primer[i] + primer[i+1]) % 10)
             i += 1
 
-        ciphertext = []
         for i, p in enumerate(plaintext):
             ciphertext.append(key[2][(p + primer[i] + periodic_key[int(i / len(periodic_key)) % len(periodic_key)]) % len(self.alphabet)])
+        ciphertext.append(OUTPUT_ALPHABET.index(bytes(str(primer[i]), 'utf-8')))
         return np.array(ciphertext)
 
     def decrypt(self, ciphertext, key):
-        primer = key[0]
+        primer = list(key[0])
         periodic_key = key[1]
+        length = len(primer)
         i = 0
         while len(primer) < len(ciphertext):
             primer.append((primer[i] + primer[i + 1]) % 10)
             i += 1
 
         plaintext = []
-        for i, c in enumerate(ciphertext):
+        for i, c in enumerate(ciphertext[length:-1]):
             plaintext.append((np.where(key[2] == c)[0][0] - primer[i] - periodic_key[int(i / len(periodic_key)) % len(periodic_key)]) % len(self.alphabet))
         return np.array(plaintext)

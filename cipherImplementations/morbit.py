@@ -1,4 +1,4 @@
-from cipherImplementations.cipher import Cipher, generate_random_list_of_unique_digits
+from cipherImplementations.cipher import Cipher, generate_random_list_of_unique_digits, OUTPUT_ALPHABET
 from util.textUtils import remove_unknown_symbols, encrypt_morse, decrypt_morse, morse_codes
 import numpy as np
 
@@ -20,10 +20,11 @@ class Morbit(Cipher):
         ciphertext = []
         for i in range(0, len(morse_code) - 1, 2):
             value = key[self.key_morse.index(morse_code[i:i+2])]
-            ciphertext.append(value)
+            ciphertext.append(OUTPUT_ALPHABET.index(bytes(str(value), 'utf-8')))
         return np.array(ciphertext)
 
     def decrypt(self, ciphertext, key):
+        ciphertext = np.array([int(bytes([OUTPUT_ALPHABET[c]])) for c in ciphertext])
         morse_code = decrypt_morse(ciphertext, self.key_morse, key)
 
         plaintext = []
@@ -31,7 +32,7 @@ class Morbit(Cipher):
         for c in morse_code:
             if c == 'x' and tmp == 'x':
                 tmp = ''
-                plaintext.append(26)
+                plaintext.append(OUTPUT_ALPHABET.index(b' '))
             elif c != 'x':
                 if tmp == 'x':
                     tmp = ''

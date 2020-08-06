@@ -1,4 +1,4 @@
-from cipherImplementations.cipher import Cipher, generate_keyword_alphabet, generate_random_keyword
+from cipherImplementations.cipher import Cipher, generate_keyword_alphabet, generate_random_keyword, OUTPUT_ALPHABET
 from cipherImplementations.columnarTransposition import ColumnarTransposition
 import numpy as np
 
@@ -10,13 +10,13 @@ def arrange_table(size,  text, horizontal_vertical_flag):
         table = [[] for _ in range(size)]
         for i, c in enumerate(text):
             table[int(i / split_size)].append(c)
-        table[int(i / split_size)].append(26)
+        table[int(i / split_size)].append(OUTPUT_ALPHABET.index(b'#'))
     else:
         # vertical table
         table = [[] for _ in range(split_size)]
         for i, c in enumerate(text):
             table[int(i / size)].append(c)
-        table[int(i / size)].append(26)
+        table[int(i / size)].append(OUTPUT_ALPHABET.index(b'#'))
     return table
 
 

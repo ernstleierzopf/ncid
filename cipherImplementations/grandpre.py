@@ -1,5 +1,5 @@
 import random
-from cipherImplementations.cipher import Cipher, generate_random_keyword
+from cipherImplementations.cipher import Cipher, generate_random_keyword, OUTPUT_ALPHABET
 import numpy as np
 
 
@@ -36,16 +36,16 @@ class Grandpre(Cipher):
         ciphertext = []
         for p in plaintext:
             rand = random.randint(0, len(key[p]) - 1)
-            ciphertext.append(key[p][rand][0])
-            ciphertext.append(key[p][rand][1])
+            ciphertext.append(OUTPUT_ALPHABET.index(bytes(str(key[p][rand][0]), 'utf-8')))
+            ciphertext.append(OUTPUT_ALPHABET.index(bytes(str(key[p][rand][1]), 'utf-8')))
         return np.array(ciphertext)
 
     def decrypt(self, ciphertext, key):
         plaintext = []
         values = list(key.values())
         for i in range(0, len(ciphertext), 2):
-            row = ciphertext[i]
-            column = ciphertext[i+1]
+            row = int(bytes([OUTPUT_ALPHABET[ciphertext[i]]]))
+            column = int(bytes([OUTPUT_ALPHABET[ciphertext[i+1]]]))
             for j, val in enumerate(values):
                 if (row, column) in val:
                     break

@@ -9,14 +9,14 @@ class KeyPhrase(Cipher):
         self.unknown_symbol_number = unknown_symbol_number
 
     def generate_random_key(self, length=None):
-        return generate_random_keyword(self.alphabet, len(self.alphabet))
+        return generate_random_keyword(self.alphabet.replace(b' ', b''), len(self.alphabet) - 1)
 
     def encrypt(self, plaintext, key):
         ciphertext = []
         for position in range(0, len(plaintext)):
             p = plaintext[position]
-            if p >= len(self.alphabet):
-                ciphertext.append(self.unknown_symbol_number)
+            if p == self.alphabet.index(b' '):
+                ciphertext.append(p)
                 continue
             ciphertext.append(key[p])
         return np.array(ciphertext)

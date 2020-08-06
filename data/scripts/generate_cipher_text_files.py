@@ -30,13 +30,13 @@ def encrypt_file_with_all_cipher_types(filename, save_folder, cipher_types, appe
 
                 key = cipher.generate_random_key(key_length)
                 keys.append(key)
-                plaintext_numberspace = textUtils.map_text_into_numberspace(plaintext[:max_text_len], config.ALPHABET,
+                plaintext_numberspace = textUtils.map_text_into_numberspace(plaintext[:max_text_len], config.INPUT_ALPHABET,
                                                                             config.UNKNOWN_SYMBOL_NUMBER)
                 if isinstance(key, bytes):
                     key = textUtils.map_text_into_numberspace(key, cipher.alphabet, cipher.unknown_symbol_number)
 
                 ciphertexts.append(textUtils.map_numbers_into_textspace(cipher.encrypt(plaintext_numberspace, key),
-                                                                        config.ALPHABET, config.UNKNOWN_SYMBOL))
+                                                                        config.INPUT_ALPHABET, config.UNKNOWN_SYMBOL))
                 plaintext = b''
 
                 # check if decryption works
@@ -151,6 +151,7 @@ if __name__ == "__main__":
         cipher_types.append(config.CIPHER_TYPES[38])
         cipher_types.append(config.CIPHER_TYPES[39])
         cipher_types.append(config.CIPHER_TYPES[40])
+        cipher_types.append(config.CIPHER_TYPES[41])
     if not os.path.exists(args.save_folder):
         Path(args.save_folder).mkdir(parents=True, exist_ok=True)
 

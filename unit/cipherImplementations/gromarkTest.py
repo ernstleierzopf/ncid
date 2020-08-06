@@ -6,7 +6,7 @@ from unit.cipherImplementations.CipherTestBase import CipherTestBase
 class GromarkTest(CipherTestBase):
     cipher = Gromark(CipherTestBase.ALPHABET, CipherTestBase.UNKNOWN_SYMBOL, CipherTestBase.UNKNOWN_SYMBOL_NUMBER)
     plaintext = b'thereareuptotensubstitutesperletter'
-    ciphertext = b'nfyckbtijcnwzycacjnaynlqpwwstwpjqfl'
+    ciphertext = b'23452nfyckbtijcnwzycacjnaynlqpwwstwpjqfl6'
     decrypted_plaintext = b'thereareuptotensubstitutesperletter'
     key = [[2,3,4,5,2], map_text_into_numberspace(b'ajrxebksygfpvidoumhqwncltz', CipherTestBase.ALPHABET,
            CipherTestBase.UNKNOWN_SYMBOL_NUMBER)]

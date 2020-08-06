@@ -1,18 +1,13 @@
 from cipherImplementations.numberedKey import NumberedKey
 from unit.cipherImplementations.CipherTestBase import CipherTestBase
 from util.textUtils import map_text_into_numberspace, map_numbers_into_textspace
+from cipherImplementations.cipher import OUTPUT_ALPHABET
 
 
 class NihilistTranspositionTest(CipherTestBase):
     cipher = NumberedKey(CipherTestBase.ALPHABET, CipherTestBase.UNKNOWN_SYMBOL, CipherTestBase.UNKNOWN_SYMBOL_NUMBER)
     plaintext = b'The road to success is always under construction.'
-    # ct = [4,19,20,21,2,23,25,4,2,22,5,16,16,15,22,22,11,22,23,12,7,23,9,22,5,1,25,20,21,16,2,1,22,4,21,5,16,4,17,2,1]
-    # ciphertext = b''
-    # for c in ct:
-    #     ciphertext += bytes([CipherTestBase.ALPHABET[int(c / 10)]])
-    #     ciphertext += bytes([CipherTestBase.ALPHABET[int(c % 10)]])
-    # print(ciphertext)
-    ciphertext = b'aebjcacbaccdcfaeacccafbgbgbfccccbbcccdbcahcdajccafabcfcacbbgacabccaecbafbgaebhacab'
+    ciphertext = b'0419202102232504022205161615222211222312072309220501252021160201220421051604170201'
     decrypted_plaintext = b'theroadtosuccessisalwaysunderconstruction'
     key = map_text_into_numberspace(b'mnoqtuvwxyzilikeciphersabdfg', cipher.alphabet, cipher.unknown_symbol_number)
 
@@ -31,10 +26,10 @@ class NihilistTranspositionTest(CipherTestBase):
         plaintext = self.cipher.filter(self.plaintext, keep_unknown_symbols=False)
         plaintext_numbers = map_text_into_numberspace(plaintext, self.cipher.alphabet, self.UNKNOWN_SYMBOL_NUMBER)
         ciphertext_numbers = self.cipher.encrypt(plaintext_numbers, self.key)
-        ciphertext = map_numbers_into_textspace(ciphertext_numbers, self.cipher.alphabet, self.UNKNOWN_SYMBOL)
+        ciphertext = map_numbers_into_textspace(ciphertext_numbers, OUTPUT_ALPHABET, self.UNKNOWN_SYMBOL)
         self.assertEqual(len(ciphertext), 2 * len(plaintext))
         for i in range(0, len(ciphertext), 2):
-            pos = self.cipher.alphabet.index(bytes([ciphertext[i]])) * 10 + self.cipher.alphabet.index(bytes([ciphertext[i + 1]]))
+            pos = int(bytes([ciphertext[i]])) * 10 + int(bytes([ciphertext[i + 1]]))
             self.assertEqual(self.cipher.alphabet.index(bytes([self.decrypted_plaintext[int(i / 2)]])), self.key[pos])
 
     def test6decrypt(self):

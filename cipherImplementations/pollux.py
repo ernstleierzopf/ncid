@@ -1,4 +1,4 @@
-from cipherImplementations.cipher import Cipher, generate_random_list_of_unique_digits
+from cipherImplementations.cipher import Cipher, generate_random_list_of_unique_digits, OUTPUT_ALPHABET
 from util.textUtils import remove_unknown_symbols, encrypt_morse, decrypt_morse, morse_codes
 import numpy as np
 import random
@@ -23,10 +23,11 @@ class Pollux(Cipher):
             indices = [j for j, x in enumerate(self.key_morse) if x == morse_code[i]]
             pos = random.randint(0, len(indices) - 1)
             value = key[indices[pos]]
-            ciphertext.append(value)
+            ciphertext.append(OUTPUT_ALPHABET.index(bytes(str(value), 'utf-8')))
         return np.array(ciphertext)
 
     def decrypt(self, ciphertext, key):
+        ciphertext = np.array([int(bytes([OUTPUT_ALPHABET[c]])) for c in ciphertext])
         morse_code = decrypt_morse(ciphertext, self.key_morse, key)
 
         plaintext = []

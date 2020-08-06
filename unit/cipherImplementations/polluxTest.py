@@ -1,7 +1,8 @@
 from cipherImplementations.pollux import Pollux
-from util.textUtils import map_text_into_numberspace, map_numbers_into_textspace
+from util.textUtils import map_text_into_numberspace
 from unit.cipherImplementations.CipherTestBase import CipherTestBase
 import numpy as np
+from cipherImplementations.cipher import OUTPUT_ALPHABET
 
 
 class PolluxTest(CipherTestBase):
@@ -13,7 +14,7 @@ class PolluxTest(CipherTestBase):
     #     ct.append(int(bytes([c])))
     # ciphertext = map_numbers_into_textspace(ct, cipher.alphabet, cipher.unknown_symbol)
     # print(ciphertext)
-    ciphertext = [0,8,6,3,9,3,4,2,5,7,0,2,4,1,7,6,8,5,9,6,3,0,4,1,4,5,6,2,3,4,9,0,8,7,4,5,3,6,0]
+    ciphertext = b'086393425702417685963041456234908745360'
     decrypted_plaintext = b'luck helps'
     key = np.array([0,1,2,3,4,5,6,7,8,9])
 
@@ -32,14 +33,12 @@ class PolluxTest(CipherTestBase):
         plaintext = self.cipher.filter(self.plaintext, keep_unknown_symbols=False)
         plaintext_numbers = map_text_into_numberspace(plaintext, self.cipher.alphabet, self.UNKNOWN_SYMBOL_NUMBER)
         ciphertext_numbers = self.cipher.encrypt(plaintext_numbers, self.key)
+        ciphertext_numbers = np.array([int(bytes([OUTPUT_ALPHABET[c]])) for c in ciphertext_numbers])
         cntr = 0
         for ct in self.ciphertext:
+            ct = int(bytes([ct]))
             self.assertEqual(self.cipher.key_morse[ct], self.cipher.key_morse[ciphertext_numbers[cntr]])
             cntr += 1
 
     def test6decrypt(self):
-        ciphertext = b'aigdjdecfhacebhgifjgdaebefgcdejaihefdga'
-        ciphertext_numbers = map_text_into_numberspace(ciphertext, self.cipher.alphabet, self.UNKNOWN_SYMBOL_NUMBER)
-        plaintext_numbers = self.cipher.decrypt(ciphertext_numbers, self.key)
-        plaintext = map_numbers_into_textspace(plaintext_numbers, self.cipher.alphabet, self.UNKNOWN_SYMBOL)
-        self.assertEqual(self.decrypted_plaintext, plaintext)
+        self.run_test6decrypt()

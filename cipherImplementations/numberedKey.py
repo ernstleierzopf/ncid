@@ -1,5 +1,5 @@
 import numpy as np
-from cipherImplementations.cipher import Cipher, generate_random_keyword
+from cipherImplementations.cipher import Cipher, generate_random_keyword, OUTPUT_ALPHABET
 import random
 
 
@@ -30,11 +30,12 @@ class NumberedKey(Cipher):
             pos = np.where(key == p)[0]
             rand = random.randint(0, len(pos) - 1)
             pos = pos[rand]
-            ciphertext.append(int(pos / 10))
-            ciphertext.append(pos % 10)
+            ciphertext.append(OUTPUT_ALPHABET.index(bytes(str(int(pos / 10)), 'utf-8')))
+            ciphertext.append(OUTPUT_ALPHABET.index(bytes(str(pos % 10), 'utf-8')))
         return np.array(ciphertext)
 
     def decrypt(self, ciphertext, key):
+        ciphertext = np.array([int(bytes([OUTPUT_ALPHABET[c]])) for c in ciphertext])
         plaintext = []
         for i in range(0, len(ciphertext), 2):
             pos = ciphertext[i] * 10 + ciphertext[i + 1]

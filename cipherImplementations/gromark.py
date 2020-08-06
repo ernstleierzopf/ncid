@@ -1,6 +1,6 @@
 import random
 import numpy as np
-from cipherImplementations.cipher import Cipher, generate_random_keyword, generate_keyword_alphabet
+from cipherImplementations.cipher import Cipher, generate_random_keyword, generate_keyword_alphabet, OUTPUT_ALPHABET
 
 
 class Gromark(Cipher):
@@ -24,8 +24,11 @@ class Gromark(Cipher):
             i += 1
 
         ciphertext = []
+        for k in primer[:5]:
+            ciphertext.append(OUTPUT_ALPHABET.index(bytes(str(k), 'utf-8')))
         for i, p in enumerate(plaintext):
             ciphertext.append(key[1][(p + primer[i]) % len(self.alphabet)])
+        ciphertext.append(OUTPUT_ALPHABET.index(bytes(str(primer[i]), 'utf-8')))
         return np.array(ciphertext)
 
     def decrypt(self, ciphertext, key):
@@ -36,6 +39,6 @@ class Gromark(Cipher):
             i += 1
 
         plaintext = []
-        for i, c in enumerate(ciphertext):
+        for i, c in enumerate(ciphertext[5:-1]):
             plaintext.append((np.where(key[1] == c)[0][0] - primer[i]) % len(self.alphabet))
         return np.array(plaintext)

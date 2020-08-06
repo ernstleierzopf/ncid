@@ -8,6 +8,12 @@ sys.path.append("../../../")
 from util.textUtils import remove_unknown_symbols, map_text_into_numberspace
 
 
+INPUT_ALPHABET = b'abcdefghijklmnopqrstuvwxyz'
+OUTPUT_ALPHABET = b'abcdefghijklmnopqrstuvwxyz #0123456789'
+UNKNOWN_SYMBOL = b'?'
+UNKNOWN_SYMBOL_NUMBER = 90
+
+
 def generate_random_list_of_unique_digits(length):
     if length is None or length <= 0:
         raise ValueError('The length of a key must be greater than 0 and must not be None.')

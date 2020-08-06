@@ -1,5 +1,6 @@
 import tensorflow as tf
 import cipherTypeDetection.config as config
+from cipherTypeDetection.config import OUTPUT_ALPHABET
 from cipherImplementations.simpleSubstitution import SimpleSubstitution
 import sys
 from util.textUtils import map_text_into_numberspace
@@ -19,12 +20,12 @@ def calculate_frequencies(text, size, recursive=True):
     before = []
     if recursive is True and size > 1:
         before = calculate_frequencies(text, size-1, recursive)
-    frequencies_size = int(math.pow(26, size))
+    frequencies_size = int(math.pow(len(OUTPUT_ALPHABET), size))
     frequencies = [0]*frequencies_size
     for p in range(0, len(text) - (size-1)):
         pos = 0
         for i in range(0, size):
-            pos += text[p + i] * int(math.pow(26, i))
+            pos += text[p + i] * int(math.pow(len(OUTPUT_ALPHABET), i))
         frequencies[pos] += 1
     for f in range(0, len(frequencies)):
         frequencies[f] = frequencies[f] / len(text)
@@ -35,12 +36,12 @@ def calculate_ny_gram_frequencies(text, size, interval, recursive=True):
     before = []
     if recursive is True and size > 2:
         before = calculate_ny_gram_frequencies(text, size-1, interval, recursive)
-    frequencies_size = int(math.pow(26, size))
+    frequencies_size = int(math.pow(len(OUTPUT_ALPHABET), size))
     frequencies = [0]*frequencies_size
     for p in range(0, len(text) - (size-1) * interval):
         pos = 0
         for i in range(0, size):
-            pos += text[p + i*interval] * int(math.pow(26, i))
+            pos += text[p + i*interval] * int(math.pow(len(OUTPUT_ALPHABET), i))
         frequencies[pos] += 1
     for f in range(0, len(frequencies)):
         frequencies[f] = frequencies[f] / len(text)
@@ -48,11 +49,11 @@ def calculate_ny_gram_frequencies(text, size, interval, recursive=True):
 
 
 def calculate_index_of_coincidence(text):
-    n = [0]*26
+    n = [0]*len(OUTPUT_ALPHABET)
     for p in text:
         n[p] = n[p] + 1
     coindex = 0
-    for i in range(0, 26):
+    for i in range(0, len(OUTPUT_ALPHABET)):
         coindex = coindex + n[i] * (n[i] - 1)
     coindex = coindex / len(text)
     coindex = coindex / (len(text) - 1)
@@ -60,12 +61,12 @@ def calculate_index_of_coincidence(text):
 
 
 def calculate_index_of_coincidence_bigrams(text):
-    n = [0]*676
+    n = [0]*(len(OUTPUT_ALPHABET) * len(OUTPUT_ALPHABET))
     for i in range(1, len(text), 1):
         p0, p1 = text[i-1], text[i]
-        n[p0 * 26 + p1] = n[p0 * 26 + p1] + 1
+        n[p0 * len(OUTPUT_ALPHABET) + p1] = n[p0 * len(OUTPUT_ALPHABET) + p1] + 1
     coindex = 0
-    for i in range(0, 26 * 26):
+    for i in range(0, len(OUTPUT_ALPHABET) * len(OUTPUT_ALPHABET)):
         coindex += n[i] * (n[i] - 1)
     coindex = coindex / len(text) / (len(text) - 1) / (len(text) - 2)
     return coindex
@@ -171,12 +172,10 @@ def encrypt(plaintext, label, key_length, keep_unknown_symbols):
         key = new_key_dict
 
     ciphertext = cipher.encrypt(plaintext_numberspace, key)
-    if b'j' not in cipher.alphabet:
-        normalize_text(ciphertext, 9)
-
-    # '#' from the digrafid cipher must be replaced to be able to calculate features. As this let's the cipher be classified easily, it is
-    # just replaced by 'z'.
-    ciphertext = [25 if x == 26 else x for x in ciphertext]
+    if b'j' not in cipher.alphabet and config.CIPHER_TYPES[label] != 'homophonic':
+        ciphertext = normalize_text(ciphertext, 9)
+    if b'x' not in cipher.alphabet:
+        ciphertext = normalize_text(ciphertext, 23)
     return ciphertext
 
 
@@ -258,7 +257,7 @@ class TextLine2CipherStatisticsDataset:
     def __next__(self):
         processes = []
         manager = multiprocessing.Manager()
-        c = SimpleSubstitution(config.ALPHABET, config.UNKNOWN_SYMBOL, config.UNKNOWN_SYMBOL_NUMBER)
+        c = SimpleSubstitution(config.INPUT_ALPHABET, config.UNKNOWN_SYMBOL, config.UNKNOWN_SYMBOL_NUMBER)
         # debugging does not work here!
         result_list = manager.list()
         for _ in range(self.dataset_workers):
