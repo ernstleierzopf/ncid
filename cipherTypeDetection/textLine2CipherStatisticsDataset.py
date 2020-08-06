@@ -1,6 +1,6 @@
 import tensorflow as tf
 import cipherTypeDetection.config as config
-from cipherTypeDetection.config import OUTPUT_ALPHABET
+from cipherImplementations.cipher import OUTPUT_ALPHABET
 from cipherImplementations.simpleSubstitution import SimpleSubstitution
 import sys
 from util.textUtils import map_text_into_numberspace

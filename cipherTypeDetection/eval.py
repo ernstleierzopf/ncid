@@ -13,6 +13,7 @@ import tensorflow as tf
 import tensorflow_datasets as tfds
 sys.path.append("../")
 import cipherTypeDetection.config as config
+from cipherImplementations.cipher import OUTPUT_ALPHABET
 from cipherTypeDetection.textLine2CipherStatisticsDataset import TextLine2CipherStatisticsDataset, calculate_statistics
 tf.debugging.set_log_device_placement(enabled=False)
 
@@ -136,7 +137,7 @@ def evaluate(args, model):
                 for line in fd.readlines():
                     # remove newline
                     line = line[:-1]
-                    ciphertext = map_text_into_numberspace(line, config.OUTPUT_ALPHABET, config.UNKNOWN_SYMBOL_NUMBER)
+                    ciphertext = map_text_into_numberspace(line, OUTPUT_ALPHABET, config.UNKNOWN_SYMBOL_NUMBER)
                     statistics = calculate_statistics(ciphertext)
                     batch.append(statistics)
                     iterations += 1
@@ -348,6 +349,7 @@ if __name__ == "__main__":
         cipher_types.append(config.CIPHER_TYPES[39])
         cipher_types.append(config.CIPHER_TYPES[40])
         cipher_types.append(config.CIPHER_TYPES[41])
+        cipher_types.append(config.CIPHER_TYPES[42])
     args.ciphers = cipher_types
 
     print("Loading Model...")
