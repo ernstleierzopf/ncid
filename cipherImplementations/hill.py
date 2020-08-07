@@ -20,7 +20,7 @@ class Hill(Cipher):
             y = random.randrange(0, 4)
             matrix[x, y] = int(random.randrange(0, 25))
             det = self.determinant(matrix)
-        return matrix
+        return np.array(matrix)
 
     def encrypt(self, plaintext, key):
         ciphertext = []

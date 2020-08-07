@@ -1,6 +1,7 @@
 from cipherImplementations.vigenere import Vigenere
-from util.textUtils import map_text_into_numberspace, map_numbers_into_textspace
+from util.textUtils import map_text_into_numberspace
 from unit.cipherImplementations.CipherTestBase import CipherTestBase
+
 
 class VigenereTest(CipherTestBase):
     cipher = Vigenere(CipherTestBase.ALPHABET, CipherTestBase.UNKNOWN_SYMBOL, CipherTestBase.UNKNOWN_SYMBOL_NUMBER)

@@ -200,9 +200,9 @@ if __name__ == "__main__":
         total_frequencies_size += math.pow(len(OUTPUT_ALPHABET), i)
     total_frequencies_size = int(total_frequencies_size)
 
-    # total_ny_gram_frequencies_size = int(math.pow(len(OUTPUT_ALPHABET), 2)) * 6
+    # total_ny_gram_frequencies_size = int(math.pow(len(OUTPUT_ALPHABET), 2)) * 14
 
-    input_layer_size = 1 + 1 + total_frequencies_size  # + 1 #+ 1 + 1 + 1 + 1 + 1  # + total_ny_gram_frequencies_size
+    input_layer_size = 1 + 1 + total_frequencies_size #+ 1 + 1 + 1 + 1 + 1 + 1  # + total_ny_gram_frequencies_size
     output_layer_size = len(cipher_types)
     hidden_layer_size = 2 * (input_layer_size / 3) + output_layer_size
 
@@ -211,29 +211,29 @@ if __name__ == "__main__":
         strategy = tf.distribute.MirroredStrategy()
         with strategy.scope():
             # logistic regression baseline
-            # model = tf.keras.Sequential()
-            # model.add(tf.keras.layers.Dense(output_layer_size, input_dim=input_layer_size, activation='softmax', use_bias=True))
-            # model.compile(optimizer='sgd', loss="sparse_categorical_crossentropy", metrics=["accuracy"])
-
             model = tf.keras.Sequential()
-            model.add(tf.keras.layers.Flatten(input_shape=(input_layer_size,)))
-            for i in range(0, 5):
-                model.add(tf.keras.layers.Dense(hidden_layer_size, activation="relu", use_bias=True))
-            model.add(tf.keras.layers.Dense(output_layer_size, activation='softmax'))
-            model.compile(optimizer="adam", loss="sparse_categorical_crossentropy", metrics=["accuracy"])
+            model.add(tf.keras.layers.Dense(output_layer_size, input_dim=input_layer_size, activation='softmax', use_bias=True))
+            model.compile(optimizer='sgd', loss="sparse_categorical_crossentropy", metrics=["accuracy"])
+
+            # model = tf.keras.Sequential()
+            # model.add(tf.keras.layers.Flatten(input_shape=(input_layer_size,)))
+            # for i in range(0, 5):
+            #     model.add(tf.keras.layers.Dense(hidden_layer_size, activation="relu", use_bias=True))
+            # model.add(tf.keras.layers.Dense(output_layer_size, activation='softmax'))
+            # model.compile(optimizer="adam", loss="sparse_categorical_crossentropy", metrics=["accuracy"])
         model.summary()
     else:
         # logistic regression baseline
-        # model = tf.keras.Sequential()
-        # model.add(tf.keras.layers.Dense(output_layer_size, input_dim=input_layer_size, activation='softmax', use_bias=True))
-        # model.compile(optimizer='sgd', loss="sparse_categorical_crossentropy", metrics=["accuracy"])
-
         model = tf.keras.Sequential()
-        model.add(tf.keras.layers.Flatten(input_shape=(input_layer_size,)))
-        for i in range(0, 5):
-            model.add(tf.keras.layers.Dense(hidden_layer_size, activation="relu", use_bias=True))
-        model.add(tf.keras.layers.Dense(output_layer_size, activation='softmax'))
-        model.compile(optimizer="adam", loss="sparse_categorical_crossentropy", metrics=["accuracy"])
+        model.add(tf.keras.layers.Dense(output_layer_size, input_dim=input_layer_size, activation='softmax', use_bias=True))
+        model.compile(optimizer='sgd', loss="sparse_categorical_crossentropy", metrics=["accuracy"])
+
+        # model = tf.keras.Sequential()
+        # model.add(tf.keras.layers.Flatten(input_shape=(input_layer_size,)))
+        # for i in range(0, 5):
+        #     model.add(tf.keras.layers.Dense(hidden_layer_size, activation="relu", use_bias=True))
+        # model.add(tf.keras.layers.Dense(output_layer_size, activation='softmax'))
+        # model.compile(optimizer="adam", loss="sparse_categorical_crossentropy", metrics=["accuracy"])
 
     print('Model created.\n')
 

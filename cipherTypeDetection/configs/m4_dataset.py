@@ -198,9 +198,9 @@ def calculate_statistics(datum):
     # pattern_repetitions_count = pattern_repetitions(numbers)
     # entropy = calculate_entropy(numbers)
 
-    # ny_gram_frequencies = []
-    # for i in range(2, 8):
-    #     ny_gram_frequencies += calculate_ny_gram_frequencies(numbers, 2, interval=i, recursive=False)
+    ny_gram_frequencies = []
+    for i in range(2, 8):
+        ny_gram_frequencies += calculate_ny_gram_frequencies(numbers, 2, interval=i, recursive=False)
 
     # average ny_gram_frequencies
     # ny_gram_frequencies = [0]*676
@@ -216,8 +216,8 @@ def calculate_statistics(datum):
     # ny_gram_frequencies += calculate_ny_gram_frequencies(numbers, 2, interval=10, recursive=False)
     # ny_gram_frequencies += calculate_ny_gram_frequencies(numbers, 2, interval=20, recursive=False)
     # ny_gram_frequencies += calculate_ny_gram_frequencies(numbers, 2, interval=25, recursive=False)
-    return [unigram_ioc] + [bigram_ioc] + frequencies  # + ny_gram_frequencies + [has_j] + [has_double] + [chi_square] + \
-           # [pattern_repetitions_count] + [entropy] + [autocorrelation]
+    return [unigram_ioc] + [bigram_ioc] + frequencies + ny_gram_frequencies # + [autocorrelation] #[entropy] #[pattern_repetitions_count] #[chi_square] # + [has_double]  #[has_j]  # + [has_double] + [chi_square] + \
+           #[pattern_repetitions_count] + [entropy]  # + ny_gram_frequencies #+ [autocorrelation]
 
 
 class TextLine2CipherStatisticsDataset:

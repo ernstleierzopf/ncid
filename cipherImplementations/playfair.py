@@ -1,10 +1,5 @@
 import numpy as np
 from cipherImplementations.cipher import Cipher, generate_random_keyword, generate_keyword_alphabet
-import sys
-import random
-
-sys.path.append("../../../")
-from util import textUtils
 
 
 def get_right_neighbor(index):

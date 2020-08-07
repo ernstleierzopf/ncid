@@ -200,9 +200,9 @@ if __name__ == "__main__":
         total_frequencies_size += math.pow(len(OUTPUT_ALPHABET), i)
     total_frequencies_size = int(total_frequencies_size)
 
-    # total_ny_gram_frequencies_size = int(math.pow(len(OUTPUT_ALPHABET), 2)) * 6
+    # total_ny_gram_frequencies_size = int(math.pow(len(OUTPUT_ALPHABET), 2)) * 14
 
-    input_layer_size = 1 + 1 + total_frequencies_size  # + 1 #+ 1 + 1 + 1 + 1 + 1  # + total_ny_gram_frequencies_size
+    input_layer_size = 1 + 1 + total_frequencies_size #+ 1 + 1 + 1 + 1 + 1 + 1  # + total_ny_gram_frequencies_size
     output_layer_size = len(cipher_types)
     hidden_layer_size = 2 * (input_layer_size / 3) + output_layer_size
 

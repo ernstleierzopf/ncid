@@ -1,5 +1,6 @@
 from cipherImplementations.hill import Hill
 from unit.cipherImplementations.CipherTestBase import CipherTestBase
+import numpy as np
 
 
 class HillTest(CipherTestBase):
@@ -9,7 +10,7 @@ class HillTest(CipherTestBase):
     plaintext = b'this is a plaintext with special characters!%%xy<d'
     ciphertext = b'jufdtmdkdtheluizfpenrzzherhtyyvbmropizoz'
     decrypted_plaintext = b'thisisaplaintextwithspecialcharactersxyd'
-    key = [[2,15,22,3], [1,9,1,12], [16,7,13,11], [8,5,9,6]]
+    key = np.array([[2,15,22,3], [1,9,1,12], [16,7,13,11], [8,5,9,6]])
 
     def test1generate_random_key(self):
         for _ in range(0, 10):
