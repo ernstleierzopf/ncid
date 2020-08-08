@@ -148,6 +148,7 @@ if __name__ == "__main__":
         cipher_types.append(config.CIPHER_TYPES[44])
         cipher_types.append(config.CIPHER_TYPES[45])
         cipher_types.append(config.CIPHER_TYPES[46])
+        cipher_types.append(config.CIPHER_TYPES[47])
     if args.train_dataset_size * args.dataset_workers > args.max_iter:
         print("ERROR: --train_dataset_size * --dataset_workers must not be bigger than --max_iter. "
               "In this case it was %d > %d" % (args.train_dataset_size * args.dataset_workers, args.max_iter), file=sys.stderr)
@@ -302,7 +303,7 @@ if __name__ == "__main__":
     with open(model_path.split('.')[0] + '_parameters.txt', 'w') as f:
         for arg in vars(args):
             f.write("{:23s}= {:s}\n".format(arg, str(getattr(args, arg))))
-    shutil.move('./logs', model_name.split('.')[0] + '_tensorboard_logs')
+    # shutil.move('./logs', model_name.split('.')[0] + '_tensorboard_logs')
     print('Model saved.\n')
 
     print('Predicting test data...\n')
