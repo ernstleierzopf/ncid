@@ -48,6 +48,7 @@ from cipherImplementations.runningKey import RunningKey
 from cipherImplementations.seriatedPlayfair import SeriatedPlayfair
 from cipherImplementations.slidefair import Slidefair
 from cipherImplementations.swagman import Swagman
+from cipherImplementations.tridigital import Tridigital
 
 
 # CIPHER_TYPES = ['columnar_transposition', 'hill', 'playfair', 'simple_substitution', 'vigenere']
@@ -113,7 +114,8 @@ CIPHER_IMPLEMENTATIONS = [Amsco(INPUT_ALPHABET, UNKNOWN_SYMBOL, UNKNOWN_SYMBOL_N
                           RunningKey(INPUT_ALPHABET, UNKNOWN_SYMBOL, UNKNOWN_SYMBOL_NUMBER),
                           SeriatedPlayfair(INPUT_ALPHABET.replace(b'j', b''), UNKNOWN_SYMBOL, UNKNOWN_SYMBOL_NUMBER),
                           Slidefair(INPUT_ALPHABET, UNKNOWN_SYMBOL, UNKNOWN_SYMBOL_NUMBER),
-                          Swagman(INPUT_ALPHABET, UNKNOWN_SYMBOL, UNKNOWN_SYMBOL_NUMBER)]
+                          Swagman(INPUT_ALPHABET, UNKNOWN_SYMBOL, UNKNOWN_SYMBOL_NUMBER),
+                          Tridigital(INPUT_ALPHABET + b' ', UNKNOWN_SYMBOL, UNKNOWN_SYMBOL_NUMBER)]
 
 # KEY_LENGTHS = [13, None, 13, None, 13]
 # KEY_LENGTHS = [list(range(4, 17)), [None]*13, list(range(4, 17)), [None]*13, list(range(4, 17))]
@@ -123,6 +125,6 @@ KEY_LENGTHS = [[5,6,7,8], [5,6,7,8], [None]*4, [None]*4, [5,6,7,8], [5,6,7,8], [
                [5,6,7,8], [5,6,7,8], [5,6,7,8], [None]*4, [2,5,10,5], [5,6,7,8], [5,6,7,8], [5,6,7,8], [None]*4, [None]*4, [None]*4,
                [None]*4, [5,6,7,8], [5,6,7,8], [10,10,10,10], [None]*4, [5,6,7,8], [5,6,7,8], [5,6,7,8], [5,6,7,8], [None]*4, [5,6,7,8],
                [None]*4, [5,6,7,8], [5,6,7,8], [5,6,7,8], [5,6,7,8], [5,6,7,8], [5,6,7,8], [5,6,7,8], [5,6,7,8], [5,6,7,8], [5,6,7,8],
-               [4,4,5,10], [None]*4, [5,6,7,8], [5,6,7,8], [5,6,7,8]]
+               [4,4,5,10], [None]*4, [5,6,7,8], [5,6,7,8], [5,6,7,8], [5,6,7,8]]
 MTC3 = 'mtc3'
 ACA = 'aca'
