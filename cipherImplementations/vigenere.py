@@ -14,7 +14,7 @@ class Vigenere(Cipher):
     def encrypt(self, plaintext, key):
         key_length = len(key)
         ciphertext = []
-        for position in range(0, len(plaintext)):
+        for position in range(len(plaintext)):
             p = plaintext[position]
             if p >= len(self.alphabet):
                 ciphertext.append(self.unknown_symbol_number)
@@ -27,7 +27,7 @@ class Vigenere(Cipher):
     def decrypt(self, ciphertext, key):
         key_length = len(key)
         plaintext = []
-        for position in range(0, len(ciphertext)):
+        for position in range(len(ciphertext)):
             c = ciphertext[position]
             if c > len(self.alphabet):
                 plaintext.append(self.unknown_symbol_number)

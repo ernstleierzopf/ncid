@@ -5,6 +5,7 @@ import unit.cipherImplementations.cipherTest as cipherTest
 import util.textUtils as text_utils
 import math
 import numpy as np
+from cipherImplementations.cipher import OUTPUT_ALPHABET
 
 
 class TextLine2CipherStatisticsDatasetTest(unittest.TestCase):
@@ -19,10 +20,13 @@ class TextLine2CipherStatisticsDatasetTest(unittest.TestCase):
 
     def test01calculate_frequencies(self):
         # unigrams
+        alph_size = len(OUTPUT_ALPHABET)
+        squared_alph_size = len(OUTPUT_ALPHABET) * len(OUTPUT_ALPHABET)
+        third_pow_size = len(OUTPUT_ALPHABET) * len(OUTPUT_ALPHABET) * len(OUTPUT_ALPHABET)
         plaintext_counter = Counter(self.plaintext.decode())
         ciphertext_counter = Counter(self.ciphertext.decode())
-        unigram_frequencies_plaintext = [0]*26
-        unigram_frequencies_ciphertext = [0]*26
+        unigram_frequencies_plaintext = [0]*alph_size
+        unigram_frequencies_ciphertext = [0]*alph_size
         for i, c in enumerate(self.cipher.alphabet.decode()):
             unigram_frequencies_plaintext[i] = plaintext_counter[c] / len(self.plaintext)
             unigram_frequencies_ciphertext[i] = ciphertext_counter[c] / len(self.ciphertext)
@@ -36,51 +40,51 @@ class TextLine2CipherStatisticsDatasetTest(unittest.TestCase):
             self.assertEqual(plaintext_counter[keys_plaintext[i]], ciphertext_counter[keys_simple_substitution_cipher[i]])
 
         # bigrams
-        bigram_frequencies_ciphertext = [0]*676
-        for i in range(0, len(self.cipher.alphabet)):
-            for j in range(0, len(self.cipher.alphabet)):
+        bigram_frequencies_ciphertext = [0]*squared_alph_size
+        for i in range(0, len(OUTPUT_ALPHABET)):
+            for j in range(0, len(OUTPUT_ALPHABET)):
                 cntr = 0
                 for k in range(0, len(self.ciphertext) - 1):
-                    if self.ciphertext[k] == self.cipher.alphabet[i] and \
-                            self.ciphertext[k + 1] == self.cipher.alphabet[j]:
+                    if self.ciphertext[k] == OUTPUT_ALPHABET[i] and \
+                            self.ciphertext[k + 1] == OUTPUT_ALPHABET[j]:
                         cntr += 1
-                bigram_frequencies_ciphertext[i*26+j] = cntr / len(self.ciphertext)
+                bigram_frequencies_ciphertext[i*alph_size+j] = cntr / len(self.ciphertext)
 
-        bigram_frequencies_plaintext = [0]*676
-        for i in range(0, len(self.cipher.alphabet)):
-            for j in range(0, len(self.cipher.alphabet)):
+        bigram_frequencies_plaintext = [0]*squared_alph_size
+        for i in range(0, len(OUTPUT_ALPHABET)):
+            for j in range(0, len(OUTPUT_ALPHABET)):
                 cntr = 0
                 for k in range(0, len(self.plaintext)-1):
-                    if self.plaintext[k] == self.cipher.alphabet[i] and \
-                            self.plaintext[k+1] == self.cipher.alphabet[j]:
+                    if self.plaintext[k] == OUTPUT_ALPHABET[i] and \
+                            self.plaintext[k+1] == OUTPUT_ALPHABET[j]:
                         cntr += 1
-                bigram_frequencies_plaintext[i*26+j] = cntr / len(self.plaintext)
+                bigram_frequencies_plaintext[i*alph_size+j] = cntr / len(self.plaintext)
 
         self.assertCountEqual(ds.calculate_frequencies(self.plaintext_numberspace, 2, recursive=False), bigram_frequencies_plaintext)
         self.assertCountEqual(ds.calculate_frequencies(self.ciphertext_numberspace, 2, recursive=False), bigram_frequencies_ciphertext)
 
         # trigrams
-        trigram_frequencies_ciphertext = [0]*17576
-        for i in range(0, len(self.cipher.alphabet)):
-            for j in range(0, len(self.cipher.alphabet)):
+        trigram_frequencies_ciphertext = [0]*third_pow_size
+        for i in range(0, len(OUTPUT_ALPHABET)):
+            for j in range(0, len(OUTPUT_ALPHABET)):
                 for k in range(0, len(self.cipher.alphabet)):
                     cntr = 0
                     for pos in range(0, len(self.ciphertext) - 2):
-                        if self.ciphertext[pos] == self.cipher.alphabet[i] and self.ciphertext[pos + 1] == self.cipher.alphabet[j]\
+                        if self.ciphertext[pos] == OUTPUT_ALPHABET[i] and self.ciphertext[pos + 1] == OUTPUT_ALPHABET[j]\
                                 and self.ciphertext[pos + 2] == self.cipher.alphabet[k]:
                             cntr += 1
-                    trigram_frequencies_ciphertext[i * 676 + j * 26 + k] = cntr / len(self.ciphertext)
+                    trigram_frequencies_ciphertext[i * squared_alph_size + j * alph_size + k] = cntr / len(self.ciphertext)
 
-        trigram_frequencies_plaintext = [0]*17576
-        for i in range(0, len(self.cipher.alphabet)):
-            for j in range(0, len(self.cipher.alphabet)):
+        trigram_frequencies_plaintext = [0]*third_pow_size
+        for i in range(0, len(OUTPUT_ALPHABET)):
+            for j in range(0, len(OUTPUT_ALPHABET)):
                 for k in range(0, len(self.cipher.alphabet)):
                     cntr = 0
                     for pos in range(0, len(self.plaintext) - 2):
-                        if self.plaintext[pos] == self.cipher.alphabet[i] and self.plaintext[pos + 1] == self.cipher.alphabet[j]\
+                        if self.plaintext[pos] == OUTPUT_ALPHABET[i] and self.plaintext[pos + 1] == OUTPUT_ALPHABET[j]\
                                 and self.plaintext[pos + 2] == self.cipher.alphabet[k]:
                             cntr += 1
-                    trigram_frequencies_plaintext[i * 676 + j * 26 + k] = cntr / len(self.ciphertext)
+                    trigram_frequencies_plaintext[i * squared_alph_size + j * alph_size + k] = cntr / len(self.ciphertext)
 
         self.assertCountEqual(ds.calculate_frequencies(self.plaintext_numberspace, 3, recursive=False), trigram_frequencies_plaintext)
         self.assertCountEqual(ds.calculate_frequencies(self.ciphertext_numberspace, 3, recursive=False), trigram_frequencies_ciphertext)
@@ -91,25 +95,28 @@ class TextLine2CipherStatisticsDatasetTest(unittest.TestCase):
                               unigram_frequencies_ciphertext + bigram_frequencies_ciphertext + trigram_frequencies_ciphertext)
 
     def test02calculate_ny_gram_frequencies(self):
+        alph_size = len(OUTPUT_ALPHABET)
+        squared_alph_size = len(OUTPUT_ALPHABET) * len(OUTPUT_ALPHABET)
+        third_pow_size = len(OUTPUT_ALPHABET) * len(OUTPUT_ALPHABET) * len(OUTPUT_ALPHABET)
         # bigrams interval=2
-        bigram_ny_frequencies_ciphertext = [0] * 676
-        for i in range(0, len(self.cipher.alphabet)):
-            for j in range(0, len(self.cipher.alphabet)):
+        bigram_ny_frequencies_ciphertext = [0] * squared_alph_size
+        for i in range(0, len(OUTPUT_ALPHABET)):
+            for j in range(0, len(OUTPUT_ALPHABET)):
                 cntr = 0
                 for k in range(0, len(self.ciphertext) - 2):
-                    if self.ciphertext[k] == self.cipher.alphabet[i] and \
-                            self.ciphertext[k + 2] == self.cipher.alphabet[j]:
+                    if self.ciphertext[k] == OUTPUT_ALPHABET[i] and \
+                            self.ciphertext[k + 2] == OUTPUT_ALPHABET[j]:
                         cntr += 1
-                bigram_ny_frequencies_ciphertext[i * 26 + j] = cntr / len(self.ciphertext)
+                bigram_ny_frequencies_ciphertext[i * alph_size + j] = cntr / len(self.ciphertext)
 
-        bigram_ny_frequencies_plaintext = [0] * 676
-        for i in range(0, len(self.cipher.alphabet)):
-            for j in range(0, len(self.cipher.alphabet)):
+        bigram_ny_frequencies_plaintext = [0] * squared_alph_size
+        for i in range(0, len(OUTPUT_ALPHABET)):
+            for j in range(0, len(OUTPUT_ALPHABET)):
                 cntr = 0
                 for k in range(0, len(self.plaintext) - 2):
-                    if self.plaintext[k] == self.cipher.alphabet[i] and self.plaintext[k + 2] == self.cipher.alphabet[j]:
+                    if self.plaintext[k] == OUTPUT_ALPHABET[i] and self.plaintext[k + 2] == OUTPUT_ALPHABET[j]:
                         cntr += 1
-                bigram_ny_frequencies_plaintext[i * 26 + j] = cntr / len(self.plaintext)
+                bigram_ny_frequencies_plaintext[i * alph_size + j] = cntr / len(self.plaintext)
 
         self.assertCountEqual(ds.calculate_ny_gram_frequencies(self.plaintext_numberspace, 2, interval=2, recursive=False),
                               bigram_ny_frequencies_plaintext)
@@ -117,24 +124,24 @@ class TextLine2CipherStatisticsDatasetTest(unittest.TestCase):
                               bigram_ny_frequencies_ciphertext)
 
         # bigrams interval=7
-        bigram_ny_frequencies_ciphertext = [0] * 676
-        for i in range(0, len(self.cipher.alphabet)):
-            for j in range(0, len(self.cipher.alphabet)):
+        bigram_ny_frequencies_ciphertext = [0] * squared_alph_size
+        for i in range(0, len(OUTPUT_ALPHABET)):
+            for j in range(0, len(OUTPUT_ALPHABET)):
                 cntr = 0
                 for k in range(0, len(self.ciphertext) - 7):
-                    if self.ciphertext[k] == self.cipher.alphabet[i] and \
-                            self.ciphertext[k + 7] == self.cipher.alphabet[j]:
+                    if self.ciphertext[k] == OUTPUT_ALPHABET[i] and \
+                            self.ciphertext[k + 7] == OUTPUT_ALPHABET[j]:
                         cntr += 1
-                bigram_ny_frequencies_ciphertext[i * 26 + j] = cntr / len(self.ciphertext)
+                bigram_ny_frequencies_ciphertext[i * alph_size + j] = cntr / len(self.ciphertext)
 
-        bigram_ny_frequencies_plaintext = [0] * 676
-        for i in range(0, len(self.cipher.alphabet)):
-            for j in range(0, len(self.cipher.alphabet)):
+        bigram_ny_frequencies_plaintext = [0] * squared_alph_size
+        for i in range(0, len(OUTPUT_ALPHABET)):
+            for j in range(0, len(OUTPUT_ALPHABET)):
                 cntr = 0
                 for k in range(0, len(self.plaintext) - 7):
-                    if self.plaintext[k] == self.cipher.alphabet[i] and self.plaintext[k + 7] == self.cipher.alphabet[j]:
+                    if self.plaintext[k] == OUTPUT_ALPHABET[i] and self.plaintext[k + 7] == OUTPUT_ALPHABET[j]:
                         cntr += 1
-                bigram_ny_frequencies_plaintext[i * 26 + j] = cntr / len(self.plaintext)
+                bigram_ny_frequencies_plaintext[i * alph_size + j] = cntr / len(self.plaintext)
 
         self.assertCountEqual(ds.calculate_ny_gram_frequencies(self.plaintext_numberspace, 2, interval=7, recursive=False),
                               bigram_ny_frequencies_plaintext)
@@ -142,27 +149,27 @@ class TextLine2CipherStatisticsDatasetTest(unittest.TestCase):
                               bigram_ny_frequencies_ciphertext)
 
         # trigrams interval=7
-        trigram_ny_frequencies_ciphertext = [0] * 17576
-        for i in range(0, len(self.cipher.alphabet)):
-            for j in range(0, len(self.cipher.alphabet)):
-                for k in range(0, len(self.cipher.alphabet)):
+        trigram_ny_frequencies_ciphertext = [0] * third_pow_size
+        for i in range(0, len(OUTPUT_ALPHABET)):
+            for j in range(0, len(OUTPUT_ALPHABET)):
+                for k in range(0, len(OUTPUT_ALPHABET)):
                     cntr = 0
                     for pos in range(0, len(self.ciphertext) - 14):
-                        if self.ciphertext[pos] == self.cipher.alphabet[i] and self.ciphertext[pos + 7] == self.cipher.alphabet[j] and \
-                                self.ciphertext[pos + 14] == self.cipher.alphabet[k]:
+                        if self.ciphertext[pos] == OUTPUT_ALPHABET[i] and self.ciphertext[pos + 7] == OUTPUT_ALPHABET[j] and \
+                                self.ciphertext[pos + 14] == OUTPUT_ALPHABET[k]:
                             cntr += 1
-                    trigram_ny_frequencies_ciphertext[i * 676 + j * 26 + k] = cntr / len(self.ciphertext)
+                    trigram_ny_frequencies_ciphertext[i * squared_alph_size + j * alph_size + k] = cntr / len(self.ciphertext)
 
-        trigram_ny_frequencies_plaintext = [0] * 17576
-        for i in range(0, len(self.cipher.alphabet)):
-            for j in range(0, len(self.cipher.alphabet)):
-                for k in range(0, len(self.cipher.alphabet)):
+        trigram_ny_frequencies_plaintext = [0] * third_pow_size
+        for i in range(0, len(OUTPUT_ALPHABET)):
+            for j in range(0, len(OUTPUT_ALPHABET)):
+                for k in range(0, len(OUTPUT_ALPHABET)):
                     cntr = 0
                     for pos in range(0, len(self.plaintext) - 14):
-                        if self.plaintext[pos] == self.cipher.alphabet[i] and self.plaintext[pos + 7] == self.cipher.alphabet[j]\
-                                and self.plaintext[pos + 14] == self.cipher.alphabet[k]:
+                        if self.plaintext[pos] == OUTPUT_ALPHABET[i] and self.plaintext[pos + 7] == OUTPUT_ALPHABET[j]\
+                                and self.plaintext[pos + 14] == OUTPUT_ALPHABET[k]:
                             cntr += 1
-                    trigram_ny_frequencies_plaintext[i * 676 + j * 26 + k] = cntr / len(self.plaintext)
+                    trigram_ny_frequencies_plaintext[i * squared_alph_size + j * alph_size + k] = cntr / len(self.plaintext)
 
         self.assertCountEqual(ds.calculate_ny_gram_frequencies(self.plaintext_numberspace, 3, interval=7, recursive=False),
                               trigram_ny_frequencies_plaintext)
@@ -175,8 +182,9 @@ class TextLine2CipherStatisticsDatasetTest(unittest.TestCase):
                               bigram_ny_frequencies_ciphertext + trigram_ny_frequencies_ciphertext)
 
     def test03calculate_index_of_coincidence(self):
-        n = [0]*26
-        for c in self.cipher.alphabet:
+        alph_size = len(OUTPUT_ALPHABET)
+        n = [0]*alph_size
+        for c in OUTPUT_ALPHABET:
             for i in range(0, len(self.ciphertext)):
                 if self.ciphertext[i] == c:
                     n[self.cipher.alphabet.index(c)] += 1
@@ -187,8 +195,8 @@ class TextLine2CipherStatisticsDatasetTest(unittest.TestCase):
         ic = ic / (len(self.ciphertext) - 1)
         self.assertEqual(ds.calculate_index_of_coincidence(self.ciphertext_numberspace), ic)
 
-        n = [0] * 26
-        for c in self.cipher.alphabet:
+        n = [0] * alph_size
+        for c in OUTPUT_ALPHABET:
             for i in range(0, len(self.plaintext)):
                 if self.plaintext[i] == c:
                     n[self.cipher.alphabet.index(c)] += 1
@@ -201,12 +209,14 @@ class TextLine2CipherStatisticsDatasetTest(unittest.TestCase):
             self.plaintext_numberspace), ic)
 
     def test04calculate_index_of_coincidence_bigrams(self):
-        n = [0]*676
-        for i in range(0, len(self.cipher.alphabet)):
-            for j in range(0, len(self.cipher.alphabet)):
+        alph_size = len(OUTPUT_ALPHABET)
+        squared_alph_size = len(OUTPUT_ALPHABET) * len(OUTPUT_ALPHABET)
+        n = [0]*squared_alph_size
+        for i in range(0, len(OUTPUT_ALPHABET)):
+            for j in range(0, len(OUTPUT_ALPHABET)):
                 for k in range(0, len(self.ciphertext) - 1):
-                    if self.ciphertext[k] == self.cipher.alphabet[i] and self.ciphertext[k + 1] == self.cipher.alphabet[j]:
-                        n[i * 26 + j] += 1
+                    if self.ciphertext[k] == OUTPUT_ALPHABET[i] and self.ciphertext[k + 1] == OUTPUT_ALPHABET[j]:
+                        n[i * alph_size + j] += 1
         ic = 0
         for _, val in enumerate(n):
             ic += val * (val - 1)
@@ -215,13 +225,13 @@ class TextLine2CipherStatisticsDatasetTest(unittest.TestCase):
         ic = ic / (len(self.ciphertext) - 2)
         self.assertEqual(ds.calculate_index_of_coincidence_bigrams(self.ciphertext_numberspace), ic)
 
-        n = [0] * 676
-        for i in range(0, len(self.cipher.alphabet)):
-            for j in range(0, len(self.cipher.alphabet)):
+        n = [0] * squared_alph_size
+        for i in range(0, len(OUTPUT_ALPHABET)):
+            for j in range(0, len(OUTPUT_ALPHABET)):
                 for k in range(0, len(self.plaintext) - 1):
-                    if self.plaintext[k] == self.cipher.alphabet[i] and \
-                            self.plaintext[k + 1] == self.cipher.alphabet[j]:
-                        n[i * 26 + j] += 1
+                    if self.plaintext[k] == OUTPUT_ALPHABET[i] and \
+                            self.plaintext[k + 1] == OUTPUT_ALPHABET[j]:
+                        n[i * alph_size + j] += 1
         ic = 0
         for i in range(0, len(n)):
             ic += n[i] * (n[i] - 1)
