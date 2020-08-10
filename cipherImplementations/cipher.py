@@ -1,7 +1,7 @@
 import random
 import sys
 import numpy as np
-from cipherTypeDetection.dictionary import *
+from cipherTypeDetection.dictionary import USE_DICTIONARY, GENERATE_RANDOM_ALPHABETS, WORD_DICT, UNIQUE_WORD_DICT
 from collections import OrderedDict
 
 sys.path.append("../../../")
@@ -30,7 +30,28 @@ def generate_random_keyword(alphabet, length, unique=False, middle_char=None):
     if not isinstance(length, int) and middle_char is None:
         raise ValueError('Length must be of type integer.')
     if USE_DICTIONARY:
-        raise Exception('Dictionary key generation not implemented yet..')
+        found_word = False
+        if unique:
+            if length in UNIQUE_WORD_DICT:
+                while not found_word:
+                    rand = random.randint(0, len(UNIQUE_WORD_DICT[length]) - 1)
+                    found_word = True
+                    word = UNIQUE_WORD_DICT[length][rand]
+                    for c in word:
+                        if c not in alphabet:
+                            found_word = False
+                            break
+                return word
+        elif length in WORD_DICT:
+            while not found_word:
+                rand = random.randint(0, len(WORD_DICT[length]) - 1)
+                found_word = True
+                word = WORD_DICT[length][rand]
+                for c in word:
+                    if c not in alphabet:
+                        found_word = False
+                        break
+            return word
 
     if length is None:
         length = random.randint(1, 5) * 2

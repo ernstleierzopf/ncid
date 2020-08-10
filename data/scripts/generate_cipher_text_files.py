@@ -79,9 +79,7 @@ if __name__ == "__main__":
                              '- vigenere\n'
                              '- columnar_transposition\n'
                              '- playfair\n'
-                             '- hill\n'
-                             '- amsco\n'
-                             '- autokey')
+                             '- hill\n')
     parser.add_argument('--append_key', default=False, type=str2bool,
                         help='Append the encryption key at the end of every line.')
     parser.add_argument('--keep_unknown_symbols', default=False, type=str2bool,
@@ -162,6 +160,8 @@ if __name__ == "__main__":
         cipher_types.append(config.CIPHER_TYPES[49])
         cipher_types.append(config.CIPHER_TYPES[50])
         cipher_types.append(config.CIPHER_TYPES[51])
+        cipher_types.append(config.CIPHER_TYPES[52])
+        cipher_types.append(config.CIPHER_TYPES[53])
     if not os.path.exists(args.save_folder):
         Path(args.save_folder).mkdir(parents=True, exist_ok=True)
 

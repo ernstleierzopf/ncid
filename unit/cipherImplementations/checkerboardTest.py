@@ -18,11 +18,11 @@ class CheckerboardTest(CipherTestBase):
         rowkey, columnkey, alphabet = self.cipher.generate_random_key(length)
         self.assertEqual(len(rowkey), length)
         self.assertEqual(len(columnkey), length)
-        alph = copy.copy(self.ALPHABET)
+        alph = copy.copy(self.cipher.alphabet)
         for c in rowkey:
             self.assertIn(c, alph)
             alph = alph.replace(bytes([c]), b'')
-        alph = copy.copy(self.ALPHABET)
+        alph = copy.copy(self.cipher.alphabet)
         for c in columnkey:
             self.assertIn(c, alph)
             alph = alph.replace(bytes([c]), b'')

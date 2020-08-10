@@ -237,9 +237,7 @@ if __name__ == "__main__":
                              '- vigenere\n'
                              '- columnar_transposition\n'
                              '- playfair\n'
-                             '- hill\n'
-                             '- amsco\n'
-                             '- autokey')
+                             '- hill\n')
 
     bench_parser.add_argument('--download_dataset', default=True, type=str2bool)
     bench_parser.add_argument('--dataset_size', default=16000, type=int)

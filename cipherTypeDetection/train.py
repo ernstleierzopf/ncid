@@ -61,9 +61,7 @@ if __name__ == "__main__":
                              '- vigenere\n'
                              '- columnar_transposition\n'
                              '- playfair\n'
-                             '- hill\n'
-                             '- amsco\n'
-                             '- autokey')
+                             '- hill\n')
     parser.add_argument('--keep_unknown_symbols', default=False, type=str2bool,
                         help='Keep unknown symbols in the plaintexts. Known \n'
                              'symbols are defined in the alphabet of the cipher.')
