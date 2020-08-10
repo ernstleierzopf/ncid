@@ -38,6 +38,13 @@ class Trifid(Cipher):
                 column = (column + shift + end_shift) % len(plaintext) - end_shift - 1
             if end_shift > 0:
                 column += end_shift
+            if shift + column >= len(plaintext):
+                if (shift + column + end_shift) % len(plaintext) <= end_shift:
+                    end_shift += 1
+                else:
+                    column -= 1
+                row += 1
+                column = (column + shift) % len(plaintext)
             tmp.append(mapping[row][shift + column])
             if len(tmp) == 3:
                 ciphertext.append(key[0][list(self.key_dict.values()).index(tmp)])
