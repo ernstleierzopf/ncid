@@ -51,6 +51,7 @@ from cipherImplementations.swagman import Swagman
 from cipherImplementations.tridigital import Tridigital
 from cipherImplementations.trifid import Trifid
 from cipherImplementations.triSquare import TriSquare
+from cipherImplementations.twoSquare import TwoSquare
 
 
 # CIPHER_TYPES = ['columnar_transposition', 'hill', 'playfair', 'simple_substitution', 'vigenere']
@@ -60,7 +61,7 @@ CIPHER_TYPES = ['amsco', 'autokey', 'baconian', 'bazeries', 'beaufort', 'bifid',
                 'monome_dinome', 'morbit', 'myszkowski', 'nicodemus', 'nihilist_transposition', 'null', 'numbered_key', 'periodic_gromark',
                 'phillips', 'phillips_rc', 'plaintext', 'playfair', 'pollux', 'porta', 'portax', 'progressive_key', 'quagmire1',
                 'quagmire2', 'quagmire3', 'quagmire4', 'ragbaby', 'railfence', 'redefence', 'route_transposition', 'running_key',
-                'seriated_playfair', 'slidefair', 'swagman', 'tridigital', 'trifid', 'tri_square']
+                'seriated_playfair', 'slidefair', 'swagman', 'tridigital', 'trifid', 'tri_square', 'two_square']
 # CIPHER_IMPLEMENTATIONS = [ColumnarTransposition(INPUT_ALPHABET, UNKNOWN_SYMBOL, UNKNOWN_SYMBOL_NUMBER, fill_blocks=False),
 #                           Hill(INPUT_ALPHABET, b'x', ord('x')),
 #                           Playfair(INPUT_ALPHABET.replace(b'j', b''), b'x', ord('x')),
@@ -119,7 +120,8 @@ CIPHER_IMPLEMENTATIONS = [Amsco(INPUT_ALPHABET, UNKNOWN_SYMBOL, UNKNOWN_SYMBOL_N
                           Swagman(INPUT_ALPHABET, UNKNOWN_SYMBOL, UNKNOWN_SYMBOL_NUMBER),
                           Tridigital(INPUT_ALPHABET + b' ', UNKNOWN_SYMBOL, UNKNOWN_SYMBOL_NUMBER),
                           Trifid(INPUT_ALPHABET + b'#', UNKNOWN_SYMBOL, UNKNOWN_SYMBOL_NUMBER),
-                          TriSquare(INPUT_ALPHABET.replace(b'j', b''), UNKNOWN_SYMBOL, UNKNOWN_SYMBOL_NUMBER)]
+                          TriSquare(INPUT_ALPHABET.replace(b'j', b''), UNKNOWN_SYMBOL, UNKNOWN_SYMBOL_NUMBER),
+                          TwoSquare(INPUT_ALPHABET.replace(b'j', b''), UNKNOWN_SYMBOL, UNKNOWN_SYMBOL_NUMBER)]
 
 # KEY_LENGTHS = [13, None, 13, None, 13]
 # KEY_LENGTHS = [list(range(4, 17)), [None]*13, list(range(4, 17)), [None]*13, list(range(4, 17))]
@@ -129,6 +131,6 @@ KEY_LENGTHS = [[5,6,7,8], [5,6,7,8], [None]*4, [None]*4, [5,6,7,8], [5,6,7,8], [
                [5,6,7,8], [5,6,7,8], [5,6,7,8], [None]*4, [2,5,10,5], [5,6,7,8], [5,6,7,8], [5,6,7,8], [None]*4, [None]*4, [None]*4,
                [None]*4, [5,6,7,8], [5,6,7,8], [10,10,10,10], [None]*4, [5,6,7,8], [5,6,7,8], [5,6,7,8], [5,6,7,8], [None]*4, [5,6,7,8],
                [None]*4, [5,6,7,8], [5,6,7,8], [5,6,7,8], [5,6,7,8], [5,6,7,8], [5,6,7,8], [5,6,7,8], [5,6,7,8], [5,6,7,8], [5,6,7,8],
-               [4,4,5,10], [None]*4, [5,6,7,8], [5,6,7,8], [5,6,7,8], [5,6,7,8], [5,6,7,8], [5,6,7,8]]
+               [4,4,5,10], [None]*4, [5,6,7,8], [5,6,7,8], [5,6,7,8], [5,6,7,8], [5,6,7,8], [5,6,7,8], [5,6,7,8]]
 MTC3 = 'mtc3'
 ACA = 'aca'

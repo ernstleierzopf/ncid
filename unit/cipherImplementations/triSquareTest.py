@@ -6,7 +6,7 @@ import numpy as np
 
 class TriSquareTest(CipherTestBase):
     cipher = TriSquare(CipherTestBase.ALPHABET.replace(b'j', b''), CipherTestBase.UNKNOWN_SYMBOL, CipherTestBase.UNKNOWN_SYMBOL_NUMBER)
-    plaintext = b'three keysquares usedx'
+    plaintext = b'three keysquares used'
     ciphertext = b'rhlqxrlxoevzbatxserxddiuaaabfz'
     decrypted_plaintext = b'threekeysquaresusedx'
     key = [map_text_into_numberspace(b'nsfmuoagpwvbhqxeciryldktz', cipher.alphabet, CipherTestBase.UNKNOWN_SYMBOL_NUMBER),
@@ -84,7 +84,7 @@ class TriSquareTest(CipherTestBase):
         self.run_test3filter_keep_unknown_symbols()
 
     def test4filter_delete_unknown_symbols(self):
-        self.run_test4filter_delete_unknown_symbols()
+        self.assertEqual(self.cipher.filter(self.plaintext, keep_unknown_symbols=False), self.decrypted_plaintext.replace(b'x', b''))
 
     def test5encrypt(self):
         alph = b'' + self.cipher.alphabet
