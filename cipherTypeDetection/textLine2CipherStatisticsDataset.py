@@ -7,6 +7,7 @@ from util.textUtils import map_text_into_numberspace
 import copy
 import math
 import multiprocessing
+from collections import Counter
 sys.path.append("../")
 import numpy as np
 
@@ -22,12 +23,12 @@ def calculate_frequencies(text, size, recursive=True):
         before = calculate_frequencies(text, size-1, recursive)
     frequencies_size = int(math.pow(len(OUTPUT_ALPHABET), size))
     frequencies = [0]*frequencies_size
-    for p in range(0, len(text) - (size-1)):
+    for p in range(len(text) - (size-1)):
         pos = 0
-        for i in range(0, size):
+        for i in range(size):
             pos += text[p + i] * int(math.pow(len(OUTPUT_ALPHABET), i))
         frequencies[pos] += 1
-    for f in range(0, len(frequencies)):
+    for f in np.nonzero(np.array(frequencies))[0]:
         frequencies[f] = frequencies[f] / len(text)
     return before + frequencies
 
@@ -38,12 +39,12 @@ def calculate_ny_gram_frequencies(text, size, interval, recursive=True):
         before = calculate_ny_gram_frequencies(text, size-1, interval, recursive)
     frequencies_size = int(math.pow(len(OUTPUT_ALPHABET), size))
     frequencies = [0]*frequencies_size
-    for p in range(0, len(text) - (size-1) * interval):
+    for p in range(len(text) - (size-1) * interval):
         pos = 0
-        for i in range(0, size):
+        for i in range(size):
             pos += text[p + i*interval] * int(math.pow(len(OUTPUT_ALPHABET), i))
         frequencies[pos] += 1
-    for f in range(0, len(frequencies)):
+    for f in np.nonzero(np.array(frequencies))[0]:
         frequencies[f] = frequencies[f] / len(text)
     return before + frequencies
 
@@ -73,14 +74,16 @@ def calculate_index_of_coincidence_bigrams(text):
 
 
 def has_letter_j(text):
-    for p in text:
-        if p == 9:
-            return 1
-    return 0
+    return OUTPUT_ALPHABET.index(b'j') in text
+
+
+def has_route(text):
+    return OUTPUT_ALPHABET.index(b'#') in text
 
 
 def has_doubles(text):
-    for i in range(0, len(text), 2):
+    end = len(text) % 2
+    for i in range(0, len(text) - end, 2):
         p0, p1 = text[i], text[i + 1]
         if p0 == p1:
             return 1
@@ -192,11 +195,13 @@ def calculate_statistics(datum):
     bigram_ioc = calculate_index_of_coincidence_bigrams(numbers)
     # autocorrelation = calculate_autocorrelation_average(numbers)
     frequencies = calculate_frequencies(numbers, 2, recursive=True)
-    # has_j = has_letter_j(numbers)
-    # has_double = has_doubles(numbers)
-    # chi_square = calculate_chi_square(frequencies[0:26])
+
+    has_j = has_letter_j(numbers)
+    has_double = has_doubles(numbers)
+    chi_square = calculate_chi_square(frequencies[0:26])
     # pattern_repetitions_count = pattern_repetitions(numbers)
-    # entropy = calculate_entropy(numbers)
+    entropy = calculate_entropy(numbers)
+    has_r = has_route(numbers)
 
     # ny_gram_frequencies = []
     # for i in range(2, 8):
@@ -216,8 +221,8 @@ def calculate_statistics(datum):
     # ny_gram_frequencies += calculate_ny_gram_frequencies(numbers, 2, interval=10, recursive=False)
     # ny_gram_frequencies += calculate_ny_gram_frequencies(numbers, 2, interval=20, recursive=False)
     # ny_gram_frequencies += calculate_ny_gram_frequencies(numbers, 2, interval=25, recursive=False)
-    return [unigram_ioc] + [bigram_ioc] + frequencies  # + ny_gram_frequencies + [has_j] + [has_double] + [chi_square] + \
-           # [pattern_repetitions_count] + [entropy] + [autocorrelation]
+    return [unigram_ioc] + [bigram_ioc] + [has_j] + [has_double] + [entropy] + [chi_square] + [has_r] + frequencies
+           # [pattern_repetitions_count] + [autocorrelation] # + ny_gram_frequencies
 
 
 class TextLine2CipherStatisticsDataset:

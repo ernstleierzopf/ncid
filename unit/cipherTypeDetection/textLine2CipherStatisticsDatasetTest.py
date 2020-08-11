@@ -2,7 +2,7 @@ import unittest
 from collections import Counter
 from cipherTypeDetection import textLine2CipherStatisticsDataset as ds
 import unit.cipherImplementations.cipherTest as cipherTest
-import util.textUtils as text_utils
+from util.textUtils import map_text_into_numberspace
 import math
 import numpy as np
 from cipherImplementations.cipher import OUTPUT_ALPHABET
@@ -10,13 +10,13 @@ from cipherImplementations.cipher import OUTPUT_ALPHABET
 
 class TextLine2CipherStatisticsDatasetTest(unittest.TestCase):
     cipher = cipherTest.CipherTest.cipher
-    ALPHABET = text_utils.map_text_into_numberspace(cipher.alphabet, cipher.alphabet, cipherTest.CipherTest.UNKNOWN_SYMBOL_NUMBER)
-    plaintext = b'thisisafilteredplaintextwithsomewordsinittobeusedtotestthestatisticsofthetextlinetocipherstatisticsd'
-    plaintext_numberspace = text_utils.map_text_into_numberspace(plaintext, cipher.alphabet, cipherTest.CipherTest.UNKNOWN_SYMBOL_NUMBER)
+    ALPHABET = map_text_into_numberspace(cipher.alphabet, cipher.alphabet, cipherTest.CipherTest.UNKNOWN_SYMBOL_NUMBER)
+    plaintext = b'thisisafilteredplaintextwithsomewordsinittobeusedtotestthestatisticsofthetextlinetocipherstatistjcsd'
+    plaintext_numberspace = map_text_into_numberspace(plaintext, cipher.alphabet, cipherTest.CipherTest.UNKNOWN_SYMBOL_NUMBER)
     # key = fcghartokldibuezjpqxyvwnsm
     # cipher: simple substitution
-    ciphertext = b'xokqkqfrkixapahzifkuxanxwkxoqebawephqkukxxecayqahxexaqxxoaqxfxkqxkgqerxoaxanxikuaxegkzoapqxfxkqxkgqh'
-    ciphertext_numberspace = text_utils.map_text_into_numberspace(ciphertext, cipher.alphabet, cipherTest.CipherTest.UNKNOWN_SYMBOL_NUMBER)
+    ciphertext = b'xokqkqfrkixapahzifkuxanxwkxoqebawephqkukxxecayqahxexaqxxoaqxfxkqxkgqerxoaxanxikuaxegkzoapqxfxkqxlgqh'
+    ciphertext_numberspace = map_text_into_numberspace(ciphertext, cipher.alphabet, cipherTest.CipherTest.UNKNOWN_SYMBOL_NUMBER)
 
     def test01calculate_frequencies(self):
         # unigrams
@@ -27,7 +27,7 @@ class TextLine2CipherStatisticsDatasetTest(unittest.TestCase):
         ciphertext_counter = Counter(self.ciphertext.decode())
         unigram_frequencies_plaintext = [0]*alph_size
         unigram_frequencies_ciphertext = [0]*alph_size
-        for i, c in enumerate(self.cipher.alphabet.decode()):
+        for i, c in enumerate(OUTPUT_ALPHABET.decode()):
             unigram_frequencies_plaintext[i] = plaintext_counter[c] / len(self.plaintext)
             unigram_frequencies_ciphertext[i] = ciphertext_counter[c] / len(self.ciphertext)
 
@@ -67,22 +67,22 @@ class TextLine2CipherStatisticsDatasetTest(unittest.TestCase):
         trigram_frequencies_ciphertext = [0]*third_pow_size
         for i in range(0, len(OUTPUT_ALPHABET)):
             for j in range(0, len(OUTPUT_ALPHABET)):
-                for k in range(0, len(self.cipher.alphabet)):
+                for k in range(0, len(OUTPUT_ALPHABET)):
                     cntr = 0
                     for pos in range(0, len(self.ciphertext) - 2):
                         if self.ciphertext[pos] == OUTPUT_ALPHABET[i] and self.ciphertext[pos + 1] == OUTPUT_ALPHABET[j]\
-                                and self.ciphertext[pos + 2] == self.cipher.alphabet[k]:
+                                and self.ciphertext[pos + 2] == OUTPUT_ALPHABET[k]:
                             cntr += 1
                     trigram_frequencies_ciphertext[i * squared_alph_size + j * alph_size + k] = cntr / len(self.ciphertext)
 
         trigram_frequencies_plaintext = [0]*third_pow_size
         for i in range(0, len(OUTPUT_ALPHABET)):
             for j in range(0, len(OUTPUT_ALPHABET)):
-                for k in range(0, len(self.cipher.alphabet)):
+                for k in range(0, len(OUTPUT_ALPHABET)):
                     cntr = 0
                     for pos in range(0, len(self.plaintext) - 2):
                         if self.plaintext[pos] == OUTPUT_ALPHABET[i] and self.plaintext[pos + 1] == OUTPUT_ALPHABET[j]\
-                                and self.plaintext[pos + 2] == self.cipher.alphabet[k]:
+                                and self.plaintext[pos + 2] == OUTPUT_ALPHABET[k]:
                             cntr += 1
                     trigram_frequencies_plaintext[i * squared_alph_size + j * alph_size + k] = cntr / len(self.ciphertext)
 
@@ -187,7 +187,7 @@ class TextLine2CipherStatisticsDatasetTest(unittest.TestCase):
         for c in OUTPUT_ALPHABET:
             for i in range(0, len(self.ciphertext)):
                 if self.ciphertext[i] == c:
-                    n[self.cipher.alphabet.index(c)] += 1
+                    n[OUTPUT_ALPHABET.index(c)] += 1
         ic = 0
         for i in range(0, len(n)):
             ic += n[i] * (n[i] - 1)
@@ -199,7 +199,7 @@ class TextLine2CipherStatisticsDatasetTest(unittest.TestCase):
         for c in OUTPUT_ALPHABET:
             for i in range(0, len(self.plaintext)):
                 if self.plaintext[i] == c:
-                    n[self.cipher.alphabet.index(c)] += 1
+                    n[OUTPUT_ALPHABET.index(c)] += 1
         ic = 0
         for _, val in enumerate(n):
             ic += val * (val - 1)
@@ -330,6 +330,14 @@ class TextLine2CipherStatisticsDatasetTest(unittest.TestCase):
             avg += result[i]
         avg = avg / len(result)
         self.assertEqual(ds.calculate_autocorrelation_average(self.ciphertext_numberspace), avg)
+
+    def test11has_route(self):
+        no_route = b'fasdfasdfasdfasdfds'
+        route = b'fsdfasddf#fasd#'
+        no_route_ns = map_text_into_numberspace(no_route, OUTPUT_ALPHABET, cipherTest.CipherTest.UNKNOWN_SYMBOL_NUMBER)
+        route_ns = map_text_into_numberspace(route, OUTPUT_ALPHABET, cipherTest.CipherTest.UNKNOWN_SYMBOL_NUMBER)
+        self.assertEqual(ds.has_route(no_route_ns), no_route.decode().__contains__('#'))
+        self.assertEqual(ds.has_route(route_ns), route.decode().__contains__('#'))
 
     '''The methods calculate_statistics and encrypt can not be tested properly, because they are either random or are only depending on
     other methods'''
