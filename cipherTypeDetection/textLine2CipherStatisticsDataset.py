@@ -73,15 +73,15 @@ def calculate_index_of_coincidence_bigrams(text):
 
 
 def has_letter_j(text):
-    return OUTPUT_ALPHABET.index(b'j') in text
+    return int(OUTPUT_ALPHABET.index(b'j') in text)
 
 
 def has_route(text):
-    return OUTPUT_ALPHABET.index(b'#') in text
+    return int(OUTPUT_ALPHABET.index(b'#') in text)
 
 
 def has_space(text):
-    return OUTPUT_ALPHABET.index(b' ') in text
+    return int(OUTPUT_ALPHABET.index(b' ') in text)
 
 
 def has_doubles(text):
