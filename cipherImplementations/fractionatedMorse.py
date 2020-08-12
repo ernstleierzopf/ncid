@@ -3,7 +3,7 @@ from util.textUtils import remove_unknown_symbols, encrypt_morse, decrypt_morse,
 import numpy as np
 
 
-class FractionedMorse(Cipher):
+class FractionatedMorse(Cipher):
     def __init__(self, alphabet, unknown_symbol, unknown_symbol_number):
         self.alphabet = alphabet
         self.unknown_symbol = unknown_symbol

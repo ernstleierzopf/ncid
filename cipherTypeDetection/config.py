@@ -14,7 +14,7 @@ from cipherImplementations.condi import Condi
 from cipherImplementations.cmbifid import CMBifid
 from cipherImplementations.digrafid import Digrafid
 from cipherImplementations.foursquare import Foursquare
-from cipherImplementations.fractionedMorse import FractionedMorse
+from cipherImplementations.fractionatedMorse import FractionatedMorse
 from cipherImplementations.grandpre import Grandpre
 from cipherImplementations.grille import Grille
 from cipherImplementations.gromark import Gromark
@@ -26,6 +26,7 @@ from cipherImplementations.monomeDinome import MonomeDinome
 from cipherImplementations.morbit import Morbit
 from cipherImplementations.myszkowski import Myszkowski
 from cipherImplementations.nicodemus import Nicodemus
+from cipherImplementations.nihilistSubstitution import NihilistSubstitution
 from cipherImplementations.nihilistTransposition import NihilistTransposition
 from cipherImplementations.null import Null
 from cipherImplementations.numberedKey import NumberedKey
@@ -57,12 +58,13 @@ from cipherImplementations.vigenere import Vigenere
 
 # CIPHER_TYPES = ['columnar_transposition', 'hill', 'playfair', 'simple_substitution', 'vigenere']
 CIPHER_TYPES = ['amsco', 'autokey', 'baconian', 'bazeries', 'beaufort', 'bifid', 'cadenus', 'checkerboard', 'columnar_transposition',
-                'condi', 'cmbifid', 'digrafid', 'foursquare', 'fractioned_morse', 'grandpre', 'grille', 'gromark', 'gronsfeld', 'headlines',
-                'homophonic', 'key_phrase',  # , 'incomplete_columnar_transposition'
-                'monome_dinome', 'morbit', 'myszkowski', 'nicodemus', 'nihilist_transposition', 'null', 'numbered_key', 'periodic_gromark',
-                'phillips', 'phillips_rc', 'plaintext', 'playfair', 'pollux', 'porta', 'portax', 'progressive_key', 'quagmire1',
-                'quagmire2', 'quagmire3', 'quagmire4', 'ragbaby', 'railfence', 'redefence', 'route_transposition', 'running_key',
-                'seriated_playfair', 'slidefair', 'swagman', 'tridigital', 'trifid', 'tri_square', 'two_square', 'variant', 'vigenere']
+                'condi', 'cmbifid', 'digrafid', 'foursquare', 'fractionated_morse', 'grandpre', 'grille', 'gromark', 'gronsfeld',
+                'headlines', 'homophonic', 'key_phrase',  # , 'incomplete_columnar_transposition'
+                'monome_dinome', 'morbit', 'myszkowski', 'nicodemus', 'nihilist_substitution', 'nihilist_transposition', 'null',
+                'numbered_key', 'periodic_gromark', 'phillips', 'phillips_rc', 'plaintext', 'playfair', 'pollux', 'porta', 'portax',
+                'progressive_key', 'quagmire1', 'quagmire2', 'quagmire3', 'quagmire4', 'ragbaby', 'railfence', 'redefence',
+                'route_transposition', 'running_key', 'seriated_playfair', 'slidefair', 'swagman', 'tridigital', 'trifid', 'tri_square',
+                'two_square', 'variant', 'vigenere']
 # CIPHER_IMPLEMENTATIONS = [ColumnarTransposition(INPUT_ALPHABET, UNKNOWN_SYMBOL, UNKNOWN_SYMBOL_NUMBER, fill_blocks=False),
 #                           Hill(INPUT_ALPHABET, b'x', ord('x')),
 #                           Playfair(INPUT_ALPHABET.replace(b'j', b''), b'x', ord('x')),
@@ -81,7 +83,7 @@ CIPHER_IMPLEMENTATIONS = [Amsco(INPUT_ALPHABET, UNKNOWN_SYMBOL, UNKNOWN_SYMBOL_N
                           CMBifid(INPUT_ALPHABET.replace(b'j', b''), UNKNOWN_SYMBOL, UNKNOWN_SYMBOL_NUMBER),
                           Digrafid(INPUT_ALPHABET + b'#', UNKNOWN_SYMBOL, UNKNOWN_SYMBOL_NUMBER),
                           Foursquare(INPUT_ALPHABET.replace(b'j', b''), UNKNOWN_SYMBOL, UNKNOWN_SYMBOL_NUMBER),
-                          FractionedMorse(INPUT_ALPHABET + b' ', UNKNOWN_SYMBOL, UNKNOWN_SYMBOL_NUMBER),
+                          FractionatedMorse(INPUT_ALPHABET + b' ', UNKNOWN_SYMBOL, UNKNOWN_SYMBOL_NUMBER),
                           Grandpre(INPUT_ALPHABET, UNKNOWN_SYMBOL, UNKNOWN_SYMBOL_NUMBER),
                           Grille(INPUT_ALPHABET, UNKNOWN_SYMBOL, UNKNOWN_SYMBOL_NUMBER),
                           Gromark(INPUT_ALPHABET, UNKNOWN_SYMBOL, UNKNOWN_SYMBOL_NUMBER),
@@ -95,6 +97,7 @@ CIPHER_IMPLEMENTATIONS = [Amsco(INPUT_ALPHABET, UNKNOWN_SYMBOL, UNKNOWN_SYMBOL_N
                           Morbit(INPUT_ALPHABET + b' ', UNKNOWN_SYMBOL, UNKNOWN_SYMBOL_NUMBER),
                           Myszkowski(INPUT_ALPHABET, UNKNOWN_SYMBOL, UNKNOWN_SYMBOL_NUMBER),
                           Nicodemus(INPUT_ALPHABET, UNKNOWN_SYMBOL, UNKNOWN_SYMBOL_NUMBER),
+                          NihilistSubstitution(INPUT_ALPHABET.replace(b'j', b''), UNKNOWN_SYMBOL, UNKNOWN_SYMBOL_NUMBER),
                           NihilistTransposition(INPUT_ALPHABET, UNKNOWN_SYMBOL, UNKNOWN_SYMBOL_NUMBER),
                           Null(INPUT_ALPHABET + b' ', UNKNOWN_SYMBOL, UNKNOWN_SYMBOL_NUMBER),
                           NumberedKey(INPUT_ALPHABET, UNKNOWN_SYMBOL, UNKNOWN_SYMBOL_NUMBER),
@@ -132,8 +135,9 @@ CIPHER_IMPLEMENTATIONS = [Amsco(INPUT_ALPHABET, UNKNOWN_SYMBOL, UNKNOWN_SYMBOL_N
 # KEY_LENGTHS = [[None]*4, [5,10,20,25]]
 KEY_LENGTHS = [[5,6,7,8], [5,6,7,8], [None]*4, [None]*4, [5,6,7,8], [5,6,7,8], [4,4,4,4], [5,10,15,20], [5,6,7,8], [5,6,7,8], [5,6,7,8],
                [5,6,7,8], [5,6,7,8], [5,6,7,8], [None]*4, [2,5,10,5], [5,6,7,8], [5,6,7,8], [5,6,7,8], [None]*4, [None]*4, [None]*4,
-               [None]*4, [5,6,7,8], [5,6,7,8], [10,10,10,10], [None]*4, [5,6,7,8], [5,6,7,8], [5,6,7,8], [5,6,7,8], [None]*4, [5,6,7,8],
-               [None]*4, [5,6,7,8], [5,6,7,8], [5,6,7,8], [5,6,7,8], [5,6,7,8], [5,6,7,8], [5,6,7,8], [5,6,7,8], [5,6,7,8], [5,6,7,8],
-               [4,4,5,10], [None]*4, [5,6,7,8], [5,6,7,8], [5,6,7,8], [5,6,7,8], [5,6,7,8], [5,6,7,8], [5,6,7,8], [5,6,7,8], [5,6,7,8]]
+               [None]*4, [5,6,7,8], [5,6,7,8], [5,6,7,8], [10,10,10,10], [None]*4, [5,6,7,8], [5,6,7,8], [5,6,7,8], [5,6,7,8], [None]*4,
+               [5,6,7,8], [None]*4, [5,6,7,8], [5,6,7,8], [5,6,7,8], [5,6,7,8], [5,6,7,8], [5,6,7,8], [5,6,7,8], [5,6,7,8], [5,6,7,8],
+               [5,6,7,8], [4,4,5,10], [None]*4, [5,6,7,8], [5,6,7,8], [5,6,7,8], [5,6,7,8], [5,6,7,8], [5,6,7,8], [5,6,7,8], [5,6,7,8],
+               [5,6,7,8]]
 MTC3 = 'mtc3'
 ACA = 'aca'

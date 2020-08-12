@@ -153,6 +153,7 @@ if __name__ == "__main__":
         cipher_types.append(config.CIPHER_TYPES[51])
         cipher_types.append(config.CIPHER_TYPES[52])
         cipher_types.append(config.CIPHER_TYPES[53])
+        cipher_types.append(config.CIPHER_TYPES[54])
     if args.train_dataset_size * args.dataset_workers > args.max_iter:
         print("ERROR: --train_dataset_size * --dataset_workers must not be bigger than --max_iter. "
               "In this case it was %d > %d" % (args.train_dataset_size * args.dataset_workers, args.max_iter), file=sys.stderr)
@@ -207,7 +208,7 @@ if __name__ == "__main__":
 
     # total_ny_gram_frequencies_size = int(math.pow(len(OUTPUT_ALPHABET), 2)) * 6
 
-    input_layer_size = 1 + 1 + 1 + 1 + 1 + 1 + 1 + total_frequencies_size  #1  # + total_ny_gram_frequencies_size
+    input_layer_size = 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + total_frequencies_size  #1  # + total_ny_gram_frequencies_size
     output_layer_size = len(cipher_types)
     hidden_layer_size = 2 * (input_layer_size / 3) + output_layer_size
 

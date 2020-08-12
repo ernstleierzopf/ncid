@@ -1,10 +1,10 @@
-USE_DICTIONARY = False
+USE_DICTIONARY = True
 GENERATE_RANDOM_ALPHABETS = False
 WORD_DICT = dict()
 UNIQUE_WORD_DICT = dict()
 
 if USE_DICTIONARY:
-    with open('../data/word_lists/wiki-60k.txt', 'rb') as f:
+    with open('../data/word_lists/wiki-270k.txt', 'rb') as f:
         words = [line.rstrip(b'\n') for line in f]
     for word in words:
         if len(word) not in WORD_DICT:

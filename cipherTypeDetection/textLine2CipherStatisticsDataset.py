@@ -7,7 +7,6 @@ from util.textUtils import map_text_into_numberspace
 import copy
 import math
 import multiprocessing
-from collections import Counter
 sys.path.append("../")
 import numpy as np
 
@@ -79,6 +78,10 @@ def has_letter_j(text):
 
 def has_route(text):
     return OUTPUT_ALPHABET.index(b'#') in text
+
+
+def has_space(text):
+    return OUTPUT_ALPHABET.index(b' ') in text
 
 
 def has_doubles(text):
@@ -184,7 +187,7 @@ def encrypt(plaintext, label, key_length, keep_unknown_symbols):
 
 def normalize_text(text, pos):
     for i in range(len(text)):
-        if text[i] >= pos:
+        if 28 > text[i] >= pos:
             text[i] += 1
     return text
 
@@ -199,9 +202,10 @@ def calculate_statistics(datum):
     has_j = has_letter_j(numbers)
     has_double = has_doubles(numbers)
     chi_square = calculate_chi_square(frequencies[0:26])
-    # pattern_repetitions_count = pattern_repetitions(numbers)
+    # pattern_repetitions_count = pattern_repetitions(numbers) - muss überarbeitet werden.
     entropy = calculate_entropy(numbers)
     has_r = has_route(numbers)
+    has_sp = has_space(numbers)
 
     # ny_gram_frequencies = []
     # for i in range(2, 8):
@@ -221,7 +225,7 @@ def calculate_statistics(datum):
     # ny_gram_frequencies += calculate_ny_gram_frequencies(numbers, 2, interval=10, recursive=False)
     # ny_gram_frequencies += calculate_ny_gram_frequencies(numbers, 2, interval=20, recursive=False)
     # ny_gram_frequencies += calculate_ny_gram_frequencies(numbers, 2, interval=25, recursive=False)
-    return [unigram_ioc] + [bigram_ioc] + [has_j] + [has_double] + [entropy] + [chi_square] + [has_r] + frequencies
+    return [unigram_ioc] + [bigram_ioc] + [has_j] + [has_double] + [entropy] + [chi_square] + [has_r] + [has_sp] + frequencies
            # [pattern_repetitions_count] + [autocorrelation] # + ny_gram_frequencies
 
 

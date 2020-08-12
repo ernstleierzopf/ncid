@@ -1,10 +1,10 @@
-from cipherImplementations.fractionedMorse import FractionedMorse
+from cipherImplementations.fractionatedMorse import FractionatedMorse
 from util.textUtils import map_text_into_numberspace
 from unit.cipherImplementations.CipherTestBase import CipherTestBase
 
 
-class FractionedMorseTest(CipherTestBase):
-    cipher = FractionedMorse(CipherTestBase.ALPHABET + b' ', CipherTestBase.UNKNOWN_SYMBOL, CipherTestBase.UNKNOWN_SYMBOL_NUMBER)
+class FractionatedMorseTest(CipherTestBase):
+    cipher = FractionatedMorse(CipherTestBase.ALPHABET + b' ', CipherTestBase.UNKNOWN_SYMBOL, CipherTestBase.UNKNOWN_SYMBOL_NUMBER)
     plaintext = b'come at once.'
     ciphertext = b'cbiiltmhvvfl'
     decrypted_plaintext = b'come at once'
