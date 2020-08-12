@@ -47,7 +47,10 @@ class Trifid(Cipher):
                 column = (column + shift) % len(plaintext)
             tmp.append(mapping[row][shift + column])
             if len(tmp) == 3:
-                ciphertext.append(key[0][list(self.key_dict.values()).index(tmp)])
+                ct = key[0][list(self.key_dict.values()).index(tmp)]
+                if ct == 26:
+                    ct += 1
+                ciphertext.append(ct)
                 tmp = []
         return np.array(ciphertext)
 

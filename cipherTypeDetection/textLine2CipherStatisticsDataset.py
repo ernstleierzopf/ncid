@@ -187,7 +187,7 @@ def encrypt(plaintext, label, key_length, keep_unknown_symbols):
 
 def normalize_text(text, pos):
     for i in range(len(text)):
-        if 28 > text[i] >= pos:
+        if 26 > text[i] >= pos:
             text[i] += 1
     return text
 
