@@ -27,10 +27,10 @@ def enc_dec(text, key):
     while len(text) % 2 != 0:
         text.append(23)  # b'x' = pos 23 in alphabet
     text2 = [0] * len(text)
-    for i in range(0, int(len(text) / 2), 1):
+    for i in range(int(len(text) / 2)):
         pos = int(i / len(key)) * len(key) + i
         t0 = text[pos]
-        if pos + len(key) * 2 < len(text) or (len(text) % len(key) == 0):
+        if pos + len(key) < len(text):
             t1 = text[pos + len(key)]
         else:
             t1 = text[pos + int((len(text) % len(key)) / 2)]
@@ -46,17 +46,19 @@ def enc_dec(text, key):
             pos2 = pos2[(k + t0) % leng]
         else:
             pos2 = pos2[t0]
+        if pos1 < 0:
+            pos1 = pos1 % 13
         if pos1 == t0 and pos2 == t1:
             if pos1 > pos2:
-                pos1 = t0 - 13 - k
-                pos2 = t1 - 1
+                pos1 = t0 - 13 - k + (t1 - 1 <= 0 and pos1 < 13) * (13 + 2 * k)
+                pos2 = t1 - 1 + 2 * (t1 - 1 < 0)
             else:
-                pos1 = t0 + 13 + k
-                pos2 = t1 + 1
+                pos1 = (t0 + 13 + k) % leng
+                pos2 = t1 + 1 - 2 * (t1 + 1 >= leng)
         if pos1 < 0:
             pos1 = pos1 % 13
         text2[pos] = pos1
-        if pos + len(key) * 2 < len(text) or (len(text) % len(key) == 0):
+        if pos + len(key) < len(text):
             text2[pos + len(key)] = pos2
         else:
             text2[pos + int((len(text) % len(key)) / 2)] = pos2

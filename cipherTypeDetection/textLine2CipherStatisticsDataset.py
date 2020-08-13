@@ -54,29 +54,27 @@ def calculate_index_of_coincidence(text):
         n[p] = n[p] + 1
     coindex = 0
     for i in range(0, len(OUTPUT_ALPHABET)):
-        coindex = coindex + n[i] * (n[i] - 1)
-    coindex = coindex / len(text)
-    coindex = coindex / (len(text) - 1)
+        coindex = coindex + n[i] * (n[i] - 1) / len(text) / (len(text) - 1)
     return coindex
 
 
 def calculate_index_of_coincidence_bigrams(text):
-    n = [0]*(len(OUTPUT_ALPHABET) * len(OUTPUT_ALPHABET))
+    pair_number = len(OUTPUT_ALPHABET) * len(OUTPUT_ALPHABET)
+    n = [0]*pair_number
     for i in range(1, len(text), 1):
         p0, p1 = text[i-1], text[i]
         n[p0 * len(OUTPUT_ALPHABET) + p1] = n[p0 * len(OUTPUT_ALPHABET) + p1] + 1
     coindex = 0
     for i in range(0, len(OUTPUT_ALPHABET) * len(OUTPUT_ALPHABET)):
-        coindex += n[i] * (n[i] - 1)
-    coindex = coindex / len(text) / (len(text) - 1) / (len(text) - 2)
-    return coindex
+        coindex += n[i] * (n[i] - 1) / pair_number / (pair_number - 1)
+    return coindex*1000
 
 
 def has_letter_j(text):
     return int(OUTPUT_ALPHABET.index(b'j') in text)
 
 
-def has_route(text):
+def has_hash(text):
     return int(OUTPUT_ALPHABET.index(b'#') in text)
 
 
@@ -84,9 +82,12 @@ def has_space(text):
     return int(OUTPUT_ALPHABET.index(b' ') in text)
 
 
+def has_letter_x(text):
+    return int(OUTPUT_ALPHABET.index(b'x') in text)
+
+
 def has_doubles(text):
-    end = len(text) % 2
-    for i in range(0, len(text) - end, 2):
+    for i in range(0, len(text) - 1, 1):
         p0, p1 = text[i], text[i + 1]
         if p0 == p1:
             return 1
@@ -95,17 +96,16 @@ def has_doubles(text):
 
 def calculate_chi_square(frequencies):
     chi_square = 0
-    for i in range(0, len(frequencies)):
+    for i in range(len(frequencies)):
         chi_square = chi_square + (
-                    (english_frequencies[i] - frequencies[i]) * (english_frequencies[i] - frequencies[i])) / \
-                     english_frequencies[i]
-    return chi_square
+                    (english_frequencies[i] - frequencies[i]) * (english_frequencies[i] - frequencies[i])) / english_frequencies[i]
+    return chi_square / 100
 
 
 def pattern_repetitions(text):
     counter = 0
     patterns = []
-    for i in range(0, len(text) - 2):
+    for i in range(len(text) - 2):
         pattern = [text[i], text[i + 1], text[i + 2]]
         if pattern not in patterns:
             patterns.append(pattern)
@@ -182,12 +182,19 @@ def encrypt(plaintext, label, key_length, keep_unknown_symbols):
         ciphertext = normalize_text(ciphertext, 9)
     if b'x' not in cipher.alphabet:
         ciphertext = normalize_text(ciphertext, 23)
+    if 38 in ciphertext:
+        from util.textUtils import map_numbers_into_textspace
+        print(map_numbers_into_textspace(ciphertext, cipher.alphabet, cipher.unknown_symbol))
+        print(key)
+        print(plaintext)
+        print(label)
+        print()
     return ciphertext
 
 
 def normalize_text(text, pos):
     for i in range(len(text)):
-        if 26 > text[i] >= pos:
+        if 26 >= text[i] >= pos:
             text[i] += 1
     return text
 
@@ -204,8 +211,9 @@ def calculate_statistics(datum):
     chi_square = calculate_chi_square(frequencies[0:26])
     # pattern_repetitions_count = pattern_repetitions(numbers) - muss überarbeitet werden.
     entropy = calculate_entropy(numbers)
-    has_r = has_route(numbers)
+    has_h = has_hash(numbers)
     has_sp = has_space(numbers)
+    has_x = has_letter_x(numbers)
 
     # ny_gram_frequencies = []
     # for i in range(2, 8):
@@ -225,7 +233,7 @@ def calculate_statistics(datum):
     # ny_gram_frequencies += calculate_ny_gram_frequencies(numbers, 2, interval=10, recursive=False)
     # ny_gram_frequencies += calculate_ny_gram_frequencies(numbers, 2, interval=20, recursive=False)
     # ny_gram_frequencies += calculate_ny_gram_frequencies(numbers, 2, interval=25, recursive=False)
-    return [unigram_ioc] + [bigram_ioc] + [has_j] + [has_double] + [entropy] + [chi_square] + [has_r] + [has_sp] + frequencies
+    return [unigram_ioc] + [bigram_ioc] + [has_j] + [has_double] + [entropy] + [chi_square] + [has_h] + [has_sp] + [has_x] + frequencies
            # [pattern_repetitions_count] + [autocorrelation] # + ny_gram_frequencies
 
 

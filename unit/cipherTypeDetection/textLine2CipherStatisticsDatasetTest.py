@@ -190,9 +190,7 @@ class TextLine2CipherStatisticsDatasetTest(unittest.TestCase):
                     n[OUTPUT_ALPHABET.index(c)] += 1
         ic = 0
         for i in range(0, len(n)):
-            ic += n[i] * (n[i] - 1)
-        ic = ic / len(self.ciphertext)
-        ic = ic / (len(self.ciphertext) - 1)
+            ic += n[i] * (n[i] - 1) / len(self.ciphertext) / (len(self.ciphertext) - 1)
         self.assertEqual(ds.calculate_index_of_coincidence(self.ciphertext_numberspace), ic)
 
         n = [0] * alph_size
@@ -202,9 +200,7 @@ class TextLine2CipherStatisticsDatasetTest(unittest.TestCase):
                     n[OUTPUT_ALPHABET.index(c)] += 1
         ic = 0
         for _, val in enumerate(n):
-            ic += val * (val - 1)
-        ic = ic / len(self.plaintext)
-        ic = ic / (len(self.plaintext) - 1)
+            ic += val * (val - 1) / len(self.plaintext) / (len(self.plaintext) - 1)
         self.assertEqual(ds.calculate_index_of_coincidence(
             self.plaintext_numberspace), ic)
 
@@ -219,11 +215,8 @@ class TextLine2CipherStatisticsDatasetTest(unittest.TestCase):
                         n[i * alph_size + j] += 1
         ic = 0
         for _, val in enumerate(n):
-            ic += val * (val - 1)
-        ic = ic / len(self.ciphertext)
-        ic = ic / (len(self.ciphertext) - 1)
-        ic = ic / (len(self.ciphertext) - 2)
-        self.assertEqual(ds.calculate_index_of_coincidence_bigrams(self.ciphertext_numberspace), ic)
+            ic += val * (val - 1) / squared_alph_size / (squared_alph_size - 1)
+        self.assertEqual(ds.calculate_index_of_coincidence_bigrams(self.ciphertext_numberspace), ic*1000)
 
         n = [0] * squared_alph_size
         for i in range(0, len(OUTPUT_ALPHABET)):
@@ -234,11 +227,8 @@ class TextLine2CipherStatisticsDatasetTest(unittest.TestCase):
                         n[i * alph_size + j] += 1
         ic = 0
         for i in range(0, len(n)):
-            ic += n[i] * (n[i] - 1)
-        ic = ic / len(self.plaintext)
-        ic = ic / (len(self.plaintext) - 1)
-        ic = ic / (len(self.plaintext) - 2)
-        self.assertEqual(ds.calculate_index_of_coincidence_bigrams(self.plaintext_numberspace), ic)
+            ic += n[i] * (n[i] - 1) / squared_alph_size / (squared_alph_size - 1)
+        self.assertEqual(ds.calculate_index_of_coincidence_bigrams(self.plaintext_numberspace), ic*1000)
 
     def test05has_letter_j(self):
         self.assertEqual(ds.has_letter_j(self.ciphertext_numberspace), self.ciphertext.decode().__contains__('j'))
@@ -271,7 +261,7 @@ class TextLine2CipherStatisticsDatasetTest(unittest.TestCase):
         for i in range(0, len(unigram_frequencies)):
             residual = unigram_frequencies[i] - english_frequencies[i]
             chi_square += (residual * residual / english_frequencies[i])
-        self.assertEqual(ds.calculate_chi_square(unigram_frequencies), chi_square)
+        self.assertEqual(ds.calculate_chi_square(unigram_frequencies), chi_square / 100)
 
     def test08pattern_repetitions(self):
         # count patterns of 3
@@ -331,13 +321,13 @@ class TextLine2CipherStatisticsDatasetTest(unittest.TestCase):
         avg = avg / len(result)
         self.assertEqual(ds.calculate_autocorrelation_average(self.ciphertext_numberspace), avg)
 
-    def test11has_route(self):
+    def test11has_hash(self):
         no_route = b'fasdfasdfasdfasdfds'
         route = b'fsdfasddf#fasd#'
         no_route_ns = map_text_into_numberspace(no_route, OUTPUT_ALPHABET, cipherTest.CipherTest.UNKNOWN_SYMBOL_NUMBER)
         route_ns = map_text_into_numberspace(route, OUTPUT_ALPHABET, cipherTest.CipherTest.UNKNOWN_SYMBOL_NUMBER)
-        self.assertEqual(ds.has_route(no_route_ns), no_route.decode().__contains__('#'))
-        self.assertEqual(ds.has_route(route_ns), route.decode().__contains__('#'))
+        self.assertEqual(ds.has_hash(no_route_ns), no_route.decode().__contains__('#'))
+        self.assertEqual(ds.has_hash(route_ns), route.decode().__contains__('#'))
 
     '''The methods calculate_statistics and encrypt can not be tested properly, because they are either random or are only depending on
     other methods'''
