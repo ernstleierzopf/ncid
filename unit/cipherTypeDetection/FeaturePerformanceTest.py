@@ -118,7 +118,7 @@ class FeaturePerformanceTest(unittest.TestCase):
     def test10calculate_autocorrelation_average(self):
         t = 0
         for i in range(10):
-            t += timeit.timeit(lambda: ds.calculate_autocorrelation_average(self.ciphertext_numberspace), number=10000)
+            t += timeit.timeit(lambda: ds.calculate_autocorrelation(self.ciphertext_numberspace), number=10000)
             print(t / 10)
 
     '''The methods calculate_statistics and encrypt can not be tested properly, because they are either random or are only depending on

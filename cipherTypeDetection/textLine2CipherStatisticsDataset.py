@@ -86,6 +86,10 @@ def has_letter_x(text):
     return int(OUTPUT_ALPHABET.index(b'x') in text)
 
 
+def has_digit_0(text):
+    return int(OUTPUT_ALPHABET.index(b'0') in text)
+
+
 def has_doubles(text):
     for i in range(0, len(text) - 1, 1):
         p0, p1 = text[i], text[i + 1]
@@ -126,11 +130,11 @@ def calculate_entropy(text):
         prob.append(float(c) / len(text))
     # calculate the entropy
     entropy = - sum([p * math.log(p) / math.log(2.0) for p in prob])
-    return entropy
+    return entropy / 10
 
 
-def calculate_autocorrelation_average(text):
-    """calculates average of the normalized autocorrelation
+def calculate_autocorrelation(text):
+    """calculates the normalized autocorrelation
     :param text: input numbers-ciphertext
     :return: autocorrelation average"""
     # https://stackoverflow.com/questions/14297012/estimate-autocorrelation-using-python
@@ -138,12 +142,8 @@ def calculate_autocorrelation_average(text):
     variance = text.var()
     text = text - text.mean()
     r = np.correlate(text, text, mode='full')[-n:]
-    result = r / (variance * (np.arange(n, 0, -1)))
-    avg = 0
-    for i in range(0, len(result)):
-        avg += result[i]
-    avg = avg / len(result)
-    return avg
+    result = list(r / (variance * (np.arange(n, 0, -1))))
+    return result + [0]*(1000-len(text))
 
 
 def encrypt(plaintext, label, key_length, keep_unknown_symbols):
@@ -183,6 +183,7 @@ def encrypt(plaintext, label, key_length, keep_unknown_symbols):
     if b'x' not in cipher.alphabet:
         ciphertext = normalize_text(ciphertext, 23)
     if 38 in ciphertext:
+        # löschen!!!!!
         from util.textUtils import map_numbers_into_textspace
         print(map_numbers_into_textspace(ciphertext, cipher.alphabet, cipher.unknown_symbol))
         print(key)
@@ -203,17 +204,18 @@ def calculate_statistics(datum):
     numbers = datum
     unigram_ioc = calculate_index_of_coincidence(numbers)
     bigram_ioc = calculate_index_of_coincidence_bigrams(numbers)
-    # autocorrelation = calculate_autocorrelation_average(numbers)
+    autocorrelation = calculate_autocorrelation(numbers)
     frequencies = calculate_frequencies(numbers, 2, recursive=True)
 
     has_j = has_letter_j(numbers)
-    has_double = has_doubles(numbers)
+    # has_double = has_doubles(numbers)
     chi_square = calculate_chi_square(frequencies[0:26])
     # pattern_repetitions_count = pattern_repetitions(numbers) - muss überarbeitet werden.
     entropy = calculate_entropy(numbers)
     has_h = has_hash(numbers)
     has_sp = has_space(numbers)
     has_x = has_letter_x(numbers)
+    # has_0 = has_digit_0(numbers)
 
     # ny_gram_frequencies = []
     # for i in range(2, 8):
@@ -233,7 +235,7 @@ def calculate_statistics(datum):
     # ny_gram_frequencies += calculate_ny_gram_frequencies(numbers, 2, interval=10, recursive=False)
     # ny_gram_frequencies += calculate_ny_gram_frequencies(numbers, 2, interval=20, recursive=False)
     # ny_gram_frequencies += calculate_ny_gram_frequencies(numbers, 2, interval=25, recursive=False)
-    return [unigram_ioc] + [bigram_ioc] + [has_j] + [has_double] + [entropy] + [chi_square] + [has_h] + [has_sp] + [has_x] + frequencies
+    return [unigram_ioc] + [bigram_ioc] + [has_j] + [entropy] + [chi_square] + [has_h] + [has_sp] + [has_x] + frequencies + autocorrelation
            # [pattern_repetitions_count] + [autocorrelation] # + ny_gram_frequencies
 
 

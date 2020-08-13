@@ -283,7 +283,7 @@ class TextLine2CipherStatisticsDatasetTest(unittest.TestCase):
         prob = [float(string.count(c)) / len(string) for c in dict.fromkeys(list(string))]
 
         # calculate the entropy
-        entropy = - sum([p * math.log(p) / math.log(2.0) for p in prob])
+        entropy = - sum([p * math.log(p) / math.log(2.0) for p in prob]) / 10
         self.assertEqual(round(ds.calculate_entropy(self.ciphertext_numberspace), 6), round(entropy, 6))
         e = entropy
 
@@ -291,35 +291,29 @@ class TextLine2CipherStatisticsDatasetTest(unittest.TestCase):
         prob = [float(string.count(c)) / len(string) for c in dict.fromkeys(list(string))]
 
         # calculate the entropy
-        entropy = - sum([p * math.log(p) / math.log(2.0) for p in prob])
+        entropy = - sum([p * math.log(p) / math.log(2.0) for p in prob]) / 10
         self.assertEqual(round(ds.calculate_entropy(self.plaintext_numberspace), 6), round(entropy, 6))
-        self.assertEqual(e, entropy)
+        self.assertEqual(e, entropy )
 
-    def test10calculate_autocorrelation_average(self):
+    def test10calculate_autocorrelation(self):
         # https://stackoverflow.com/questions/14297012/estimate-autocorrelation-using-python
         x = self.plaintext_numberspace
         n = len(x)
         variance = x.var()
         x = x - x.mean()
         r = np.correlate(x, x, mode='full')[-n:]
-        result = r / (variance * (np.arange(n, 0, -1)))
-        avg = 0
-        for _, res in enumerate(result):
-            avg += res
-        avg = avg / len(result)
-        self.assertEqual(ds.calculate_autocorrelation_average(self.plaintext_numberspace), avg)
+        result = list(r / (variance * (np.arange(n, 0, -1))))
+        result = result + [0]*(1000-len(result))
+        self.assertEqual(ds.calculate_autocorrelation(self.plaintext_numberspace), result)
 
         x = self.ciphertext_numberspace
         n = len(x)
         variance = x.var()
         x = x - x.mean()
         r = np.correlate(x, x, mode='full')[-n:]
-        result = r / (variance * (np.arange(n, 0, -1)))
-        avg = 0
-        for i in range(0, len(result)):
-            avg += result[i]
-        avg = avg / len(result)
-        self.assertEqual(ds.calculate_autocorrelation_average(self.ciphertext_numberspace), avg)
+        result = list(r / (variance * (np.arange(n, 0, -1))))
+        result = result + [0] * (1000 - len(result))
+        self.assertEqual(ds.calculate_autocorrelation(self.ciphertext_numberspace), result)
 
     def test11has_hash(self):
         no_route = b'fasdfasdfasdfasdfds'

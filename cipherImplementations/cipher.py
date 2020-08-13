@@ -29,7 +29,7 @@ def generate_random_keyword(alphabet, length, unique=False, middle_char=None):
         raise ValueError('The length of a key must be greater than 0 and must not be None.')
     if not isinstance(length, int) and middle_char is None:
         raise ValueError('Length must be of type integer.')
-    if USE_DICTIONARY:
+    if USE_DICTIONARY and middle_char is None:
         found_word = False
         if unique:
             if length in UNIQUE_WORD_DICT:
