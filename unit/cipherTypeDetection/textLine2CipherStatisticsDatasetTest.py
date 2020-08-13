@@ -293,7 +293,7 @@ class TextLine2CipherStatisticsDatasetTest(unittest.TestCase):
         # calculate the entropy
         entropy = - sum([p * math.log(p) / math.log(2.0) for p in prob]) / 10
         self.assertEqual(round(ds.calculate_entropy(self.plaintext_numberspace), 6), round(entropy, 6))
-        self.assertEqual(e, entropy )
+        self.assertEqual(e, entropy)
 
     def test10calculate_autocorrelation(self):
         # https://stackoverflow.com/questions/14297012/estimate-autocorrelation-using-python

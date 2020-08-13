@@ -134,7 +134,8 @@ def calculate_entropy(text):
 
 
 def calculate_autocorrelation(text):
-    """calculates the normalized autocorrelation
+    """calculates the normalized autocorrelation. Currently only working maximal plaintext_size 100. Else 1000 must be raised to length of
+    plaintext multiplied by 10.
     :param text: input numbers-ciphertext
     :return: autocorrelation average"""
     # https://stackoverflow.com/questions/14297012/estimate-autocorrelation-using-python
@@ -182,14 +183,6 @@ def encrypt(plaintext, label, key_length, keep_unknown_symbols):
         ciphertext = normalize_text(ciphertext, 9)
     if b'x' not in cipher.alphabet:
         ciphertext = normalize_text(ciphertext, 23)
-    if 38 in ciphertext:
-        # löschen!!!!!
-        from util.textUtils import map_numbers_into_textspace
-        print(map_numbers_into_textspace(ciphertext, cipher.alphabet, cipher.unknown_symbol))
-        print(key)
-        print(plaintext)
-        print(label)
-        print()
     return ciphertext
 
 

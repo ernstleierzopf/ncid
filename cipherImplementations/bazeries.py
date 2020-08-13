@@ -28,7 +28,7 @@ def num999(n):
 
 def num2word(num):
     if num == 0:
-        return 'zero'
+        return b'zero'
     i = 3
     n = str(num)
     word = ""
