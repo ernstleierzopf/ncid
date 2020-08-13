@@ -55,7 +55,7 @@ class Bazeries(Cipher):
         self.unknown_symbol_number = unknown_symbol_number
 
     def generate_random_key(self, length=None):
-        number = random.randint(0, 1000000)
+        number = random.randint(1, 1000000)
         return [generate_keyword_alphabet(self.alphabet, num2word(number)), number]
 
     def encrypt(self, plaintext, key):

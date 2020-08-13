@@ -228,7 +228,7 @@ def calculate_statistics(datum):
     # ny_gram_frequencies += calculate_ny_gram_frequencies(numbers, 2, interval=10, recursive=False)
     # ny_gram_frequencies += calculate_ny_gram_frequencies(numbers, 2, interval=20, recursive=False)
     # ny_gram_frequencies += calculate_ny_gram_frequencies(numbers, 2, interval=25, recursive=False)
-    return [unigram_ioc] + [bigram_ioc] + [has_j] + [entropy] + [chi_square] + [has_h] + [has_sp] + [has_x] + frequencies + autocorrelation
+    return [unigram_ioc] + [bigram_ioc] + [has_j] + [entropy] + [chi_square] + [has_h] + [has_sp] + [has_x] + frequencies #+ autocorrelation
            # [pattern_repetitions_count] + [autocorrelation] # + ny_gram_frequencies
 
 
