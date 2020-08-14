@@ -197,7 +197,7 @@ def calculate_statistics(datum):
     numbers = datum
     unigram_ioc = calculate_index_of_coincidence(numbers)
     bigram_ioc = calculate_index_of_coincidence_bigrams(numbers)
-    autocorrelation = calculate_autocorrelation(numbers)
+    # autocorrelation = calculate_autocorrelation(numbers)
     frequencies = calculate_frequencies(numbers, 2, recursive=True)
 
     has_j = has_letter_j(numbers)
