@@ -339,7 +339,6 @@ if __name__ == "__main__":
         while test_ds.dataset_workers * test_ds.batch_size > args.max_iter / prediction_dataset_factor:
             prediction_dataset_factor -= 1
     args.max_iter /= prediction_dataset_factor
-    print(args.max_iter)
     cntr = 0
     test_iter = 0
     test_epoch = 0
