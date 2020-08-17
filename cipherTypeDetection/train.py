@@ -242,7 +242,7 @@ if __name__ == "__main__":
         # model.compile(optimizer='sgd', loss="sparse_categorical_crossentropy", metrics=["accuracy"])
 
         model = tf.keras.Sequential()
-        model.add(tf.keras.layers.Input(shape=(input_layer_size,)))
+        model.add(tf.keras.layers.Input(input_shape=(input_layer_size,)))
         for i in range(5):
             model.add(tf.keras.layers.Dense(hidden_layer_size, activation="relu", use_bias=True))
         model.add(tf.keras.layers.Dense(output_layer_size, activation='softmax'))
