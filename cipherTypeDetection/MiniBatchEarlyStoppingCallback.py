@@ -54,7 +54,7 @@ class MiniBatchEarlyStopping(Callback):
     4
     """
 
-    def __init__(self, monitor='val_loss', min_delta=0, patience=0, verbose=0, mode='auto', baseline=None, restore_best_weights=False):
+    def __init__(self, monitor='val_loss', min_delta=0, patience=0, verbose=1, mode='auto', baseline=None, restore_best_weights=False):
         super(MiniBatchEarlyStopping, self).__init__()
 
         self.monitor = monitor

@@ -90,14 +90,6 @@ def has_digit_0(text):
     return int(OUTPUT_ALPHABET.index(b'0') in text)
 
 
-def has_doubles(text):
-    for i in range(0, len(text) - 1, 1):
-        p0, p1 = text[i], text[i + 1]
-        if p0 == p1:
-            return 1
-    return 0
-
-
 def calculate_chi_square(frequencies):
     chi_square = 0
     for i in range(len(frequencies)):
@@ -161,6 +153,38 @@ def calculate_autocorrelation(text):
     return result + [0]*(1000-len(text))
 
 
+def calculate_maximum_index_of_coincidence(text):
+    """calculates the maximum IoC for periods 1-15. It is calculated by taking every p-th letter of the ciphertext.
+    :see: https://pages.mtu.edu/~shene/NSF-4/Tutorial/VIG/Vig-IOC-Len.html
+    :param text: input numbers-ciphertext
+    :return: mic"""
+    iocs = []
+    for i in range(1, 16, 1):
+        avg = 0
+        for j in range(i):
+            txt = []
+            for k in range(j, len(text), i):
+                txt.append(text[k])
+            avg += calculate_index_of_coincidence(txt)
+        iocs.append(avg / i)
+    return max(iocs)
+
+
+def calculate_max_kappa(text):
+    """calculates the maximum kappa for periods 1-15. It is calculated shifting the ciphertext by p and finding calculating the percentage
+    of coinciding characters.
+    :param text: input numbers-ciphertext
+    :return: mka"""
+    mka = []
+    for i in range(1, 16, 1):
+        shifted_text = []
+        for j in range(len(text)-i):
+            shifted_text.append(text[(j+i) % len(text)])
+        shifted_text += [-1]*i
+        mka.append(np.count_nonzero(np.array(shifted_text) == text) / (len(text)-i))
+    return max(mka)
+
+
 def encrypt(plaintext, label, key_length, keep_unknown_symbols):
     cipher = config.CIPHER_IMPLEMENTATIONS[label]
     plaintext = cipher.filter(plaintext, keep_unknown_symbols)
@@ -215,14 +239,15 @@ def calculate_statistics(datum):
     frequencies = calculate_frequencies(numbers, 2, recursive=True)
 
     has_j = has_letter_j(numbers)
-    # has_double = has_doubles(numbers)
     chi_square = calculate_chi_square(frequencies[0:26])
-    # pattern_repetitions_count = pattern_repetitions(numbers) - muss überarbeitet werden.
+    # pattern_repetitions_count = pattern_repetitions(numbers)
     entropy = calculate_entropy(numbers)
     has_h = has_hash(numbers)
     has_sp = has_space(numbers)
     has_x = has_letter_x(numbers)
     # has_0 = has_digit_0(numbers)
+    # mic = calculate_maximum_index_of_coincidence(numbers)
+    # mka = calculate_max_kappa(numbers)
 
     # ny_gram_frequencies = []
     # for i in range(2, 8):

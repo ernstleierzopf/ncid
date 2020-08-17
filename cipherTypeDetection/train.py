@@ -18,7 +18,7 @@ sys.path.append("../")
 import cipherTypeDetection.config as config
 from cipherImplementations.cipher import OUTPUT_ALPHABET
 from cipherTypeDetection.textLine2CipherStatisticsDataset import TextLine2CipherStatisticsDataset
-from cipherTypeDetection.MiniBatchEarlyStoppingCallback import MiniBatchEarlyStopping
+from cipherTypeDetection.miniBatchEarlyStoppingCallback import MiniBatchEarlyStopping
 tf.debugging.set_log_device_placement(enabled=False)
 import math
 
@@ -253,7 +253,7 @@ if __name__ == "__main__":
 
     print('Training model...')
     tensorboard_callback = tf.keras.callbacks.TensorBoard(log_dir='./logs', update_freq='epoch')
-    early_stopping_callback = MiniBatchEarlyStopping(min_delta=0.0005, patience=30, monitor='accuracy', mode='max')
+    early_stopping_callback = MiniBatchEarlyStopping(min_delta=0.0001, patience=100, monitor='accuracy', mode='max')
     start_time = time.time()
     cntr = 0
     train_iter = 0
@@ -295,9 +295,9 @@ if __name__ == "__main__":
         if train_ds.iteration >= args.max_iter or early_stopping_callback.model.stop_training:
             break
         run = None
-    for process in processes:
-        if process.is_alive():
-            process.kill()
+    # for process in processes:
+    #     if process.is_alive():
+    #         process.kill()
 
     elapsed_training_time = datetime.fromtimestamp(time.time()) - datetime.fromtimestamp(start_time)
     print('Finished training in %d days %d hours %d minutes %d seconds with %d iterations and %d epochs.\n' % (
@@ -376,9 +376,9 @@ if __name__ == "__main__":
         if test_ds.iteration >= args.max_iter:
             break
         run = None
-    for process in processes:
-        if process.is_alive():
-            process.kill()
+    # for process in processes:
+    #     if process.is_alive():
+    #         process.kill()
 
     elapsed_prediction_time = datetime.fromtimestamp(time.time()) - datetime.fromtimestamp(start_time)
 

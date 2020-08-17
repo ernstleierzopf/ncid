@@ -319,5 +319,15 @@ class TextLine2CipherStatisticsDatasetTest(unittest.TestCase):
         self.assertEqual(ds.has_hash(no_route_ns), no_route.decode().__contains__('#'))
         self.assertEqual(ds.has_hash(route_ns), route.decode().__contains__('#'))
 
+    def test12_calculate_maximum_index_of_coincidence(self):
+        self.assertEqual(round(ds.calculate_maximum_index_of_coincidence(self.ciphertext_numberspace), 3), 0.116)
+        self.assertEqual(round(ds.calculate_maximum_index_of_coincidence(self.plaintext_numberspace), 3), 0.116)
+        self.assertEqual(ds.calculate_maximum_index_of_coincidence(self.ciphertext_numberspace), ds.calculate_maximum_index_of_coincidence(self.plaintext_numberspace))
+
+    def test13_calculate_max_kappa(self):
+        self.assertEqual(round(ds.calculate_max_kappa(self.ciphertext_numberspace), 3), 0.133)
+        self.assertEqual(round(ds.calculate_max_kappa(self.plaintext_numberspace), 3), 0.133)
+        self.assertEqual(ds.calculate_max_kappa(self.ciphertext_numberspace), ds.calculate_max_kappa(self.plaintext_numberspace))
+
     '''The methods calculate_statistics and encrypt can not be tested properly, because they are either random or are only depending on
     other methods'''
