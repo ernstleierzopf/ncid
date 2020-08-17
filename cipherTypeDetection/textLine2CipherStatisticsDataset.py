@@ -214,15 +214,6 @@ def calculate_statistics(datum):
     # for i in range(2, 8):
     #     ny_gram_frequencies += calculate_ny_gram_frequencies(numbers, 2, interval=i, recursive=False)
 
-    # average ny_gram_frequencies
-    # ny_gram_frequencies = [0]*676
-    # for i in range(2, 16):
-    #     freq = calculate_ny_gram_frequencies(numbers, 2, interval=i, recursive=False)
-    #     for j in range(0, 676):
-    #         ny_gram_frequencies[j] += freq[j]
-    # for i in range(0, 676):
-    #    ny_gram_frequencies[i] = ny_gram_frequencies[i] / 14
-
     # ny_gram_frequencies = []
     # ny_gram_frequencies += calculate_ny_gram_frequencies(numbers, 2, interval=5, recursive=False)
     # ny_gram_frequencies += calculate_ny_gram_frequencies(numbers, 2, interval=10, recursive=False)

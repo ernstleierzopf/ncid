@@ -11,11 +11,14 @@ from datetime import datetime
 # This environ variable must be set before all tensorflow imports!
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 import tensorflow as tf
+from tensorflow.keras.metrics import SparseTopKCategoricalAccuracy
+from tensorflow.keras.optimizers import Adam
 import tensorflow_datasets as tfds
 sys.path.append("../")
 import cipherTypeDetection.config as config
 from cipherImplementations.cipher import OUTPUT_ALPHABET
 from cipherTypeDetection.textLine2CipherStatisticsDataset import TextLine2CipherStatisticsDataset
+from cipherTypeDetection.MiniBatchEarlyStoppingCallback import MiniBatchEarlyStopping
 tf.debugging.set_log_device_placement(enabled=False)
 import math
 
@@ -211,9 +214,11 @@ if __name__ == "__main__":
 
     input_layer_size = 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + total_frequencies_size #+ 1000 #1  # + total_ny_gram_frequencies_size
     output_layer_size = len(cipher_types)
-    hidden_layer_size = 2 * (input_layer_size / 3) + output_layer_size
+    hidden_layer_size = int(2 * (input_layer_size / 3) + output_layer_size)
 
     gpu_count = len(tf.config.list_physical_devices('GPU')) + len(tf.config.list_physical_devices('XLA_GPU'))
+    optimizer = "adam"
+    # optimizer = "adamax"
     if gpu_count > 1:
         strategy = tf.distribute.MirroredStrategy()
         with strategy.scope():
@@ -223,11 +228,12 @@ if __name__ == "__main__":
             # model.compile(optimizer='sgd', loss="sparse_categorical_crossentropy", metrics=["accuracy"])
 
             model = tf.keras.Sequential()
-            model.add(tf.keras.layers.Flatten(input_shape=(input_layer_size,)))
-            for i in range(0, 5):
+            model.add(tf.keras.layers.Input(input_shape=(input_layer_size,)))
+            for i in range(5):
                 model.add(tf.keras.layers.Dense(hidden_layer_size, activation="relu", use_bias=True))
             model.add(tf.keras.layers.Dense(output_layer_size, activation='softmax'))
-            model.compile(optimizer="adam", loss="sparse_categorical_crossentropy", metrics=["accuracy"])
+            model.compile(optimizer=optimizer, loss="sparse_categorical_crossentropy", metrics=[
+                "accuracy", SparseTopKCategoricalAccuracy(k=3, name="k3_accuracy")])
         model.summary()
     else:
         # logistic regression baseline
@@ -236,16 +242,18 @@ if __name__ == "__main__":
         # model.compile(optimizer='sgd', loss="sparse_categorical_crossentropy", metrics=["accuracy"])
 
         model = tf.keras.Sequential()
-        model.add(tf.keras.layers.Flatten(input_shape=(input_layer_size,)))
-        for i in range(0, 5):
+        model.add(tf.keras.layers.Input(shape=(input_layer_size,)))
+        for i in range(5):
             model.add(tf.keras.layers.Dense(hidden_layer_size, activation="relu", use_bias=True))
         model.add(tf.keras.layers.Dense(output_layer_size, activation='softmax'))
-        model.compile(optimizer="adam", loss="sparse_categorical_crossentropy", metrics=["accuracy"])
+        model.compile(optimizer, loss="sparse_categorical_crossentropy", metrics=[
+            "accuracy", SparseTopKCategoricalAccuracy(k=3, name="k3_accuracy")])
 
     print('Model created.\n')
 
     print('Training model...')
-    # tensorboard_callback = tf.keras.callbacks.TensorBoard(log_dir='./logs', update_freq='epoch')
+    tensorboard_callback = tf.keras.callbacks.TensorBoard(log_dir='./logs', update_freq='epoch')
+    early_stopping_callback = MiniBatchEarlyStopping(min_delta=0.05, patience=30, monitor='accuracy', mode='max')
     start_time = time.time()
     cntr = 0
     train_iter = 0
@@ -277,14 +285,14 @@ if __name__ == "__main__":
                 labels = tf.convert_to_tensor(labels)
                 val_labels = tf.convert_to_tensor(val_labels)
             train_iter -= args.train_dataset_size * 0.1
-            history = model.fit(batch, labels, batch_size=args.batch_size, validation_data=(val_data, val_labels), epochs=args.epochs)
-                                # callbacks=[tensorboard_callback])
+            history = model.fit(batch, labels, batch_size=args.batch_size, validation_data=(val_data, val_labels), epochs=args.epochs,
+                                callbacks=[early_stopping_callback, tensorboard_callback])
             if train_epoch > 0:
                 train_epoch = train_iter // ((train_ds.iteration + train_ds.batch_size * train_ds.dataset_workers) // train_ds.epoch)
             print("Epoch: %d, Iteration: %d" % (train_epoch, train_iter))
-            if train_iter >= args.max_iter:
+            if train_iter >= args.max_iter or early_stopping_callback.model.stop_training:
                 break
-        if train_ds.iteration >= args.max_iter:
+        if train_ds.iteration >= args.max_iter or early_stopping_callback.model.stop_training:
             break
         run = None
     for process in processes:
@@ -309,7 +317,7 @@ if __name__ == "__main__":
     with open(model_path.split('.')[0] + '_parameters.txt', 'w') as f:
         for arg in vars(args):
             f.write("{:23s}= {:s}\n".format(arg, str(getattr(args, arg))))
-    # shutil.move('./logs', model_name.split('.')[0] + '_tensorboard_logs')
+    shutil.move('./logs', model_name.split('.')[0] + '_tensorboard_logs')
     print('Model saved.\n')
 
     print('Predicting test data...\n')
@@ -323,9 +331,15 @@ if __name__ == "__main__":
         incorrect += [[0]*len(config.CIPHER_TYPES)]
 
     prediction_dataset_factor = 10
-    while test_ds.dataset_workers * test_ds.batch_size > args.max_iter / prediction_dataset_factor:
-        prediction_dataset_factor -= 1
+    if early_stopping_callback.model.stop_training:
+        while test_ds.dataset_workers * test_ds.batch_size > train_iter / prediction_dataset_factor and prediction_dataset_factor > 1:
+            prediction_dataset_factor -= 1
+        args.max_iter = int(train_iter / prediction_dataset_factor)
+    else:
+        while test_ds.dataset_workers * test_ds.batch_size > args.max_iter / prediction_dataset_factor:
+            prediction_dataset_factor -= 1
     args.max_iter /= prediction_dataset_factor
+    print(args.max_iter)
     cntr = 0
     test_iter = 0
     test_epoch = 0
