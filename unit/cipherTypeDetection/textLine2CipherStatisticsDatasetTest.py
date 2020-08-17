@@ -264,18 +264,14 @@ class TextLine2CipherStatisticsDatasetTest(unittest.TestCase):
         self.assertEqual(ds.calculate_chi_square(unigram_frequencies), chi_square / 100)
 
     def test08pattern_repetitions(self):
-        # count patterns of 3
-        counter = 0
-        text = self.ciphertext.decode()
-        patterns = []
-        for i in range(0, len(self.ciphertext) - 2):
-            pattern = text[i] + text[i+1] + text[i+2]
-            if pattern not in patterns:
-                patterns.append(pattern)
-                for j in range(i+1, len(self.ciphertext) - 2):
-                    if pattern == text[j] + text[j+1] + text[j+2]:
-                        counter += 1
-        self.assertEqual(ds.pattern_repetitions(self.ciphertext_numberspace), counter)
+        self.assertEqual(ds.pattern_repetitions(np.array([0,0,1,1,2,2])), 2)
+        self.assertEqual(ds.pattern_repetitions(np.array([0,0,0,1,1,2,2])), 7/3)
+        self.assertEqual(ds.pattern_repetitions(np.array([0,0,1,0,1,2,2])), 2)
+        self.assertEqual(ds.pattern_repetitions(np.array([0,1,2,3,0,1,2,3])), 0)
+        self.assertEqual(ds.pattern_repetitions(np.array([0,0,0,0,1,1,2,2])), 8/3)
+        self.assertEqual(ds.pattern_repetitions(np.array([0,0,0,0,0,1,1,2,2,0])), 3)
+        self.assertEqual(ds.pattern_repetitions(np.array([0,0,0,0,0,0,1,1,2,2])), 3)
+        self.assertEqual(ds.pattern_repetitions(np.array([0,0,0,0,0,0,0,0,0,0,1,1,2,2])), 14/4)
 
     def test09calculate_entropy(self):
         # https://stackoverflow.com/questions/2979174/how-do-i-compute-the-approximate-entropy-of-a-bit-string

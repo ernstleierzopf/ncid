@@ -108,15 +108,29 @@ def calculate_chi_square(frequencies):
 
 def pattern_repetitions(text):
     counter = 0
-    patterns = []
-    for i in range(len(text) - 2):
-        pattern = [text[i], text[i + 1], text[i + 2]]
-        if pattern not in patterns:
-            patterns.append(pattern)
-            for j in range(i + 1, len(text) - 2):
-                if pattern == [text[j], text[j + 1], text[j + 2]]:
-                    counter += 1
-    return counter
+    rep = 0
+    length = 1
+    max_range = False
+    for i in range(1, len(text), 1):
+        if max_range:
+            max_range = False
+            continue
+        if text[i-1] == text[i]:
+            if length == 1:
+                counter += 1
+            length += 1
+        elif length > 1:
+            rep += length
+            length = 1
+        if length == 5:
+            rep += length
+            length = 1
+            max_range = True
+    if length > 1:
+        rep += length
+    if counter != 0:
+        return rep / counter
+    return 0
 
 
 def calculate_entropy(text):

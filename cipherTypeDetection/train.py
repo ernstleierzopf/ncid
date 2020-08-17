@@ -228,7 +228,7 @@ if __name__ == "__main__":
             # model.compile(optimizer='sgd', loss="sparse_categorical_crossentropy", metrics=["accuracy"])
 
             model = tf.keras.Sequential()
-            model.add(tf.keras.layers.Input(input_shape=(input_layer_size,)))
+            model.add(tf.keras.layers.Input(shape=(input_layer_size,)))
             for i in range(5):
                 model.add(tf.keras.layers.Dense(hidden_layer_size, activation="relu", use_bias=True))
             model.add(tf.keras.layers.Dense(output_layer_size, activation='softmax'))
@@ -242,7 +242,7 @@ if __name__ == "__main__":
         # model.compile(optimizer='sgd', loss="sparse_categorical_crossentropy", metrics=["accuracy"])
 
         model = tf.keras.Sequential()
-        model.add(tf.keras.layers.Input(input_shape=(input_layer_size,)))
+        model.add(tf.keras.layers.Input(shape=(input_layer_size,)))
         for i in range(5):
             model.add(tf.keras.layers.Dense(hidden_layer_size, activation="relu", use_bias=True))
         model.add(tf.keras.layers.Dense(output_layer_size, activation='softmax'))
@@ -253,7 +253,7 @@ if __name__ == "__main__":
 
     print('Training model...')
     tensorboard_callback = tf.keras.callbacks.TensorBoard(log_dir='./logs', update_freq='epoch')
-    early_stopping_callback = MiniBatchEarlyStopping(min_delta=0.05, patience=30, monitor='accuracy', mode='max')
+    early_stopping_callback = MiniBatchEarlyStopping(min_delta=0.0005, patience=30, monitor='accuracy', mode='max')
     start_time = time.time()
     cntr = 0
     train_iter = 0
