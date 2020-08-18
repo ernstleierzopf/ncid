@@ -281,5 +281,10 @@ class TextLine2CipherStatisticsDatasetTest(unittest.TestCase):
         self.assertEqual(round(ds.calculate_digraphic_index_of_coincidence_even(self.ciphertext_numberspace), 4),
             round(ds.calculate_digraphic_index_of_coincidence_even(self.plaintext_numberspace), 4))
 
+    def test14_calculate_rod_lr(self):
+        rod, lr = ds.calculate_rod_lr([0,0,0,0,1,1,1,1,2,2,2,2])
+        self.assertEqual(round(lr, 3), 0.144)
+        self.assertEqual(round(rod, 2), 0.67)
+
     '''The methods calculate_statistics and encrypt can not be tested properly, because they are either random or are only depending on
     other methods'''

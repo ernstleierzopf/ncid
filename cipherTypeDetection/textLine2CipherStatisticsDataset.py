@@ -203,8 +203,8 @@ def calculate_digraphic_index_of_coincidence_even(text):
 
 def calculate_log_digraph_score(text):
     """calculates the log digraph score by averaging all digraph frequencies in the text.
-        :param text: input numbers-ciphertext
-        :return: ldi"""
+    :param text: input numbers-ciphertext
+    :return: ldi"""
     pair_number = len(OUTPUT_ALPHABET) * len(OUTPUT_ALPHABET)
     n = [0] * pair_number
     for i in range(1, len(text), 1):
@@ -216,6 +216,46 @@ def calculate_log_digraph_score(text):
             continue
         avg += n[i] * english_digraph_frequencies[i] / (len(text) - 1)
     return avg*100
+
+
+def calculate_rod_lr(text):
+    """calculates the percentage of odd-spaced repeats to all repeats and long repeats.
+    :param text: input numbers-ciphertext
+    :return: rod, lr"""
+    lr = 0
+    sum_all = 0
+    sum_odd = 0
+    for i, c in enumerate(text):
+        rep = 0
+        for j in range(i+1, len(text), 1):
+            if c == text[j]:
+                rep += 1
+                sum_all += 1
+                if (j - i) % 2 == 1:
+                    sum_odd += 1
+        if rep == 3:
+            lr += 1
+    lr = math.sqrt(lr) / len(text)
+    rod = sum_odd / sum_all
+    return rod, lr
+
+
+def calculate_normal_order(frequencies):
+    """calculates the normal order of the text.
+    :param text: input numbers-ciphertext
+    :param frequencies: unigram frequencies of the ciphertext
+    :return: nomor"""
+    # negate english frequencies to get indices of the highes elements first.
+    expected = np.array(english_frequencies)
+    expected = -expected
+    expected = expected.argsort()
+    tested = np.array(frequencies)
+    tested = -tested
+    tested = tested.argsort()
+    result = 0
+    for i in range(len(expected)):
+        result += math.fabs(expected[i] - tested[i])
+    return result / 1000
 
 
 def encrypt(plaintext, label, key_length, keep_unknown_symbols):
@@ -283,6 +323,8 @@ def calculate_statistics(datum):
     # mka = calculate_max_kappa(numbers)
     # edi = calculate_digraphic_index_of_coincidence_even(numbers)
     # ldi = calculate_log_digraph_score(numbers)
+    # rod, lr = calculate_rod_lr(numbers)
+    # nomor = calculate_normal_order(frequencies[0:26])
 
     # ny_gram_frequencies = []
     # for i in range(2, 8):
