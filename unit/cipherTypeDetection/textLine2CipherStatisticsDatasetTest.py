@@ -182,72 +182,18 @@ class TextLine2CipherStatisticsDatasetTest(unittest.TestCase):
                               bigram_ny_frequencies_ciphertext + trigram_ny_frequencies_ciphertext)
 
     def test03calculate_index_of_coincidence(self):
-        alph_size = len(OUTPUT_ALPHABET)
-        n = [0]*alph_size
-        for c in OUTPUT_ALPHABET:
-            for i in range(0, len(self.ciphertext)):
-                if self.ciphertext[i] == c:
-                    n[OUTPUT_ALPHABET.index(c)] += 1
-        ic = 0
-        for i in range(0, len(n)):
-            ic += n[i] * (n[i] - 1) / len(self.ciphertext) / (len(self.ciphertext) - 1)
-        self.assertEqual(ds.calculate_index_of_coincidence(self.ciphertext_numberspace), ic)
+        self.assertEqual(round(ds.calculate_index_of_coincidence(self.ciphertext_numberspace), 3), 0.093)
+        self.assertEqual(round(ds.calculate_index_of_coincidence(self.plaintext_numberspace), 3), 0.093)
 
-        n = [0] * alph_size
-        for c in OUTPUT_ALPHABET:
-            for i in range(0, len(self.plaintext)):
-                if self.plaintext[i] == c:
-                    n[OUTPUT_ALPHABET.index(c)] += 1
-        ic = 0
-        for _, val in enumerate(n):
-            ic += val * (val - 1) / len(self.plaintext) / (len(self.plaintext) - 1)
-        self.assertEqual(ds.calculate_index_of_coincidence(
-            self.plaintext_numberspace), ic)
-
-    def test04calculate_index_of_coincidence_bigrams(self):
-        alph_size = len(OUTPUT_ALPHABET)
-        squared_alph_size = len(OUTPUT_ALPHABET) * len(OUTPUT_ALPHABET)
-        n = [0]*squared_alph_size
-        for i in range(0, len(OUTPUT_ALPHABET)):
-            for j in range(0, len(OUTPUT_ALPHABET)):
-                for k in range(0, len(self.ciphertext) - 1):
-                    if self.ciphertext[k] == OUTPUT_ALPHABET[i] and self.ciphertext[k + 1] == OUTPUT_ALPHABET[j]:
-                        n[i * alph_size + j] += 1
-        ic = 0
-        for _, val in enumerate(n):
-            ic += val * (val - 1) / squared_alph_size / (squared_alph_size - 1)
-        self.assertEqual(ds.calculate_index_of_coincidence_bigrams(self.ciphertext_numberspace), ic*1000)
-
-        n = [0] * squared_alph_size
-        for i in range(0, len(OUTPUT_ALPHABET)):
-            for j in range(0, len(OUTPUT_ALPHABET)):
-                for k in range(0, len(self.plaintext) - 1):
-                    if self.plaintext[k] == OUTPUT_ALPHABET[i] and \
-                            self.plaintext[k + 1] == OUTPUT_ALPHABET[j]:
-                        n[i * alph_size + j] += 1
-        ic = 0
-        for i in range(0, len(n)):
-            ic += n[i] * (n[i] - 1) / squared_alph_size / (squared_alph_size - 1)
-        self.assertEqual(ds.calculate_index_of_coincidence_bigrams(self.plaintext_numberspace), ic*1000)
+    def test04calculate_digraphic_index_of_coincidence(self):
+        self.assertEqual(round(ds.calculate_digraphic_index_of_coincidence(self.ciphertext_numberspace), 4), 0.0109)
+        self.assertEqual(round(ds.calculate_digraphic_index_of_coincidence(self.plaintext_numberspace), 4), 0.0109)
 
     def test05has_letter_j(self):
         self.assertEqual(ds.has_letter_j(self.ciphertext_numberspace), self.ciphertext.decode().__contains__('j'))
         self.assertEqual(ds.has_letter_j(self.plaintext_numberspace), self.plaintext.decode().__contains__('j'))
 
-    def test06has_doubles(self):
-        has_doubles = 0
-        for i in range(0, len(self.ciphertext) - 1):
-            if self.ciphertext[i] == self.ciphertext[i + 1]:
-                has_doubles = 1
-        self.assertEqual(ds.has_doubles(self.ciphertext_numberspace), has_doubles)
-
-        has_doubles = 0
-        for i in range(0, len(self.plaintext) - 1):
-            if self.plaintext[i] == self.plaintext[i + 1]:
-                has_doubles = 1
-        self.assertEqual(ds.has_doubles(self.plaintext_numberspace), has_doubles)
-
-    def test07calculate_chi_square(self):
+    def test06calculate_chi_square(self):
         english_frequencies = [
             0.08167, 0.01492, 0.02782, 0.04253, 0.12702, 0.02228, 0.02015, 0.06094, 0.06966, 0.00153, 0.00772, 0.04025, 0.02406, 0.06749,
             0.07507, 0.01929, 0.00095, 0.05987, 0.06327, 0.09056, 0.02758, 0.00978, 0.0236, 0.0015, 0.01974, 0.00074]
@@ -263,7 +209,7 @@ class TextLine2CipherStatisticsDatasetTest(unittest.TestCase):
             chi_square += (residual * residual / english_frequencies[i])
         self.assertEqual(ds.calculate_chi_square(unigram_frequencies), chi_square / 100)
 
-    def test08pattern_repetitions(self):
+    def test07pattern_repetitions(self):
         self.assertEqual(ds.pattern_repetitions(np.array([0,0,1,1,2,2])), 2)
         self.assertEqual(ds.pattern_repetitions(np.array([0,0,0,1,1,2,2])), 7/3)
         self.assertEqual(ds.pattern_repetitions(np.array([0,0,1,0,1,2,2])), 2)
@@ -273,7 +219,7 @@ class TextLine2CipherStatisticsDatasetTest(unittest.TestCase):
         self.assertEqual(ds.pattern_repetitions(np.array([0,0,0,0,0,0,1,1,2,2])), 3)
         self.assertEqual(ds.pattern_repetitions(np.array([0,0,0,0,0,0,0,0,0,0,1,1,2,2])), 14/4)
 
-    def test09calculate_entropy(self):
+    def test08calculate_entropy(self):
         # https://stackoverflow.com/questions/2979174/how-do-i-compute-the-approximate-entropy-of-a-bit-string
         string = self.ciphertext.decode()
         prob = [float(string.count(c)) / len(string) for c in dict.fromkeys(list(string))]
@@ -291,7 +237,7 @@ class TextLine2CipherStatisticsDatasetTest(unittest.TestCase):
         self.assertEqual(round(ds.calculate_entropy(self.plaintext_numberspace), 6), round(entropy, 6))
         self.assertEqual(e, entropy)
 
-    def test10calculate_autocorrelation(self):
+    def test9calculate_autocorrelation(self):
         # https://stackoverflow.com/questions/14297012/estimate-autocorrelation-using-python
         x = self.plaintext_numberspace
         n = len(x)
@@ -311,7 +257,7 @@ class TextLine2CipherStatisticsDatasetTest(unittest.TestCase):
         result = result + [0] * (1000 - len(result))
         self.assertEqual(ds.calculate_autocorrelation(self.ciphertext_numberspace), result)
 
-    def test11has_hash(self):
+    def test10has_hash(self):
         no_route = b'fasdfasdfasdfasdfds'
         route = b'fsdfasddf#fasd#'
         no_route_ns = map_text_into_numberspace(no_route, OUTPUT_ALPHABET, cipherTest.CipherTest.UNKNOWN_SYMBOL_NUMBER)
@@ -319,15 +265,21 @@ class TextLine2CipherStatisticsDatasetTest(unittest.TestCase):
         self.assertEqual(ds.has_hash(no_route_ns), no_route.decode().__contains__('#'))
         self.assertEqual(ds.has_hash(route_ns), route.decode().__contains__('#'))
 
-    def test12_calculate_maximum_index_of_coincidence(self):
+    def test11_calculate_maximum_index_of_coincidence(self):
         self.assertEqual(round(ds.calculate_maximum_index_of_coincidence(self.ciphertext_numberspace), 3), 0.116)
         self.assertEqual(round(ds.calculate_maximum_index_of_coincidence(self.plaintext_numberspace), 3), 0.116)
         self.assertEqual(ds.calculate_maximum_index_of_coincidence(self.ciphertext_numberspace), ds.calculate_maximum_index_of_coincidence(self.plaintext_numberspace))
 
-    def test13_calculate_max_kappa(self):
+    def test12_calculate_max_kappa(self):
         self.assertEqual(round(ds.calculate_max_kappa(self.ciphertext_numberspace), 3), 0.133)
         self.assertEqual(round(ds.calculate_max_kappa(self.plaintext_numberspace), 3), 0.133)
         self.assertEqual(ds.calculate_max_kappa(self.ciphertext_numberspace), ds.calculate_max_kappa(self.plaintext_numberspace))
+
+    def test13_calculate_digraphic_index_of_coincidence_even(self):
+        self.assertEqual(round(ds.calculate_digraphic_index_of_coincidence_even(self.ciphertext_numberspace), 4), 0.0106)
+        self.assertEqual(round(ds.calculate_digraphic_index_of_coincidence_even(self.plaintext_numberspace), 4), 0.0106)
+        self.assertEqual(round(ds.calculate_digraphic_index_of_coincidence_even(self.ciphertext_numberspace), 4),
+            round(ds.calculate_digraphic_index_of_coincidence_even(self.plaintext_numberspace), 4))
 
     '''The methods calculate_statistics and encrypt can not be tested properly, because they are either random or are only depending on
     other methods'''

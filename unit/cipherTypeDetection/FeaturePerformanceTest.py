@@ -76,7 +76,7 @@ class FeaturePerformanceTest(unittest.TestCase):
     def test04calculate_index_of_coincidence_bigrams(self):
         t = 0
         for i in range(10):
-            t += timeit.timeit(lambda: ds.calculate_index_of_coincidence_bigrams(self.ciphertext_numberspace), number=10000)
+            t += timeit.timeit(lambda: ds.calculate_digraphic_index_of_coincidence(self.ciphertext_numberspace), number=10000)
         print(t / 10)
 
     def test05has_letter_j(self):

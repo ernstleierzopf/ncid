@@ -253,7 +253,7 @@ if __name__ == "__main__":
 
     print('Training model...')
     tensorboard_callback = tf.keras.callbacks.TensorBoard(log_dir='./logs', update_freq='epoch')
-    early_stopping_callback = MiniBatchEarlyStopping(min_delta=0.0001, patience=100, monitor='accuracy', mode='max')
+    early_stopping_callback = MiniBatchEarlyStopping(min_delta=0.00001, patience=250, monitor='accuracy', mode='max')
     start_time = time.time()
     cntr = 0
     train_iter = 0
