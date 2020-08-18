@@ -286,5 +286,11 @@ class TextLine2CipherStatisticsDatasetTest(unittest.TestCase):
         self.assertEqual(round(lr, 3), 0.144)
         self.assertEqual(round(rod, 2), 0.67)
 
+    def test15_is_dbl(self):
+        self.assertEqual(ds.is_dbl([0,0,1,1]), 1)
+        self.assertEqual(ds.is_dbl([1, 0, 1, 1]), 1)
+        self.assertEqual(ds.is_dbl([0, 1, 1, 0]), 0)
+        self.assertEqual(ds.is_dbl([0, 0, 1]), 0)
+
     '''The methods calculate_statistics and encrypt can not be tested properly, because they are either random or are only depending on
     other methods'''

@@ -218,6 +218,23 @@ def calculate_log_digraph_score(text):
     return avg*100
 
 
+def calculate_reverse_log_digraph_score(text):
+    """calculates the reverse log digraph score by averaging all digraph frequencies in the text.
+    :param text: input numbers-ciphertext
+    :return: rdi"""
+    pair_number = len(OUTPUT_ALPHABET) * len(OUTPUT_ALPHABET)
+    n = [0] * pair_number
+    for i in range(1, len(text), 1):
+        p0, p1 = text[i - 1], text[i]
+        n[p1 * len(OUTPUT_ALPHABET) + p0] += 1
+    avg = 0
+    for i in np.nonzero(np.array(n))[0]:
+        if i >= 676:
+            continue
+        avg += n[i] * english_digraph_frequencies[i] / (len(text) - 1)
+    return avg*100
+
+
 def calculate_rod_lr(text):
     """calculates the percentage of odd-spaced repeats to all repeats and long repeats.
     :param text: input numbers-ciphertext
@@ -242,7 +259,6 @@ def calculate_rod_lr(text):
 
 def calculate_normal_order(frequencies):
     """calculates the normal order of the text.
-    :param text: input numbers-ciphertext
     :param frequencies: unigram frequencies of the ciphertext
     :return: nomor"""
     # negate english frequencies to get indices of the highes elements first.
@@ -256,6 +272,16 @@ def calculate_normal_order(frequencies):
     for i in range(len(expected)):
         result += math.fabs(expected[i] - tested[i])
     return result / 1000
+
+
+def is_dbl(text):
+    """binary value: 1 if text length is even and a doubled character is at an even position, else 0.
+    :param text: input numbers-ciphertext"""
+    if len(text) % 2 != 1:
+        for i in range(0, len(text)-1, 2):
+            if text[i] == text[i+1]:
+                return 1
+    return 0
 
 
 def encrypt(plaintext, label, key_length, keep_unknown_symbols):
@@ -323,8 +349,10 @@ def calculate_statistics(datum):
     # mka = calculate_max_kappa(numbers)
     # edi = calculate_digraphic_index_of_coincidence_even(numbers)
     # ldi = calculate_log_digraph_score(numbers)
+    # rdi = calculate_reverse_log_digraph_score(numbers)
     # rod, lr = calculate_rod_lr(numbers)
     # nomor = calculate_normal_order(frequencies[0:26])
+    # dbl = is_dbl(numbers)
 
     # ny_gram_frequencies = []
     # for i in range(2, 8):
