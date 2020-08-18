@@ -66,6 +66,7 @@ class MiniBatchEarlyStopping(Callback):
         self.stopped_epoch = 0
         self.restore_best_weights = restore_best_weights
         self.best_weights = None
+        self.stop_training = False
 
         if mode not in ['auto', 'min', 'max']:
             logging.warning('EarlyStopping mode %s is unknown, '
@@ -103,7 +104,7 @@ class MiniBatchEarlyStopping(Callback):
             self.wait += 1
             if self.wait >= self.patience:
                 self.stopped_epoch = epoch
-                self.model.stop_training = True
+                self.stop_training = True
                 if self.restore_best_weights:
                     if self.verbose > 0:
                         print('Restoring model weights from the end of the best epoch.')

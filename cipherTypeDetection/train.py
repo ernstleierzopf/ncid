@@ -253,7 +253,7 @@ if __name__ == "__main__":
 
     print('Training model...')
     tensorboard_callback = tf.keras.callbacks.TensorBoard(log_dir='./logs', update_freq='epoch')
-    early_stopping_callback = MiniBatchEarlyStopping(min_delta=0.00001, patience=250, monitor='accuracy', mode='max')
+    early_stopping_callback = MiniBatchEarlyStopping(min_delta=0.00001, patience=250, monitor='accuracy', mode='max', restore_best_weights=True)
     start_time = time.time()
     cntr = 0
     train_iter = 0
@@ -290,14 +290,14 @@ if __name__ == "__main__":
             if train_epoch > 0:
                 train_epoch = train_iter // ((train_ds.iteration + train_ds.batch_size * train_ds.dataset_workers) // train_ds.epoch)
             print("Epoch: %d, Iteration: %d" % (train_epoch, train_iter))
-            if train_iter >= args.max_iter or early_stopping_callback.model.stop_training:
+            if train_iter >= args.max_iter or early_stopping_callback.stop_training:
                 break
-        if train_ds.iteration >= args.max_iter or early_stopping_callback.model.stop_training:
+        if train_ds.iteration >= args.max_iter or early_stopping_callback.stop_training:
             break
         run = None
-    # for process in processes:
-    #     if process.is_alive():
-    #         process.kill()
+    for process in processes:
+        if process.is_alive():
+            process.kill()
 
     elapsed_training_time = datetime.fromtimestamp(time.time()) - datetime.fromtimestamp(start_time)
     print('Finished training in %d days %d hours %d minutes %d seconds with %d iterations and %d epochs.\n' % (
@@ -331,14 +331,14 @@ if __name__ == "__main__":
         incorrect += [[0]*len(config.CIPHER_TYPES)]
 
     prediction_dataset_factor = 10
-    if early_stopping_callback.model.stop_training:
+    if early_stopping_callback.stop_training:
         while test_ds.dataset_workers * test_ds.batch_size > train_iter / prediction_dataset_factor and prediction_dataset_factor > 1:
             prediction_dataset_factor -= 1
         args.max_iter = int(train_iter / prediction_dataset_factor)
     else:
         while test_ds.dataset_workers * test_ds.batch_size > args.max_iter / prediction_dataset_factor:
             prediction_dataset_factor -= 1
-    args.max_iter /= prediction_dataset_factor
+        args.max_iter /= prediction_dataset_factor
     cntr = 0
     test_iter = 0
     test_epoch = 0
@@ -356,7 +356,7 @@ if __name__ == "__main__":
             if test_ds.iteration < args.max_iter:
                 processes, run1 = test_ds.__next__()
         for batch, labels in run:
-            prediction = model.predict(batch, batch_size=args.batch_size)
+            prediction = model.predict(batch, batch_size=args.batch_size, verbose=1)
             for i in range(0, len(prediction)):
                 if labels[i] == np.argmax(prediction[i]):
                     correct_all += 1
@@ -376,9 +376,9 @@ if __name__ == "__main__":
         if test_ds.iteration >= args.max_iter:
             break
         run = None
-    # for process in processes:
-    #     if process.is_alive():
-    #         process.kill()
+    for process in processes:
+        if process.is_alive():
+            process.kill()
 
     elapsed_prediction_time = datetime.fromtimestamp(time.time()) - datetime.fromtimestamp(start_time)
 
