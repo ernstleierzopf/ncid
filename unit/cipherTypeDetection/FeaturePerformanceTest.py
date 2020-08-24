@@ -3,6 +3,7 @@ import timeit
 from cipherTypeDetection import textLine2CipherStatisticsDataset as ds
 import unit.cipherImplementations.cipherTest as cipherTest
 from util.textUtils import map_text_into_numberspace
+import numpy as np
 
 
 class FeaturePerformanceTest(unittest.TestCase):
@@ -10,10 +11,12 @@ class FeaturePerformanceTest(unittest.TestCase):
     ALPHABET = map_text_into_numberspace(cipher.alphabet, cipher.alphabet, cipherTest.CipherTest.UNKNOWN_SYMBOL_NUMBER)
     plaintext = b'thisisafilteredplaintextwithsomewordsinittobeusedtotestthestatisticsofthetextlinetocipherstatisticsd'
     plaintext_numberspace = map_text_into_numberspace(plaintext, cipher.alphabet, cipherTest.CipherTest.UNKNOWN_SYMBOL_NUMBER)
+    plaintext_numberspace = [int(d) for d in plaintext_numberspace]
     # key = fcghartokldibuezjpqxyvwnsm
     # cipher: simple substitution
     ciphertext = b'xokqkqfrkixapahzifkuxanxwkxoqebawephqkukxxecayqahxexaqxxoaqxfxkqxkgqerxoaxanxikuaxegkzoapqxfxkqxkgqh'
     ciphertext_numberspace = map_text_into_numberspace(ciphertext, cipher.alphabet, cipherTest.CipherTest.UNKNOWN_SYMBOL_NUMBER)
+    ciphertext_numberspace = [int(d) for d in ciphertext_numberspace]
 
     def test01calculate_frequencies(self):
         # unigrams
@@ -85,13 +88,7 @@ class FeaturePerformanceTest(unittest.TestCase):
             t += timeit.timeit(lambda: ds.has_letter_j(self.ciphertext_numberspace), number=100000)
         print(t / 10)
 
-    def test06has_doubles(self):
-        t = 0
-        for i in range(10):
-            t += timeit.timeit(lambda: ds.has_doubles(self.ciphertext_numberspace), number=10000)
-        print(t / 10)
-
-    def test07calculate_chi_square(self):
+    def test06calculate_chi_square(self):
         unigram_frequencies = [0]*26
         for c in self.cipher.alphabet:
             for i in range(0, len(self.ciphertext)):
@@ -103,23 +100,36 @@ class FeaturePerformanceTest(unittest.TestCase):
             t += timeit.timeit(lambda: ds.calculate_chi_square(unigram_frequencies), number=10000)
         print(t / 10)
 
-    def test08pattern_repetitions(self):
+    def test07pattern_repetitions(self):
         t = 0
         for i in range(10):
             t += timeit.timeit(lambda: ds.pattern_repetitions(self.ciphertext_numberspace), number=10000)
         print(t / 10)
 
-    def test09calculate_entropy(self):
+    def test08calculate_entropy(self):
         t = 0
         for i in range(10):
-            t += timeit.timeit(lambda: ds.calculate_entropy(self.ciphertext_numberspace), 6, number=10000)
+            t += timeit.timeit(lambda: ds.calculate_entropy(self.ciphertext_numberspace), number=10000)
         print(t / 10)
 
-    def test10calculate_autocorrelation_average(self):
+    def test09calculate_autocorrelation_average(self):
+        ciphertext_numberspace = np.array(self.ciphertext_numberspace)
         t = 0
         for i in range(10):
-            t += timeit.timeit(lambda: ds.calculate_autocorrelation(self.ciphertext_numberspace), number=10000)
-            print(t / 10)
+            t += timeit.timeit(lambda: ds.calculate_autocorrelation(ciphertext_numberspace), number=10000)
+        print(t / 10)
 
+    def test10calculate_sdd(self):
+        t = 0
+        for i in range(10):
+            t += timeit.timeit(lambda: ds.calculate_sdd(self.ciphertext_numberspace), number=10000)
+        print(t / 10)
+
+    def test11_calculate_ldi_stats(self):
+        t = 0
+        for i in range(10):
+            t += timeit.timeit(lambda: ds.calculate_ldi_stats(self.ciphertext_numberspace), number=10)
+        print(t / 10)
+        pass
     '''The methods calculate_statistics and encrypt can not be tested properly, because they are either random or are only depending on
     other methods'''

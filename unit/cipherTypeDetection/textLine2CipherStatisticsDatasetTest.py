@@ -13,10 +13,12 @@ class TextLine2CipherStatisticsDatasetTest(unittest.TestCase):
     ALPHABET = map_text_into_numberspace(cipher.alphabet, cipher.alphabet, cipherTest.CipherTest.UNKNOWN_SYMBOL_NUMBER)
     plaintext = b'thisisafilteredplaintextwithsomewordsinittobeusedtotestthestatisticsofthetextlinetocipherstatistjcsd'
     plaintext_numberspace = map_text_into_numberspace(plaintext, cipher.alphabet, cipherTest.CipherTest.UNKNOWN_SYMBOL_NUMBER)
+    plaintext_numberspace = [int(d) for d in plaintext_numberspace]
     # key = fcghartokldibuezjpqxyvwnsm
     # cipher: simple substitution
     ciphertext = b'xokqkqfrkixapahzifkuxanxwkxoqebawephqkukxxecayqahxexaqxxoaqxfxkqxkgqerxoaxanxikuaxegkzoapqxfxkqxlgqh'
     ciphertext_numberspace = map_text_into_numberspace(ciphertext, cipher.alphabet, cipherTest.CipherTest.UNKNOWN_SYMBOL_NUMBER)
+    ciphertext_numberspace = [int(d) for d in ciphertext_numberspace]
 
     def test01calculate_frequencies(self):
         # unigrams
@@ -239,23 +241,23 @@ class TextLine2CipherStatisticsDatasetTest(unittest.TestCase):
 
     def test9calculate_autocorrelation(self):
         # https://stackoverflow.com/questions/14297012/estimate-autocorrelation-using-python
-        x = self.plaintext_numberspace
+        x = np.array(self.plaintext_numberspace)
         n = len(x)
         variance = x.var()
         x = x - x.mean()
         r = np.correlate(x, x, mode='full')[-n:]
         result = list(r / (variance * (np.arange(n, 0, -1))))
         result = result + [0]*(1000-len(result))
-        self.assertEqual(ds.calculate_autocorrelation(self.plaintext_numberspace), result)
+        self.assertEqual(ds.calculate_autocorrelation(np.array(self.plaintext_numberspace)), result)
 
-        x = self.ciphertext_numberspace
+        x = np.array(self.ciphertext_numberspace)
         n = len(x)
         variance = x.var()
         x = x - x.mean()
         r = np.correlate(x, x, mode='full')[-n:]
         result = list(r / (variance * (np.arange(n, 0, -1))))
         result = result + [0] * (1000 - len(result))
-        self.assertEqual(ds.calculate_autocorrelation(self.ciphertext_numberspace), result)
+        self.assertEqual(ds.calculate_autocorrelation(np.array(self.ciphertext_numberspace)), result)
 
     def test10has_hash(self):
         no_route = b'fasdfasdfasdfasdfds'
@@ -291,6 +293,29 @@ class TextLine2CipherStatisticsDatasetTest(unittest.TestCase):
         self.assertEqual(ds.is_dbl([1, 0, 1, 1]), 1)
         self.assertEqual(ds.is_dbl([0, 1, 1, 0]), 0)
         self.assertEqual(ds.is_dbl([0, 0, 1]), 0)
+
+    def test16_calculate_max_nicodemus_ic(self):
+        self.assertEqual(round(ds.calculate_nic(self.plaintext_numberspace), 3), 0.103)
+        self.assertEqual(round(ds.calculate_nic(self.ciphertext_numberspace), 3), 0.103)
+        self.assertEqual(round(ds.calculate_nic(self.plaintext_numberspace), 3), round(ds.calculate_nic(self.ciphertext_numberspace), 3))
+
+    def test17_calculate_sdd(self):
+        self.assertEqual(round(ds.calculate_sdd(self.plaintext_numberspace), 3), 0.292)
+        self.assertEqual(round(ds.calculate_sdd(self.ciphertext_numberspace), 3), 0.094)
+
+    def test18_calculate_ldi_stats(self):
+        ldi_stats = ds.calculate_ldi_stats(self.ciphertext_numberspace)
+        ldi_stats = [round(x, 3) for x in ldi_stats]
+        self.assertEqual(ldi_stats, [0.755, 0.760, 0.701, 0.760, 0.746])
+        ldi_stats = ds.calculate_ldi_stats(self.plaintext_numberspace)
+        ldi_stats = [round(x, 3) for x in ldi_stats]
+        self.assertEqual(ldi_stats, [0.751, 0.763, 0.728, 0.782, 0.799])
+
+    def test19_calculate_phic(self):
+        self.assertEqual(round(ds.calculate_phic(self.ciphertext_numberspace), 3), 0.861)
+        self.assertEqual(round(ds.calculate_phic(self.plaintext_numberspace), 3), 0.861)
+        self.assertEqual(round(ds.calculate_phic(self.ciphertext_numberspace), 3), round(ds.calculate_phic(self.plaintext_numberspace), 3))
+
 
     '''The methods calculate_statistics and encrypt can not be tested properly, because they are either random or are only depending on
     other methods'''

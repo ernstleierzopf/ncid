@@ -186,7 +186,7 @@ if __name__ == "__main__":
         path = os.path.join(args.input_folder, name)
         if os.path.isfile(path):
             plaintext_files.append(path)
-    train, test = train_test_split(plaintext_files, test_size=0.1, random_state=42, shuffle=True)
+    train, test = train_test_split(plaintext_files, test_size=0.05, random_state=42, shuffle=True)
 
     train_ds = TextLine2CipherStatisticsDataset(train, cipher_types, args.train_dataset_size, args.min_train_len, args.max_train_len,
                                                 args.keep_unknown_symbols, args.dataset_workers)
@@ -297,7 +297,7 @@ if __name__ == "__main__":
         run = None
     for process in processes:
         if process.is_alive():
-            process.kill()
+            process.terminate()
 
     elapsed_training_time = datetime.fromtimestamp(time.time()) - datetime.fromtimestamp(start_time)
     print('Finished training in %d days %d hours %d minutes %d seconds with %d iterations and %d epochs.\n' % (
@@ -378,7 +378,7 @@ if __name__ == "__main__":
         run = None
     for process in processes:
         if process.is_alive():
-            process.kill()
+            process.terminate()
 
     elapsed_prediction_time = datetime.fromtimestamp(time.time()) - datetime.fromtimestamp(start_time)
 
