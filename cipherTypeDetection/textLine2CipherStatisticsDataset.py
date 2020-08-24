@@ -47,6 +47,34 @@ var logdi = new Array(
 [6,6,6,6,6,6,5,5,6,3,3,5,6,5,8,6,3,5,7,6,4,3,6,2,4,2],
 [4,0,0,0,5,0,0,0,3,0,0,2,0,0,3,0,0,0,1,0,2,0,0,0,4,4]);
 
+var sdd = new Array(
+[0,3,4,2,0,0,1,0,0,0,4,5,2,6,0,2,0,4,4,3,0,6,0,0,3,5],
+[0,0,0,0,6,0,0,0,0,9,0,7,0,0,0,0,0,0,0,0,7,0,0,0,7,0],
+[3,0,0,0,2,0,0,6,0,0,8,0,0,0,6,0,5,0,0,0,3,0,0,0,0,0],
+[1,6,0,0,1,0,0,0,4,4,0,0,0,0,0,0,0,0,0,1,0,0,4,0,1,0],
+[0,0,4,5,0,0,0,0,0,3,0,0,3,2,0,3,6,5,4,0,0,4,3,8,0,0],
+[3,0,0,0,0,5,0,0,2,1,0,0,0,0,5,0,0,2,0,4,1,0,0,0,0,0],
+[2,0,0,0,1,0,0,6,1,0,0,0,0,0,2,0,0,1,0,0,2,0,0,0,0,0],
+[5,0,0,0,7,0,0,0,5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+[0,0,5,0,0,0,4,0,0,0,1,1,3,7,0,0,0,0,5,3,0,5,0,0,0,8],
+[0,0,0,0,6,0,0,0,0,0,0,0,0,0,5,0,0,0,0,0,9,0,0,0,0,0],
+[0,0,0,0,6,0,0,0,5,0,0,0,0,4,0,0,0,0,0,0,0,0,1,0,0,0],
+[2,0,0,4,2,0,0,0,3,0,0,7,0,0,0,0,0,0,0,0,0,0,0,0,7,0],
+[5,5,0,0,5,0,0,0,2,0,0,0,0,0,2,6,0,0,0,0,2,0,0,0,6,0],
+[0,0,4,7,0,0,8,0,0,2,2,0,0,0,0,0,3,0,0,4,0,0,0,0,0,0],
+[0,2,0,0,0,8,0,0,0,0,4,0,5,5,0,2,0,4,0,0,7,4,5,0,0,0],
+[3,0,0,0,3,0,0,0,0,0,0,5,0,0,5,7,0,6,0,0,3,0,0,0,0,0],
+[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,9,0,0,0,0,0],
+[1,0,0,0,4,0,0,0,2,0,4,0,0,0,2,0,0,0,0,0,0,0,0,0,5,0],
+[1,1,0,0,0,0,0,1,2,0,0,0,0,0,1,4,4,0,1,4,2,0,4,0,0,0],
+[0,0,0,0,0,0,0,8,3,0,0,0,0,0,3,0,0,0,0,0,0,0,2,0,0,0],
+[0,4,3,0,0,0,5,0,0,0,0,6,2,3,0,6,0,6,5,3,0,0,0,0,0,6],
+[0,0,0,0,8,0,0,0,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+[6,0,0,0,2,0,0,6,6,0,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0],
+[3,0,7,0,1,0,0,0,2,0,0,0,0,0,0,9,0,0,0,5,0,0,0,6,0,0],
+[1,6,2,0,0,2,0,0,0,6,0,0,2,0,6,2,1,0,2,1,0,0,6,0,0,0],
+[2,0,0,0,8,0,0,0,0,6,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,9]);
+
 
 function convert_string() {
 	var num_code = new Array(),i,clen,n;
@@ -226,7 +254,6 @@ PAUTOKEY 9
 	else start_type = 2;
     attribute_group_scores = [0,0,0,0,0];
 	for (ciph_type = start_type; ciph_type<=9;ciph_type++) {
-		console.time("d")
         group_index = xlate_indices[ciph_type];
 		for (period = min_period; period <= max_period; period++) {
         	sum = 0;
@@ -241,12 +268,496 @@ PAUTOKEY 9
                     attribute_group_scores[group_index] = n;
                 }
          } /* next period */
-         console.timeEnd("d")
 	} /* next ciphertype */
     s = 'A_LDI '+attribute_group_scores[0]+' , B_LDI '+attribute_group_scores[1];
     s += ' , P_LDI '+attribute_group_scores[2]+' , S_LDI '+attribute_group_scores[3];
     s += ' , V_LDI '+attribute_group_scores[4]+' ';
 	return(attribute_group_scores);
+}
+
+
+function decode_pair(k,c1, c2) {
+        var t_flag,b_flag,t_index,b_index;
+        var rvalue,sum;
+
+        if (c1<13) t_flag = 0;
+        else t_flag = 2;
+        if ( c2 % 2 ) b_flag = 1;
+        else b_flag = 0;
+        rvalue = [0,0,0];
+        sum = t_flag+b_flag;
+        if ( sum == 2)
+			if (c1-13 != (c2 >> 1)) // c1,c2 not verticaly aligned
+				rvalue = [1, (c2 >> 1)+13,(c1-13) << 1]
+        if ( sum == 3)
+			if (c1-13 != (c2>>1))// c2, c2 not vertically aligned
+				rvalue = [1,(c2>>1)+13,( (c1-13)<<1 )+1 ]
+        return(rvalue);
+} /* end decode_pair */
+
+
+function calc_portax_logdi(nc){
+	var s, count,score,hi,j,k,result
+	var big_step;
+	var best_score;
+	var period,best_period;
+    var c1,c2,c3,c4;
+
+    if (nc.length&1 != 0) {//odd number of letters
+        return 0
+    }    
+    var buf_len = nc.length;
+
+    best_score = 0;
+	for (period = 3; period <= max_period; period++) {
+        /* do encryption/decryption */
+        big_step = 2*period;
+        count = 0;
+        score = 0;
+        for (j=0;j<buf_len;j=j+big_step) 
+                for (k=0;k<period;k++) {
+                        c1 = nc[j+k];
+                        c2 = nc[j+k+period];
+                        if (j+k+period >= buf_len) break;
+                        result = decode_pair(k,c1,c2)
+                        if (result[0]==1 ) {
+	                        	c3 = result[1];
+	                        	c4 = result[2];
+                                /* plaintext independent of key values*/
+                                score += logdi[c3][c4];
+                                count++;
+                        }
+        } /* next k,j */
+        /* skip testing of remainder, probably won't be crucial  */
+        score *= 100;
+        score /= count;
+
+        if ( score > best_score) {
+                best_score = score;
+                best_period = period;
+        }
+    } /* period */
+    best_score = Math.floor(best_score);
+    return best_score / 1000;
+}
+
+
+var columnar_calcs = function(){
+    // put pseudo-global variables in this closure 
+    var code = [];
+    var numb_long_cols, numb_short_cols;
+    var min_start = [];
+    var max_start=[];
+    var max_diff=[];
+    var offset=[];
+    var test_len;
+    var col_array=[];
+    var cols_in_use=[];
+    var best_col_array=[];
+    var diff_array=[];
+    var next_col, next_dif;
+    
+    var key_len, numb_rows;
+
+    var col_pos = [];
+    
+    function get_best_di(col){
+        var i,j,k;
+        var max,sum;
+        var index,dif,long_corr,short_corr;
+    
+        max = 0;
+    
+        for (j= col;j<key_len;j++) {
+        long_corr = short_corr = 0;
+        if ( col>=numb_long_cols && col_array[j] >= numb_short_cols)
+            short_corr = 1;
+        else if ( col<numb_long_cols && col_array[j] >= numb_long_cols)
+            long_corr=1;	
+        for (dif = short_corr;dif<=max_diff[ col_array[j] ] - long_corr ;dif++) {
+            sum = 0;
+            for (k=0;k<numb_rows;k++) 
+                    sum += sdd[code[col_pos[ col_array[col-1]]+k+diff_array[col-1]] ] [code[col_pos[col_array[j]]+k+dif] ];		
+            if ( sum > max) {
+                max = sum;
+                next_col = j;
+                next_dif = dif;
+            }
+        }
+        }
+        return(max);
+    }
+
+    var do_col_calc = function(dat){ // return this function which can use the pseudo-global variables
+        var str, alpha,out_str,c,n,i,ct,sum,c1,c2;
+        var j,best_score, current_dif,index,t0,score,tn,swap;
+        var normal_score,best_key_len;
+        
+        /*
+        alpha="ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+        out_str="";
+        code = [];
+        code_len = 0;
+        str = document.getElementById('input_area').value;
+        str = str.toUpperCase();
+        for (i=0;i<str.length;i++){
+            c = str.charAt(i);
+            n = alpha.indexOf(c);
+            if ( n>=0) {
+                    code[code_len++] = n
+            }
+        }
+        if ( code_len == 0){
+            alert("No letters entered!");
+            return;
+        }
+        */
+        code = dat; // put in clsoure space so won't have to keep passing the entire array to get_best_di
+        var code_len = code.length;
+        for (i=0;i<max_period;i++) cols_in_use[i] = 0;
+        best_score = 0;
+        for (key_len = 4;key_len <= max_period;key_len++){
+            numb_long_cols = code_len % key_len;
+            numb_short_cols = key_len - numb_long_cols;
+            /* transpose into columns */
+            numb_rows = Math.floor(code_len / key_len);
+            /* get min_start,max_start,max_diff*/
+            min_start[0] = 0;
+            n = 0;
+            for (j=1;j<key_len;j++) {
+                if ( n<numb_short_cols) {
+                    min_start[j] = min_start[j-1]+numb_rows;
+                    n++;
+                }
+                else {
+                    min_start[j] = min_start[j-1]+numb_rows+1;
+                }
+            }
+            max_start[0]= max_diff[0] = 0;
+            n = 0;
+            for (j=1;j<key_len;j++) {
+                if ( n<numb_long_cols) {
+                    max_start[j] = max_start[j-1]+numb_rows+1;
+                    n++;
+                }
+                else {
+                    max_start[j] = max_start[j-1]+numb_rows;
+                }
+                max_diff[j] = max_start[j]-min_start[j];
+            }
+        
+            /* set column pointers to minimum for each column*/		
+            for (j=0;j<key_len;j++) {
+                col_pos[j] = min_start[j];
+            }
+            /* try all possible digraphs */
+            for (t0=0;t0<key_len;t0++) {
+                col_array[0] = t0;
+                cols_in_use[t0] = 1;
+                if (0<numb_long_cols && t0 >= numb_long_cols)
+                    long_corr=1;
+                else long_corr=0;
+                for ( current_dif=0;current_dif <= max_diff[t0] - long_corr ;current_dif++) {	
+                    diff_array[0] = current_dif;
+                    index = 1;
+                    for (j=0;j<key_len;j++)
+                        if ( !cols_in_use[j])
+                            col_array[index++] = j;
+                    score = 0;
+                    for (j=1;j<key_len;j++) {
+                        tn = get_best_di( j);/* also sets next_col and next dif */
+                        score += tn;
+                        swap = col_array[next_col];
+                        col_array[next_col] = col_array[j];
+                        col_array[j] = swap;
+                        diff_array[j] = next_dif;
+                    }
+                    score = Math.floor(100*score/(numb_rows*(key_len-1)));
+                    if ( score > best_score ) {
+                        best_score = score;
+                        best_key_len = key_len;
+                    }
+                } /* next current_dif*/
+                cols_in_use[t0] = 0;
+            } // next t0
+        } //next key_len
+        normal_score = best_score;
+        out_str = "CDD "+best_score;
+        return(best_score / 1000);
+    } // end do_cal_calc function
+    return (do_col_calc); // return this function which can access pseudo_global variables
+} // end columnar_calcs closure function
+  
+function get_cdd(dat){
+    var s;
+
+    do_col_calc = columnar_calcs(); // closure to isolate 'pseudo_global' variables
+    s= do_col_calc(dat);
+    return(s);
+}
+
+
+var swagman_calcs = function(){
+// T has compressed binary Single letter - Trigraph Discrepancy values
+// had to replace \ by \\
+var T="sP5D4475HAAPRphXWR=><I@A42p`E1"
+T=T+"N71rHAR2ApH2`M8BAiEW75A@uiAYU1"
+T=T+"r`NpS1IDR51@8D2@p5pI4PpTOO>D4p"
+T=T+"18;`QR6@p@Xonj`1p44s@4Xq6cQ822"
+T=T+"BrPq41r4262s4pRp4p2p@4111A44@p"
+T=T+"T8>4r1t1@@@458A1665pP`4v4tb7lX"
+T=T+":r4XS^V6s1p44p1:pPZnJ^q4r8q1rX"
+T=T+"bXNt1p8p1Pu@41118PX3xA4544Ap@@"
+T=T+"s8PU1v1p@rH1?22r1BRQy1p24hN_^?"
+T=T+"q1r2t@;@@2s@t911s4A@@P@@Qx@q11"
+T=T+"p4u2p:Cv@u2PQP2q@tjeW3E@82B6Y8"
+T=T+"@2@rB@p@BP8p<ApCAqR`NP1d5TT1hG"
+T=T+"S8HNiYApD4t@<@CIslG`@T4AIAQp2Q"
+T=T+"p421@6YI@H@435AqP68qA444S2p44w"
+T=T+"41:pPSH8RAT44q8q1rXPRC1r@1P8pA"
+T=T+"Ps@r115Hc[c3q@t@q44@p@s9r1v1q4"
+T=T+"4p\\\\p6::sha[[1w@T24882Rr1p1424s"
+T=T+"P^hH:s@r@p8u4A@@rPx@4p11p4u@82"
+T=T+"I}2PQPr@xTA8N64Yq2Bp8q@rQp14{4"
+T=T+"p4r2s1q44qPp8s1t14p@65HAig_g1p"
+T=T+"@uhcWc31q`4H8Xr4p6VT`p@q@42TTA"
+T=T+":BTQD8RhT61UE8p8KTb<wH7XK@oU\\\\5"
+T=T+"WCD6D4511p988qdD2sg1\\\\F4A9FD1QJ"
+T=T+"9p1@p\\\\CH26NliaAp2P<p2:Hp1paPp1"
+T=T+"p1p@@tAT2p887Rq81r2p@{@p22@p8q"
+T=T+"144p4A@@1qXs4t4A1114p61p8Dr1u1"
+T=T+"v;`S2r@PT@`4s4A@@qXq22p82p@rPw"
+T=T+"22t4@q4pB@t14p4pPdZ1q1t41@@@p1"
+T=T+"p1sPp@t8v@qH88s`O]neNAAAHE2Q1p"
+T=T+":pPX4H6hp6pQ48p4s7B1J2s1P88AT4"
+T=T+"4v1pT:8;PEeF6s1p14p@p@qPPpV9]Y"
+T=T+"v1tHp62sPl_RQr@tAT2pH<7R;q1p8p"
+T=T+"2p@sZ8hHs@q6@p81q444p@@2pS@i4w"
+T=T+"@4p111Dp54@p@2aZIv@uCPS1sPonjn"
+T=T+"y8qJcYK2p@r1u\\\\?o^?sLTV71p2y`dW"
+T=T+"><x1p@xX_f>4u4tPp8y@6q@meVCU5:"
+T=T+"p4Q@2RhaWSU7:64C4`Dr[T7:>41P8p"
+T=T+"oQXpU7F6D64A@pQqT7fF6sn38pTE;>"
+T=T+"4GThIq@p41rFph@sl?o>=p1pPl3Z11"
+T=T+"w@P2ph97Rq81r2p@s18:Ps@q2@48qA"
+T=T+"4441@rW8Z@1444t4p11I4251q42Olk"
+T=T+"lx41p83PSp2q@p:T@@s4r@4XqjRS91"
+T=T+"p@rPq4t2u4pTp4p2@@s1444q28x41p"
+T=T+"@@FU@Aq6Pz4q1q`ph:th_VdMN@H@Aq"
+T=T+"1Pp:pPkfb>hAV3U7H44qPpep84yPqP"
+T=T+"wVZ?KU7nN6s1p44uP@8^;=S|8p6ulS"
+T=T+"YA5p@@tAPRphl?f>q1r2p@sglhOs@p"
+T=T+"J2@p9p1p4T44A@qPHZp1p14s@4111A"
+T=T+"44pD@8pb[JIv@t8;PQPr@8olZ^r44A"
+T=T+"p@p4Xq6cQ86@BrPq41qh6_>5s4pRp4"
+T=T+"p2@r1pA44D8488p4@p1s41@@@FeIA1"
+T=T+"4p4Lpb8v4qAp@`pXXt@p2p@NmkmD4P"
+T=T+"Q118qPqPh@VA5A82p1qHslOoN51p1p"
+T=T+"VP<pPADN4p1q^o[KQ3N6DomkM6q2T7"
+T=T+"9FD11@9~p4q2u`3RAq@@t1p2pXK:>5"
+T=T+"q1r2uO8h:s@s411@t@@pPCjH@x4q1p"
+T=T+"4~v8p2PQu2:Hx@4X8pVkSI2pBrPpP4"
+T=T+"1p2x4PVA4p2r11pA44@X8Z>4r1t1@@"
+T=T+"@FUhAA42Uq@w4q@@p`7lXZ@q42p681"
+T=T+"|omiN|Pp1Q~q@s2pP~xRz8PSP1w8PY"
+T=T+"AX?_>GpQqAP64889Rq11rRp@pP81w@"
+T=T+"p:4PNmj5hc_C5p@pP22s8t@EpY11q4"
+T=T+"4@8BRs1s1@r11p2Pq4p8qbH8}B8s@r"
+T=T+"PuX5:^1~q@rP~@s1s8I^85}Hq14p40"
+
+var bstd = []
+
+function construct_table(){
+    var i,n,index,c,ze,x,j,mask;
+    // read T and put it into the working binary trigraph table: bstd
+    n = 26*26*26
+    i = index = 0;
+
+    ze = '0'.charCodeAt(0);
+    while (i < n){
+        c = T.charCodeAt(index);
+        index +=1
+        x = c-ze;
+        if (x > 63){
+            x -= 63;
+            //for j in range(6*x):
+            for (j=0;j<6*x;j++){
+                bstd[i] = 0;
+                i += 1;
+            }
+        }
+        else{
+            mask = 1;
+            while (mask < 64){
+                if (mask & x ){
+                    bstd[i] = 1;
+                }
+                else bstd[i] = 0;
+                i += 1;
+                mask += mask;
+                if (i >= n)  break;
+            }
+        }
+    }    
+}
+
+construct_table();
+
+
+function next_per(str,le){
+	/*
+	get next permutation of array str of length le
+	return 0 if finished, 1 otherwise.
+	*/
+	if (le < 2) return (0);
+	//find last element not in reverse alphabetic order
+	var last = le-2;
+	while (str[last] >= str[last+1]){
+		if (last == 0) return(0);
+		last -= 1;
+    }
+	// find first element that is larger than the element at last
+	var fst = le-1;
+	while (str[fst] <= str[last])
+		fst -= 1;
+
+	//swap these two
+	var c = str[last];
+	str[last] = str[fst];
+	str[fst] = c;
+
+	//put part of string at tail into ascending order
+	if (str[last+1] != str[le-1] ){
+		var i = 1;
+		while (last+i < le -i){
+			c = str[last+i];
+			str[last+i] = str[le-i];
+			str[le-i] = c;
+			i += 1;
+        }
+    }
+	return(1);
+}
+
+	function construct_row(row_order,swag_array,period,numb_columns){
+        var i,c;
+		var row = []
+		var index = 0
+        for (i=0;i<numb_columns;i++){
+			c = swag_array[ row_order[index] ][i]
+            row[i] = c;
+			index += 1;
+			if (index == period ) index = 0;
+        }
+		return(row);
+    }
+
+	function score_row(row){
+		var score = 0
+        for (var i=0;i<row.length-2;i++)
+			score += bstd[row[i]+26*row[i+1]+26*26*row[i+2]];
+		return score;
+    }
+
+
+    function swag_test(code,period){
+        var i,j,index,c;
+        /*
+        test code digits for swagman of given period, return binary std score
+        and best scoring line
+        */
+        var numb_columns = code.length/period; // should always be integer
+        var row_order = [];
+        for (i=0;i<period;i++)
+            row_order[i] = i;
+        var swag_array = [];
+        for (i=0;i<period;i++)
+            swag_array[i] = []
+        index = i = 0;
+        //for c in code:
+        for (j=0;j<code.length;j++){
+            c = code[j];
+            swag_array[i][index] = c;
+            i += 1;
+            if (i == period ){
+                index += 1;
+                i = 0;
+            }
+        }
+        var row = construct_row(row_order,swag_array,period,numb_columns)
+        var score = score_row(row)
+        var best_score = score
+        var best_row = row
+        while (next_per(row_order,row_order.length) != 0){
+            row = construct_row(row_order,swag_array,period,numb_columns)
+            score = score_row(row)
+            if (score > best_score){
+                best_score = score;
+                best_row = row;
+            }
+        }
+        var std_score = Math.floor(100*best_score / (numb_columns-2));
+        var alpha="ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+        var l1 = '';
+        for (i=0;i<best_row.length;i++)
+            l1 += alpha.charAt(best_row[i]);
+        return ([std_score,l1]);
+    }
+    var do_swag_calc = function(code){ // return this function which can use the pseudo-global variables
+        var str, alpha,out_str,c,n,i,ct,sum,c1,c2;
+        //var code_len,code;
+        var code_len;
+        var period, best_score, best_line,result,best_period;
+       
+        /*
+        alpha="ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+        out_str="";
+        code = [];
+        code_len = 0;
+        str = document.getElementById('input_area').value;
+        str = str.toUpperCase();
+        for (i=0;i<str.length;i++){
+            c = str.charAt(i);
+            n = alpha.indexOf(c);
+            if ( n>=0) {
+                    code[code_len++] = n
+            }
+        }
+        if ( code_len == 0){
+            alert("No letters entered!");
+            return;
+        }
+        */
+        //out_str = 'testng'
+        best_score = 0;
+        best_line = '';
+        for (period = 4;period <= 8;period++){
+            if ( code.length % period != 0) continue;
+            if (3*period*period > code.length) break; // not enough code blocks
+            result = swag_test(code,period);
+            if (result[0] > best_score){
+                best_score = result[0];
+                best_line = result[1];
+                best_period = period;
+             }
+        }
+        /*
+        out_str += 'Best score is '+best_score+' for period '+best_period+' best line is: '+best_line.toLowerCase();
+        document.getElementById('output_area').value = out_str;
+        */
+        return(best_score / 100);
+
+    } // end do_cal_calc function
+    return (do_swag_calc); // return this function which can access pseudo_global variables
+} // end swagman_calcs closure function
+
+
+function get_sstd(dat){
+    var s;
+
+    do_swag_calc = swagman_calcs(); // closure to isolate 'pseudo_global' variables
+    s= do_swag_calc(dat);
+    return(s);
 }"""
 ctx = py_mini_racer.MiniRacer()
 ctx.eval(js_functions)
@@ -575,6 +1086,12 @@ def calculate_ldi_stats(text):
     return ctx.call("get_vig_values", text)
 
 
+def calculate_ptx(text):
+    if np.count_nonzero(np.array(text) > 25) > 0:
+        return 0
+    return ctx.call("calc_portax_logdi", text)
+
+
 def calculate_phic(text):
     """calculates the Phillips IC.
     :param text: input numbers-ciphertext
@@ -603,6 +1120,54 @@ def calculate_phic(text):
             z += x / (y * (y - 1))
     z /= (period-2)
     return z*10
+
+
+def calculate_bdi(text):
+    """calculates Max Bifid DIC for periods 3-15.
+    :param text: input numbers-ciphertext
+    :return: bdi"""
+    if np.count_nonzero(np.array(text) > 25) > 0:
+        return 0
+    best_score = 0
+    normalizer = 25*25
+    text_len = len(text)
+    for period in range(3, 16, 1):
+        numb = 0
+        freq = [0] * 676
+        for i in range(0, text_len, period):
+            if i + period < text_len:
+                limit = i + period
+                second_row = int(period/2)
+            else:
+                limit = text_len
+                second_row = int((text_len-i) / 2)
+            for j in range(i, limit-second_row, 1):
+                freq[text[j]+26*text[j+second_row]] += 1
+            numb += limit - second_row - i
+        sum = 0
+        for i in np.nonzero(np.array(freq))[0]:
+            sum += freq[i] * (freq[i] - 1)
+        score = int(100*normalizer * sum / (numb*(numb-1))) / 1000
+        best_score = max(best_score, score)
+    return best_score
+
+
+def calculate_cdd(text):
+    """calculates Max Columnar SDD Score for periods 4-15.
+    :param text: input numbers-ciphertext
+    :return: cdd"""
+    if np.count_nonzero(np.array(text) > 25) > 0:
+        return 0
+    return ctx.call("get_cdd", text)
+
+
+def calculate_sstd(text):
+    """calculates Max STD Score for Swagman periods 4-8.
+    :param text: input numbers-ciphertext
+    :return: cdd"""
+    if np.count_nonzero(np.array(text) > 25) > 0:
+        return 0
+    return ctx.call("get_sstd", text)
 
 
 def encrypt(plaintext, label, key_length, keep_unknown_symbols):
@@ -677,7 +1242,11 @@ def calculate_statistics(datum):
     # nic = calculate_nic(numbers)
     # sdd = calculate_sdd(numbers)
     # ldi_stats = calculate_ldi_stats(numbers)
+    # ptx = calculate_ptx(numbers)
     # phic = calculate_phic(datum)
+    # bdi = calculate_bdi(numbers)
+    # cdd = calculate_cdd(numbers)
+    # sstd = calculate_sstd(numbers)
 
     # ny_gram_frequencies = []
     # for i in range(2, 8):

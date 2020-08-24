@@ -130,6 +130,11 @@ class FeaturePerformanceTest(unittest.TestCase):
         for i in range(10):
             t += timeit.timeit(lambda: ds.calculate_ldi_stats(self.ciphertext_numberspace), number=10)
         print(t / 10)
-        pass
+
+    def test12_calculate_cdd(self):
+        t = 0
+        for i in range(10):
+            t += timeit.timeit(lambda: ds.calculate_cdd(self.ciphertext_numberspace), number=10000)
+        print(t / 10)
     '''The methods calculate_statistics and encrypt can not be tested properly, because they are either random or are only depending on
     other methods'''

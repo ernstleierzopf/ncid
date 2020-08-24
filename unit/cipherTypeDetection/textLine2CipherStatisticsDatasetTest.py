@@ -311,10 +311,27 @@ class TextLine2CipherStatisticsDatasetTest(unittest.TestCase):
         ldi_stats = [round(x, 3) for x in ldi_stats]
         self.assertEqual(ldi_stats, [0.751, 0.763, 0.728, 0.782, 0.799])
 
-    def test19_calculate_phic(self):
+    def test19_calculate_ptx(self):
+        self.assertEqual(round(ds.calculate_ptx(self.ciphertext_numberspace), 3), 0.527)
+        self.assertEqual(round(ds.calculate_ptx(self.plaintext_numberspace), 3), 0.566)
+
+    def test20_calculate_phic(self):
         self.assertEqual(round(ds.calculate_phic(self.ciphertext_numberspace), 3), 0.861)
         self.assertEqual(round(ds.calculate_phic(self.plaintext_numberspace), 3), 0.861)
         self.assertEqual(round(ds.calculate_phic(self.ciphertext_numberspace), 3), round(ds.calculate_phic(self.plaintext_numberspace), 3))
+
+    def test21_calculate_bdi(self):
+        self.assertEqual(round(ds.calculate_bdi(self.ciphertext_numberspace), 3), 0.847)
+        self.assertEqual(round(ds.calculate_bdi(self.plaintext_numberspace), 3), 0.847)
+        self.assertEqual(round(ds.calculate_bdi(self.ciphertext_numberspace), 3), round(ds.calculate_bdi(self.plaintext_numberspace), 3))
+
+    def test22_calculate_cdd(self):
+        self.assertEqual(round(ds.calculate_cdd(self.ciphertext_numberspace), 3), 0.307)
+        self.assertEqual(round(ds.calculate_cdd(self.plaintext_numberspace), 3), 0.342)
+
+    def test23_calculate_sstd(self):
+        self.assertEqual(round(ds.calculate_sstd(self.ciphertext_numberspace), 3), 0.33)
+        self.assertEqual(round(ds.calculate_sstd(self.plaintext_numberspace), 3), 0.60)
 
 
     '''The methods calculate_statistics and encrypt can not be tested properly, because they are either random or are only depending on
