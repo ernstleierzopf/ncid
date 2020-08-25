@@ -269,9 +269,6 @@ PAUTOKEY 9
                 }
          } /* next period */
 	} /* next ciphertype */
-    s = 'A_LDI '+attribute_group_scores[0]+' , B_LDI '+attribute_group_scores[1];
-    s += ' , P_LDI '+attribute_group_scores[2]+' , S_LDI '+attribute_group_scores[3];
-    s += ' , V_LDI '+attribute_group_scores[4]+' ';
 	return(attribute_group_scores);
 }
 
@@ -960,6 +957,8 @@ def calculate_log_digraph_score(text):
     """calculates the log digraph score by averaging all digraph frequencies in the text.
     :param text: input numbers-ciphertext
     :return: ldi"""
+    if np.count_nonzero(np.array(text) > 25) > 0:
+        return 0
     logdi = global_logdi
     score = 0
     for i in range(len(text)-1):
@@ -974,6 +973,8 @@ def calculate_reverse_log_digraph_score(text):
     """calculates the reverse log digraph score by averaging all digraph frequencies in the text.
     :param text: input numbers-ciphertext
     :return: rdi"""
+    if np.count_nonzero(np.array(text) > 25) > 0:
+        return 0
     logdi = global_logdi
     score = 0
     for i in range(len(text) - 1):
@@ -1220,33 +1221,33 @@ def calculate_statistics(datum):
     numbers = [int(d) for d in datum]
     unigram_ioc = calculate_index_of_coincidence(numbers)
     digraphic_ioc = calculate_digraphic_index_of_coincidence(numbers)
-    # autocorrelation = calculate_autocorrelation(datum)
+    autocorrelation = calculate_autocorrelation(datum)
     frequencies = calculate_frequencies(numbers, 2, recursive=True)
 
     has_j = has_letter_j(numbers)
     chi_square = calculate_chi_square(frequencies[0:26])
-    # pattern_repetitions_count = pattern_repetitions(numbers)
+    pattern_repetitions_count = pattern_repetitions(numbers)
     entropy = calculate_entropy(numbers)
     has_h = has_hash(numbers)
     has_sp = has_space(numbers)
     has_x = has_letter_x(numbers)
-    # has_0 = has_digit_0(numbers)
-    # mic = calculate_maximum_index_of_coincidence(numbers)
-    # mka = calculate_max_kappa(numbers)
-    # edi = calculate_digraphic_index_of_coincidence_even(numbers)
-    # ldi = calculate_log_digraph_score(numbers)
-    # rdi = calculate_reverse_log_digraph_score(numbers)
-    # rod, lr = calculate_rod_lr(numbers)
-    # nomor = calculate_normal_order(frequencies[0:26])
-    # dbl = is_dbl(numbers)
-    # nic = calculate_nic(numbers)
-    # sdd = calculate_sdd(numbers)
+    has_0 = has_digit_0(numbers)
+    mic = calculate_maximum_index_of_coincidence(numbers)
+    mka = calculate_max_kappa(numbers)
+    edi = calculate_digraphic_index_of_coincidence_even(numbers)
+    ldi = calculate_log_digraph_score(numbers)
+    rdi = calculate_reverse_log_digraph_score(numbers)
+    rod, lr = calculate_rod_lr(numbers)
+    nomor = calculate_normal_order(frequencies[0:26])
+    dbl = is_dbl(numbers)
+    nic = calculate_nic(numbers)
+    sdd = calculate_sdd(numbers)
     # ldi_stats = calculate_ldi_stats(numbers)
     # ptx = calculate_ptx(numbers)
-    # phic = calculate_phic(datum)
-    # bdi = calculate_bdi(numbers)
-    # cdd = calculate_cdd(numbers)
-    # sstd = calculate_sstd(numbers)
+    phic = calculate_phic(datum)
+    bdi = calculate_bdi(numbers)
+    cdd = calculate_cdd(numbers)
+    sstd = calculate_sstd(numbers)
 
     # ny_gram_frequencies = []
     # for i in range(2, 8):
@@ -1257,8 +1258,9 @@ def calculate_statistics(datum):
     # ny_gram_frequencies += calculate_ny_gram_frequencies(numbers, 2, interval=10, recursive=False)
     # ny_gram_frequencies += calculate_ny_gram_frequencies(numbers, 2, interval=20, recursive=False)
     # ny_gram_frequencies += calculate_ny_gram_frequencies(numbers, 2, interval=25, recursive=False)
-    return [unigram_ioc] + [digraphic_ioc] + [has_j] + [entropy] + [chi_square] + [has_h] + [has_sp] + [has_x] + frequencies #+ autocorrelation
-           # [pattern_repetitions_count] + [autocorrelation] # + ny_gram_frequencies
+    return [unigram_ioc] + [digraphic_ioc] + [has_j] + [entropy] + [chi_square] + [has_h] + [has_sp] + [has_x] + [has_0] + [mic] + [mka] +\
+           [pattern_repetitions_count] + [edi] + [ldi] + [rdi] + [rod] + [lr] + [nomor] + [dbl] + [nic] + [sdd] + [phic] + [bdi] + [cdd] +\
+           [sstd] + autocorrelation + frequencies
 
 
 class TextLine2CipherStatisticsDataset:
