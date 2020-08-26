@@ -362,7 +362,6 @@ var columnar_calcs = function(){
         var i,j,k;
         var max,sum;
         var index,dif,long_corr,short_corr;
-    
         max = 0;
     
         for (j= col;j<key_len;j++) {
@@ -373,8 +372,11 @@ var columnar_calcs = function(){
             long_corr=1;	
         for (dif = short_corr;dif<=max_diff[ col_array[j] ] - long_corr ;dif++) {
             sum = 0;
-            for (k=0;k<numb_rows;k++) 
-                    sum += sdd[code[col_pos[ col_array[col-1]]+k+diff_array[col-1]] ] [code[col_pos[col_array[j]]+k+dif] ];		
+            for (k=0;k<numb_rows;k++) {
+                    try {
+                        sum += sdd[(code[col_pos[ col_array[col-1]]+k+diff_array[col-1]])%sdd.length] [code[col_pos[col_array[j]]+k+dif] ];
+                    } catch(e) {}
+            }
             if ( sum > max) {
                 max = sum;
                 next_col = j;
@@ -1044,7 +1046,7 @@ def calculate_nic(text):
     col_len = 5
     for i in range(1, 16, 1):
         ct = [[0] * len(OUTPUT_ALPHABET) for i in range(16)]
-        block_len = int(len(text) / (col_len*i))
+        block_len = len(text) // (col_len*i)
         limit = block_len * col_len * i
         index = 0
         for j in range(limit):
@@ -1097,13 +1099,13 @@ def calculate_phic(text):
     """calculates the Phillips IC.
     :param text: input numbers-ciphertext
     :return: phic"""
-    if np.count_nonzero(text > 25) > 0:
+    if np.count_nonzero(np.array(text) > 25) > 0:
         return 0
     combine_alpha = [0,1,2,3,0,4,5,1]
     period = 8
     col_len = 5
     ct = [[0]*26 for _ in range(period-1)]
-    block_len = int(len(text) / (col_len*period))
+    block_len = len(text) // (col_len*period)
     limit = block_len*col_len*period
     index = 0
     for i in range(limit):
@@ -1138,17 +1140,17 @@ def calculate_bdi(text):
         for i in range(0, text_len, period):
             if i + period < text_len:
                 limit = i + period
-                second_row = int(period/2)
+                second_row = period // 2
             else:
                 limit = text_len
-                second_row = int((text_len-i) / 2)
+                second_row = (text_len-i) // 2
             for j in range(i, limit-second_row, 1):
                 freq[text[j]+26*text[j+second_row]] += 1
             numb += limit - second_row - i
         sum = 0
         for i in np.nonzero(np.array(freq))[0]:
             sum += freq[i] * (freq[i] - 1)
-        score = int(100*normalizer * sum / (numb*(numb-1))) / 1000
+        score = 100*normalizer * sum // (numb*(numb-1)) / 1000
         best_score = max(best_score, score)
     return best_score
 
@@ -1232,8 +1234,8 @@ def calculate_statistics(datum):
     has_sp = has_space(numbers)
     has_x = has_letter_x(numbers)
     has_0 = has_digit_0(numbers)
-    mic = calculate_maximum_index_of_coincidence(numbers)
-    mka = calculate_max_kappa(numbers)
+    # mic = calculate_maximum_index_of_coincidence(numbers)
+    # mka = calculate_max_kappa(numbers)
     edi = calculate_digraphic_index_of_coincidence_even(numbers)
     ldi = calculate_log_digraph_score(numbers)
     rdi = calculate_reverse_log_digraph_score(numbers)
@@ -1243,10 +1245,10 @@ def calculate_statistics(datum):
     nic = calculate_nic(numbers)
     sdd = calculate_sdd(numbers)
     # ldi_stats = calculate_ldi_stats(numbers)
-    # ptx = calculate_ptx(numbers)
+    ptx = calculate_ptx(numbers)
     phic = calculate_phic(datum)
     bdi = calculate_bdi(numbers)
-    cdd = calculate_cdd(numbers)
+    # cdd = calculate_cdd(numbers)
     sstd = calculate_sstd(numbers)
 
     # ny_gram_frequencies = []
@@ -1258,8 +1260,12 @@ def calculate_statistics(datum):
     # ny_gram_frequencies += calculate_ny_gram_frequencies(numbers, 2, interval=10, recursive=False)
     # ny_gram_frequencies += calculate_ny_gram_frequencies(numbers, 2, interval=20, recursive=False)
     # ny_gram_frequencies += calculate_ny_gram_frequencies(numbers, 2, interval=25, recursive=False)
-    return [unigram_ioc] + [digraphic_ioc] + [has_j] + [entropy] + [chi_square] + [has_h] + [has_sp] + [has_x] + [has_0] + [mic] + [mka] +\
-           [pattern_repetitions_count] + [edi] + [ldi] + [rdi] + [rod] + [lr] + [nomor] + [dbl] + [nic] + [sdd] + [phic] + [bdi] + [cdd] +\
+
+    # return [unigram_ioc] + [digraphic_ioc] + [has_j] + [entropy] + [chi_square] + [has_h] + [has_sp] + [has_x] + [has_0] + [mic] + [mka] +\
+    #        [pattern_repetitions_count] + [edi] + [ldi] + [rdi] + [rod] + [lr] + [nomor] + [dbl] + [nic] + [sdd] + [ldi_stats] + [ptx] +\
+    #        [phic] + [bdi] + [cdd] + [sstd] + autocorrelation + frequencies
+    return [unigram_ioc] + [digraphic_ioc] + [has_j] + [entropy] + [chi_square] + [has_h] + [has_sp] + [has_x] + [has_0] +\
+           [pattern_repetitions_count] + [edi] + [ldi] + [rdi] + [rod] + [lr] + [nomor] + [dbl] + [nic] + [sdd] + [ptx] + [phic] + [bdi] +\
            [sstd] + autocorrelation + frequencies
 
 
@@ -1306,7 +1312,7 @@ class TextLine2CipherStatisticsDataset:
         result_list = manager.list()
         for _ in range(self.dataset_workers):
             d = []
-            for _ in range(int(self.batch_size / self.key_lengths_count)):
+            for _ in range(self.batch_size // self.key_lengths_count):
                 try:
                     # use the basic prefilter to get the most accurate text length
                     data = c.filter(self.iter.__next__().numpy(), self.keep_unknown_symbols)

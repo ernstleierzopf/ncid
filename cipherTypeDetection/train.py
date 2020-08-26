@@ -12,7 +12,7 @@ from datetime import datetime
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 import tensorflow as tf
 from tensorflow.keras.metrics import SparseTopKCategoricalAccuracy
-from tensorflow.keras.optimizers import Adam
+from tensorflow.keras.optimizers import Adam, Adamax
 import tensorflow_datasets as tfds
 sys.path.append("../")
 import cipherTypeDetection.config as config
@@ -22,12 +22,44 @@ from cipherTypeDetection.miniBatchEarlyStoppingCallback import MiniBatchEarlySto
 tf.debugging.set_log_device_placement(enabled=False)
 import math
 
+
 # for device in tf.config.list_physical_devices('GPU'):
 #    tf.config.experimental.set_memory_growth(device, True)
 
 
 def str2bool(v):
     return v.lower() in ("yes", "true", "t", "1")
+
+
+def create_model():
+    optimizer = Adam(learning_rate=config.learning_rate, beta_1=config.beta_1, beta_2=config.beta_2, epsilon=config.epsilon, amsgrad=config.amsgrad)
+    # optimizer = Adamax()
+
+    # sizes for layers
+    total_frequencies_size = 0
+    for i in range(1, 3):
+        total_frequencies_size += math.pow(len(OUTPUT_ALPHABET), i)
+    total_frequencies_size = int(total_frequencies_size)
+
+    # total_ny_gram_frequencies_size = int(math.pow(len(OUTPUT_ALPHABET), 2)) * 6
+
+    input_layer_size = 23 + total_frequencies_size + 1000
+    output_layer_size = len(cipher_types)
+    hidden_layer_size = int(2 * (input_layer_size / 3) + output_layer_size)
+
+    # logistic regression baseline
+    # model = tf.keras.Sequential()
+    # model.add(tf.keras.layers.Dense(output_layer_size, input_dim=input_layer_size, activation='softmax', use_bias=True))
+    # model.compile(optimizer='sgd', loss="sparse_categorical_crossentropy", metrics=["accuracy"])
+
+    model = tf.keras.Sequential()
+    model.add(tf.keras.layers.Input(shape=(input_layer_size,)))
+    for i in range(5):
+        model.add(tf.keras.layers.Dense(hidden_layer_size, activation="relu", use_bias=True))
+    model.add(tf.keras.layers.Dense(output_layer_size, activation='softmax'))
+    model.compile(optimizer=optimizer, loss="sparse_categorical_crossentropy",
+        metrics=["accuracy", SparseTopKCategoricalAccuracy(k=3, name="k3_accuracy")])
+    return model
 
 
 if __name__ == "__main__":
@@ -204,50 +236,14 @@ if __name__ == "__main__":
 
     print('Creating model...')
 
-    # sizes for layers
-    total_frequencies_size = 0
-    for i in range(1, 3):
-        total_frequencies_size += math.pow(len(OUTPUT_ALPHABET), i)
-    total_frequencies_size = int(total_frequencies_size)
-
-    # total_ny_gram_frequencies_size = int(math.pow(len(OUTPUT_ALPHABET), 2)) * 6
-
-    input_layer_size = 25 + total_frequencies_size + 1000
-    output_layer_size = len(cipher_types)
-    hidden_layer_size = int(2 * (input_layer_size / 3) + output_layer_size)
-
     gpu_count = len(tf.config.list_physical_devices('GPU')) + len(tf.config.list_physical_devices('XLA_GPU'))
-    optimizer = "adam"
-    # optimizer = "adamax"
     if gpu_count > 1:
         strategy = tf.distribute.MirroredStrategy()
         with strategy.scope():
-            # logistic regression baseline
-            # model = tf.keras.Sequential()
-            # model.add(tf.keras.layers.Dense(output_layer_size, input_dim=input_layer_size, activation='softmax', use_bias=True))
-            # model.compile(optimizer='sgd', loss="sparse_categorical_crossentropy", metrics=["accuracy"])
-
-            model = tf.keras.Sequential()
-            model.add(tf.keras.layers.Input(shape=(input_layer_size,)))
-            for i in range(5):
-                model.add(tf.keras.layers.Dense(hidden_layer_size, activation="relu", use_bias=True))
-            model.add(tf.keras.layers.Dense(output_layer_size, activation='softmax'))
-            model.compile(optimizer=optimizer, loss="sparse_categorical_crossentropy", metrics=[
-                "accuracy", SparseTopKCategoricalAccuracy(k=3, name="k3_accuracy")])
+            model = create_model()
         model.summary()
     else:
-        # logistic regression baseline
-        # model = tf.keras.Sequential()
-        # model.add(tf.keras.layers.Dense(output_layer_size, input_dim=input_layer_size, activation='softmax', use_bias=True))
-        # model.compile(optimizer='sgd', loss="sparse_categorical_crossentropy", metrics=["accuracy"])
-
-        model = tf.keras.Sequential()
-        model.add(tf.keras.layers.Input(shape=(input_layer_size,)))
-        for i in range(5):
-            model.add(tf.keras.layers.Dense(hidden_layer_size, activation="relu", use_bias=True))
-        model.add(tf.keras.layers.Dense(output_layer_size, activation='softmax'))
-        model.compile(optimizer, loss="sparse_categorical_crossentropy", metrics=[
-            "accuracy", SparseTopKCategoricalAccuracy(k=3, name="k3_accuracy")])
+        model = create_model()
 
     print('Model created.\n')
 
