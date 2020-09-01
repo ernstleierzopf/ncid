@@ -169,7 +169,6 @@ function best_di(col,ciph_type,period,buffer){
 function decode_sl(cl,cr,k, ciph_type) {
         var j,pl,pr
 
-
         if ( ciph_type == 1) { //BSLIDEFAIR
                 pl = (26+k-cr)%26;
                 pr = (26+k - cl) % 26;
@@ -967,7 +966,7 @@ def calculate_log_digraph_score(text):
         if text[i] > 25 or text[i+1] > 26:
             continue
         score += logdi[text[i]][text[i+1]]
-    score = score * 100 / (len(text) - 1)
+    score = score / 10 / (len(text) - 1)
     return score
 
 
@@ -983,7 +982,7 @@ def calculate_reverse_log_digraph_score(text):
         if text[i] > 25 or text[i + 1] > 26:
             continue
         score += logdi[text[i+1]][text[i]]
-    score = score * 100 / (len(text) - 1)
+    score = score / 10 / (len(text) - 1)
     return score
 
 
@@ -1086,6 +1085,8 @@ def calculate_ldi_stats(text):
     """calculates the LDI for Autokey, Beaufort, Porta, Slidefair and Vigenere.
     :param text: input numbers-ciphertext
     :return: a_ldi, b_ldi, p_ldi, s_ldi, v_ldi"""
+    if np.count_nonzero(np.array(text) > 25) > 0:
+        return 0
     return ctx.call("get_vig_values", text)
 
 
@@ -1228,7 +1229,7 @@ def calculate_statistics(datum):
 
     has_j = has_letter_j(numbers)
     chi_square = calculate_chi_square(frequencies[0:26])
-    pattern_repetitions_count = pattern_repetitions(numbers)
+    rep = pattern_repetitions(numbers)
     entropy = calculate_entropy(numbers)
     has_h = has_hash(numbers)
     has_sp = has_space(numbers)
@@ -1261,11 +1262,19 @@ def calculate_statistics(datum):
     # ny_gram_frequencies += calculate_ny_gram_frequencies(numbers, 2, interval=20, recursive=False)
     # ny_gram_frequencies += calculate_ny_gram_frequencies(numbers, 2, interval=25, recursive=False)
 
+    # baseline model
+    # return [unigram_ioc] + [digraphic_ioc] + [has_j] + [entropy] + [chi_square] + [has_h] + [has_sp] + [has_x] + frequencies
+
+    # return [unigram_ioc] + [digraphic_ioc] + frequencies + [has_0] + [has_h] + [has_j] + [has_x] + [has_sp] + [rod] + [lr] + [sdd] + [nomor]
+
+    # all features
     # return [unigram_ioc] + [digraphic_ioc] + [has_j] + [entropy] + [chi_square] + [has_h] + [has_sp] + [has_x] + [has_0] + [mic] + [mka] +\
-    #        [pattern_repetitions_count] + [edi] + [ldi] + [rdi] + [rod] + [lr] + [nomor] + [dbl] + [nic] + [sdd] + [ldi_stats] + [ptx] +\
+    #        [rep] + [edi] + [ldi] + [rdi] + [rod] + [lr] + [nomor] + [dbl] + [nic] + [sdd] + [ldi_stats] + [ptx] +\
     #        [phic] + [bdi] + [cdd] + [sstd] + autocorrelation + frequencies
+
+    # all features with maximal calculation time of 3 ms.
     return [unigram_ioc] + [digraphic_ioc] + [has_j] + [entropy] + [chi_square] + [has_h] + [has_sp] + [has_x] + [has_0] +\
-           [pattern_repetitions_count] + [edi] + [ldi] + [rdi] + [rod] + [lr] + [nomor] + [dbl] + [nic] + [sdd] + [ptx] + [phic] + [bdi] +\
+           [rep] + [edi] + [ldi] + [rdi] + [rod] + [lr] + [nomor] + [dbl] + [nic] + [sdd] + [ptx] + [phic] + [bdi] +\
            [sstd] + autocorrelation + frequencies
 
 
