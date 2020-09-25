@@ -1,10 +1,10 @@
 # cann
 
-A neuronal network to detect and analyse ciphers from historical texts.
+A neural network to detect and analyze ciphers from historical texts.
 
-# CANN - Crypto Analysis with Neural Networks
+# CANN - CryptAnalysis with Neural Networks
 
-This project contains code for the detection and classification of ciphers to classical algorithms by using a neuronal network. In Future other parts of the crypto analysis will be implemented.
+This project contains code for the detection and classification of ciphers to classical algorithms by using a neuronal network. In Future other parts of the cryptanalysis will be implemented.
 
 # Installation
 
