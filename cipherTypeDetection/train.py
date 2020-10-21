@@ -7,6 +7,7 @@ import time
 import shutil
 from sklearn.model_selection import train_test_split
 import os
+import math
 from datetime import datetime
 # This environ variable must be set before all tensorflow imports!
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
@@ -20,7 +21,6 @@ from cipherImplementations.cipher import OUTPUT_ALPHABET
 from cipherTypeDetection.textLine2CipherStatisticsDataset import TextLine2CipherStatisticsDataset
 from cipherTypeDetection.miniBatchEarlyStoppingCallback import MiniBatchEarlyStopping
 tf.debugging.set_log_device_placement(enabled=False)
-import math
 
 
 # for device in tf.config.list_physical_devices('GPU'):
@@ -43,7 +43,7 @@ def create_model():
 
     # total_ny_gram_frequencies_size = int(math.pow(len(OUTPUT_ALPHABET), 2)) * 6
 
-    input_layer_size = 23 + total_frequencies_size + 1000
+    input_layer_size = 18 + total_frequencies_size
     output_layer_size = len(cipher_types)
     hidden_layer_size = int(2 * (input_layer_size / 3) + output_layer_size)
 
@@ -52,13 +52,61 @@ def create_model():
     # model.add(tf.keras.layers.Dense(output_layer_size, input_dim=input_layer_size, activation='softmax', use_bias=True))
     # model.compile(optimizer='sgd', loss="sparse_categorical_crossentropy", metrics=["accuracy"])
 
+    # FFNN
     model = tf.keras.Sequential()
     model.add(tf.keras.layers.Input(shape=(input_layer_size,)))
     for i in range(5):
-        model.add(tf.keras.layers.Dense(hidden_layer_size, activation="relu", use_bias=True))
+        model.add(tf.keras.layers.Dense(hidden_layer_size, activation=config.activation, use_bias=True))
+        # make the hidden layer size smaller with every layer
+        hidden_layer_size = int(2 * (hidden_layer_size / 3) + output_layer_size)
     model.add(tf.keras.layers.Dense(output_layer_size, activation='softmax'))
     model.compile(optimizer=optimizer, loss="sparse_categorical_crossentropy",
         metrics=["accuracy", SparseTopKCategoricalAccuracy(k=3, name="k3_accuracy")])
+
+    # CNN
+    # config.FEATURE_ENGINEERING = False
+    # model = tf.keras.Sequential()
+    # model.add(tf.keras.layers.Conv1D(filters=64, kernel_size=3, input_shape=(args.max_train_len, 1), activation='relu'))
+    # for i in range(4):
+    #     model.add(tf.keras.layers.Conv1D(filters=64, kernel_size=3, activation='relu'))
+    # # model.add(tf.keras.layers.Dropout(0.2))
+    # model.add(tf.keras.layers.MaxPooling1D(pool_size=2))
+    # model.add(tf.keras.layers.Flatten())
+    # # model.add(tf.keras.layers.Dense(100, activation='relu'))
+    # model.add(tf.keras.layers.Dense(output_layer_size, activation='softmax'))
+    # model.compile(optimizer=optimizer, loss="sparse_categorical_crossentropy",
+    #     metrics=["accuracy", SparseTopKCategoricalAccuracy(k=3, name="k3_accuracy")])
+
+    # LSTM
+    # config.FEATURE_ENGINEERING = False
+    # model = tf.keras.Sequential()
+    # model.add(tf.keras.layers.Embedding(len(OUTPUT_ALPHABET) + 1, 64, input_length=args.max_train_len))
+    # # model.add(tf.keras.layers.Dropout(0.2))
+    # model.add(tf.keras.layers.LSTM(100))
+    # # model.add(tf.keras.layers.Dropout(0.2))
+    # model.add(tf.keras.layers.Flatten())
+    # model.add(tf.keras.layers.Dense(output_layer_size, activation='softmax'))
+    # model.compile(optimizer=optimizer, loss="sparse_categorical_crossentropy",
+    #     metrics=["accuracy", SparseTopKCategoricalAccuracy(k=3, name="k3_accuracy")])
+
+    # LSTM with Convolution
+    # config.FEATURE_ENGINEERING = False
+    # model = tf.keras.Sequential()
+    # model.add(tf.keras.layers.Embedding(len(OUTPUT_ALPHABET) + 1, 64, input_length=args.max_train_len))
+    # # model.add(tf.keras.layers.Dropout(0.2))
+    # model.add(tf.keras.layers.Conv1D(filters=64, kernel_size=3, padding='same', activation='relu'))
+    # model.add(tf.keras.layers.MaxPooling1D(pool_size=2))
+    # model.add(tf.keras.layers.LSTM(100))
+    # # model.add(tf.keras.layers.Dropout(0.2))
+    # model.add(tf.keras.layers.Flatten())
+    # model.add(tf.keras.layers.Dense(output_layer_size, activation='softmax'))
+    # model.compile(optimizer=optimizer, loss="sparse_categorical_crossentropy",
+    #     metrics=["accuracy", SparseTopKCategoricalAccuracy(k=3, name="k3_accuracy")])
+
+    # Transformer
+    # https://keras.io/api/layers/attention_layers/attention/
+    # could not create working code by using the example in the link above.
+
     return model
 
 

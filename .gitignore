@@ -6,3 +6,5 @@ data/gutenberg_en.zip
 *.h5
 weights.zip
 cipherTypeDetection/*_logs/**
+cipherTypeDetection/correlations.pickle
+cipherTypeDetection/run_trainings.sh

@@ -1,4 +1,5 @@
 import tensorflow as tf
+from tensorflow.keras.preprocessing.sequence import pad_sequences
 import cipherTypeDetection.config as config
 from cipherImplementations.cipher import OUTPUT_ALPHABET
 from cipherImplementations.simpleSubstitution import SimpleSubstitution
@@ -904,6 +905,7 @@ def calculate_autocorrelation(text):
     text = text - text.mean()
     r = np.correlate(text, text, mode='full')[-n:]
     result = list(r / (variance * (np.arange(n, 0, -1))))
+    result = [float(d) for d in result]
     return result + [0]*(1000-len(text))
 
 
@@ -1086,7 +1088,7 @@ def calculate_ldi_stats(text):
     :param text: input numbers-ciphertext
     :return: a_ldi, b_ldi, p_ldi, s_ldi, v_ldi"""
     if np.count_nonzero(np.array(text) > 25) > 0:
-        return 0
+        return [0, 0, 0, 0, 0]
     return ctx.call("get_vig_values", text)
 
 
@@ -1224,25 +1226,25 @@ def calculate_statistics(datum):
     numbers = [int(d) for d in datum]
     unigram_ioc = calculate_index_of_coincidence(numbers)
     digraphic_ioc = calculate_digraphic_index_of_coincidence(numbers)
-    autocorrelation = calculate_autocorrelation(datum)
+    # autocorrelation = calculate_autocorrelation(datum)
     frequencies = calculate_frequencies(numbers, 2, recursive=True)
 
     has_j = has_letter_j(numbers)
-    chi_square = calculate_chi_square(frequencies[0:26])
-    rep = pattern_repetitions(numbers)
-    entropy = calculate_entropy(numbers)
+    # chi_square = calculate_chi_square(frequencies[0:26])
+    # rep = pattern_repetitions(numbers)
+    # entropy = calculate_entropy(numbers)
     has_h = has_hash(numbers)
     has_sp = has_space(numbers)
     has_x = has_letter_x(numbers)
     has_0 = has_digit_0(numbers)
-    # mic = calculate_maximum_index_of_coincidence(numbers)
-    # mka = calculate_max_kappa(numbers)
-    edi = calculate_digraphic_index_of_coincidence_even(numbers)
+    mic = calculate_maximum_index_of_coincidence(numbers)
+    mka = calculate_max_kappa(numbers)
+    # edi = calculate_digraphic_index_of_coincidence_even(numbers)
     ldi = calculate_log_digraph_score(numbers)
-    rdi = calculate_reverse_log_digraph_score(numbers)
+    # rdi = calculate_reverse_log_digraph_score(numbers)
     rod, lr = calculate_rod_lr(numbers)
     nomor = calculate_normal_order(frequencies[0:26])
-    dbl = is_dbl(numbers)
+    # dbl = is_dbl(numbers)
     nic = calculate_nic(numbers)
     sdd = calculate_sdd(numbers)
     # ldi_stats = calculate_ldi_stats(numbers)
@@ -1250,7 +1252,7 @@ def calculate_statistics(datum):
     phic = calculate_phic(datum)
     bdi = calculate_bdi(numbers)
     # cdd = calculate_cdd(numbers)
-    sstd = calculate_sstd(numbers)
+    # sstd = calculate_sstd(numbers)
 
     # ny_gram_frequencies = []
     # for i in range(2, 8):
@@ -1265,17 +1267,25 @@ def calculate_statistics(datum):
     # baseline model
     # return [unigram_ioc] + [digraphic_ioc] + [has_j] + [entropy] + [chi_square] + [has_h] + [has_sp] + [has_x] + frequencies
 
-    # return [unigram_ioc] + [digraphic_ioc] + frequencies + [has_0] + [has_h] + [has_j] + [has_x] + [has_sp] + [rod] + [lr] + [sdd] + [nomor]
+    # t18 without has features
+    # return [unigram_ioc] + [digraphic_ioc] + frequencies + [rod] + [lr] + [sdd] + [ldi] + [nomor]
+
+    # correlation test
+    # return [unigram_ioc] + [digraphic_ioc] + [has_j] + [entropy] + [chi_square] + [has_h] + [has_sp] + [has_x] + [has_0] + [rep] + [
+    #     ldi] + [rod] + [lr] + [nomor] + [dbl] + [sdd] + frequencies
+
+    return [unigram_ioc] + [digraphic_ioc] + frequencies + [has_0] + [has_h] + [has_j] + [has_x] + [has_sp] + [rod] + [lr] + [sdd] + [ldi] +\
+           [nomor] + [phic] + [bdi] + [ptx] + [nic] + [mka] + [mic] # + ldi_stats
 
     # all features
     # return [unigram_ioc] + [digraphic_ioc] + [has_j] + [entropy] + [chi_square] + [has_h] + [has_sp] + [has_x] + [has_0] + [mic] + [mka] +\
-    #        [rep] + [edi] + [ldi] + [rdi] + [rod] + [lr] + [nomor] + [dbl] + [nic] + [sdd] + [ldi_stats] + [ptx] +\
+    #        [rep] + [edi] + [ldi] + [rdi] + [rod] + [lr] + [nomor] + [dbl] + [nic] + [sdd] + ldi_stats + [ptx] +\
     #        [phic] + [bdi] + [cdd] + [sstd] + autocorrelation + frequencies
 
     # all features with maximal calculation time of 3 ms.
-    return [unigram_ioc] + [digraphic_ioc] + [has_j] + [entropy] + [chi_square] + [has_h] + [has_sp] + [has_x] + [has_0] +\
-           [rep] + [edi] + [ldi] + [rdi] + [rod] + [lr] + [nomor] + [dbl] + [nic] + [sdd] + [ptx] + [phic] + [bdi] +\
-           [sstd] + autocorrelation + frequencies
+    # return [unigram_ioc] + [digraphic_ioc] + [has_j] + [entropy] + [chi_square] + [has_h] + [has_sp] + [has_x] + [has_0] +\
+    #        [rep] + [edi] + [ldi] + [rdi] + [rod] + [lr] + [nomor] + [dbl] + [nic] + [sdd] + [ptx] + [phic] + [bdi] +\
+    #        [sstd] + autocorrelation + frequencies
 
 
 class TextLine2CipherStatisticsDataset:
@@ -1348,6 +1358,7 @@ class TextLine2CipherStatisticsDataset:
         return processes, result_list
 
     def _worker(self, data, result):
+        #mem("before")
         batch = []
         labels = []
         for d in data:
@@ -1359,7 +1370,21 @@ class TextLine2CipherStatisticsDataset:
                     key_lengths = [config.KEY_LENGTHS[index]]
                 for key_length in key_lengths:
                     ciphertext = encrypt(d, index, key_length, self.keep_unknown_symbols)
-                    statistics = calculate_statistics(ciphertext)
-                    batch.append(statistics)
+                    if config.FEATURE_ENGINEERING:
+                        statistics = calculate_statistics(ciphertext)
+                        batch.append(statistics)
+                    else:
+                        batch.append(list(ciphertext))
                     labels.append(index)
-        result.append((tf.convert_to_tensor(batch), tf.convert_to_tensor(labels)))
+        if config.FEATURE_ENGINEERING:
+            result.append((tf.convert_to_tensor(batch), tf.convert_to_tensor(labels)))
+        else:
+            batch = pad_sequences(batch, maxlen=self.max_text_len, padding='post', value=len(OUTPUT_ALPHABET))
+            batch = batch.reshape(batch.shape[0], batch.shape[1], 1)
+            result.append((tf.convert_to_tensor(batch), tf.convert_to_tensor(labels)))
+        #mem("after")
+#
+# import resource
+#
+# def mem(string):
+#     print('%s: Memory usage         : % 2.2f MB' % (string, round(resource.getrusage(resource.RUSAGE_SELF).ru_maxrss/1024.0,1)))
