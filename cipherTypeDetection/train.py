@@ -56,15 +56,14 @@ def create_model():
     model = tf.keras.Sequential()
     model.add(tf.keras.layers.Input(shape=(input_layer_size,)))
     for i in range(5):
-        model.add(tf.keras.layers.Dense(hidden_layer_size, activation=config.activation, use_bias=True))
-        # make the hidden layer size smaller with every layer
-        hidden_layer_size = int(2 * (hidden_layer_size / 3) + output_layer_size)
+        model.add(tf.keras.layers.Dense(hidden_layer_size, activation='relu', use_bias=True))
     model.add(tf.keras.layers.Dense(output_layer_size, activation='softmax'))
     model.compile(optimizer=optimizer, loss="sparse_categorical_crossentropy",
         metrics=["accuracy", SparseTopKCategoricalAccuracy(k=3, name="k3_accuracy")])
 
     # CNN
     # config.FEATURE_ENGINEERING = False
+    # config.PAD_INPUT = True
     # model = tf.keras.Sequential()
     # model.add(tf.keras.layers.Conv1D(filters=64, kernel_size=3, input_shape=(args.max_train_len, 1), activation='relu'))
     # for i in range(4):
@@ -79,8 +78,9 @@ def create_model():
 
     # LSTM
     # config.FEATURE_ENGINEERING = False
+    # config.PAD_INPUT = True
     # model = tf.keras.Sequential()
-    # model.add(tf.keras.layers.Embedding(len(OUTPUT_ALPHABET) + 1, 64, input_length=args.max_train_len))
+    # model.add(tf.keras.layers.Embedding(len(OUTPUT_ALPHABET), 64, input_length=args.max_train_len))
     # # model.add(tf.keras.layers.Dropout(0.2))
     # model.add(tf.keras.layers.LSTM(100))
     # # model.add(tf.keras.layers.Dropout(0.2))
@@ -91,6 +91,7 @@ def create_model():
 
     # LSTM with Convolution
     # config.FEATURE_ENGINEERING = False
+    # config.PAD_INPUT = True
     # model = tf.keras.Sequential()
     # model.add(tf.keras.layers.Embedding(len(OUTPUT_ALPHABET) + 1, 64, input_length=args.max_train_len))
     # # model.add(tf.keras.layers.Dropout(0.2))
@@ -106,6 +107,10 @@ def create_model():
     # Transformer
     # https://keras.io/api/layers/attention_layers/attention/
     # could not create working code by using the example in the link above.
+
+    # Decision Tree
+    # from sklearn import tree
+    # model = tree.DecisionTreeClassifier()
 
     return model
 
@@ -292,6 +297,7 @@ if __name__ == "__main__":
         model.summary()
     else:
         model = create_model()
+        model.summary()
 
     print('Model created.\n')
 
@@ -329,6 +335,8 @@ if __name__ == "__main__":
                 labels = tf.convert_to_tensor(labels)
                 val_labels = tf.convert_to_tensor(val_labels)
             train_iter -= args.train_dataset_size * 0.1
+            # Decision Tree, DBN training
+            # history = model.fit(batch, labels)
             history = model.fit(batch, labels, batch_size=args.batch_size, validation_data=(val_data, val_labels), epochs=args.epochs,
                                 callbacks=[early_stopping_callback, tensorboard_callback])
             if train_epoch > 0:
@@ -400,6 +408,8 @@ if __name__ == "__main__":
             if test_ds.iteration < args.max_iter:
                 processes, run1 = test_ds.__next__()
         for batch, labels in run:
+            # Decision Tree prediction
+            # prediction = model.predict_proba(batch)
             prediction = model.predict(batch, batch_size=args.batch_size, verbose=1)
             for i in range(0, len(prediction)):
                 if labels[i] == np.argmax(prediction[i]):

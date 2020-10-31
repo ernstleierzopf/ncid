@@ -142,6 +142,7 @@ KEY_LENGTHS = [[5,6,7,8], [5,6,7,8], [None]*4, [None]*4, [5,6,7,8], [5,6,7,8], [
 MTC3 = 'mtc3'
 ACA = 'aca'
 FEATURE_ENGINEERING = True
+PAD_INPUT = False
 
 learning_rate = 0.001
 beta_1 = 0.9

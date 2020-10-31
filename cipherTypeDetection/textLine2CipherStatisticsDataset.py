@@ -1376,11 +1376,11 @@ class TextLine2CipherStatisticsDataset:
                     else:
                         batch.append(list(ciphertext))
                     labels.append(index)
-        if config.FEATURE_ENGINEERING:
-            result.append((tf.convert_to_tensor(batch), tf.convert_to_tensor(labels)))
-        else:
+        if config.PAD_INPUT:
             batch = pad_sequences(batch, maxlen=self.max_text_len, padding='post', value=len(OUTPUT_ALPHABET))
             batch = batch.reshape(batch.shape[0], batch.shape[1], 1)
+            result.append((tf.convert_to_tensor(batch), tf.convert_to_tensor(labels)))
+        else:
             result.append((tf.convert_to_tensor(batch), tf.convert_to_tensor(labels)))
         #mem("after")
 #
