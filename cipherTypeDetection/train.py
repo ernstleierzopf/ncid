@@ -112,6 +112,8 @@ def create_model():
     # from sklearn import tree
     # model = tree.DecisionTreeClassifier()
 
+    # from sklearn.naive_bayes import MultinomialNB
+    # model = MultinomialNB()
     return model
 
 
@@ -335,8 +337,15 @@ if __name__ == "__main__":
                 labels = tf.convert_to_tensor(labels)
                 val_labels = tf.convert_to_tensor(val_labels)
             train_iter -= args.train_dataset_size * 0.1
-            # Decision Tree, DBN training
+            # Decision Tree training
             # history = model.fit(batch, labels)
+            # Naive Bayes training
+            # history = model.partial_fit(batch, labels, [i for i in range(len(config.CIPHER_TYPES))])
+
+            # print for Decision Tree and Naive Bayes
+            # score = model.score(val_data, val_labels)
+            # print("accuracy: %f" % score)
+
             history = model.fit(batch, labels, batch_size=args.batch_size, validation_data=(val_data, val_labels), epochs=args.epochs,
                                 callbacks=[early_stopping_callback, tensorboard_callback])
             if train_epoch > 0:
@@ -410,6 +419,9 @@ if __name__ == "__main__":
         for batch, labels in run:
             # Decision Tree prediction
             # prediction = model.predict_proba(batch)
+            # Naive Bayes prediction
+            # prediction = model.predict(batch)
+            # print('prediction accuracy %f' % prediction)
             prediction = model.predict(batch, batch_size=args.batch_size, verbose=1)
             for i in range(0, len(prediction)):
                 if labels[i] == np.argmax(prediction[i]):
