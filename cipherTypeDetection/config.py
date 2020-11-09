@@ -144,9 +144,18 @@ ACA = 'aca'
 FEATURE_ENGINEERING = True
 PAD_INPUT = False
 
+# adam
 learning_rate = 0.001
 beta_1 = 0.9
 beta_2 = 0.999
 epsilon = 1e-7
 amsgrad = False
 activation = 'relu'
+
+# CNN
+filters = 64
+kernel_size = 7
+layers = 3
+
+# LSTM
+lstm_units = 100

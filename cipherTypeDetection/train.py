@@ -53,41 +53,40 @@ def create_model():
     # model.compile(optimizer='sgd', loss="sparse_categorical_crossentropy", metrics=["accuracy"])
 
     # FFNN
-    model = tf.keras.Sequential()
-    model.add(tf.keras.layers.Input(shape=(input_layer_size,)))
-    for i in range(5):
-        model.add(tf.keras.layers.Dense(hidden_layer_size, activation='relu', use_bias=True))
-    model.add(tf.keras.layers.Dense(output_layer_size, activation='softmax'))
-    model.compile(optimizer=optimizer, loss="sparse_categorical_crossentropy",
-        metrics=["accuracy", SparseTopKCategoricalAccuracy(k=3, name="k3_accuracy")])
+    # model = tf.keras.Sequential()
+    # model.add(tf.keras.layers.Input(shape=(input_layer_size,)))
+    # for i in range(5):
+    #     model.add(tf.keras.layers.Dense(hidden_layer_size, activation='relu', use_bias=True))
+    # model.add(tf.keras.layers.Dense(output_layer_size, activation='softmax'))
+    # model.compile(optimizer=optimizer, loss="sparse_categorical_crossentropy",
+    #     metrics=["accuracy", SparseTopKCategoricalAccuracy(k=3, name="k3_accuracy")])
 
     # CNN
     # config.FEATURE_ENGINEERING = False
     # config.PAD_INPUT = True
     # model = tf.keras.Sequential()
-    # model.add(tf.keras.layers.Conv1D(filters=64, kernel_size=3, input_shape=(args.max_train_len, 1), activation='relu'))
-    # for i in range(4):
-    #     model.add(tf.keras.layers.Conv1D(filters=64, kernel_size=3, activation='relu'))
+    # model.add(tf.keras.layers.Conv1D(filters=config.filters, kernel_size=config.kernel_size, input_shape=(args.max_train_len, 1), activation='relu'))
+    # for i in range(config.layers - 1):
+    #     model.add(tf.keras.layers.Conv1D(filters=config.filters, kernel_size=config.kernel_size, activation='relu'))
     # # model.add(tf.keras.layers.Dropout(0.2))
     # model.add(tf.keras.layers.MaxPooling1D(pool_size=2))
     # model.add(tf.keras.layers.Flatten())
-    # # model.add(tf.keras.layers.Dense(100, activation='relu'))
     # model.add(tf.keras.layers.Dense(output_layer_size, activation='softmax'))
     # model.compile(optimizer=optimizer, loss="sparse_categorical_crossentropy",
     #     metrics=["accuracy", SparseTopKCategoricalAccuracy(k=3, name="k3_accuracy")])
 
     # LSTM
-    # config.FEATURE_ENGINEERING = False
-    # config.PAD_INPUT = True
-    # model = tf.keras.Sequential()
-    # model.add(tf.keras.layers.Embedding(len(OUTPUT_ALPHABET), 64, input_length=args.max_train_len))
-    # # model.add(tf.keras.layers.Dropout(0.2))
-    # model.add(tf.keras.layers.LSTM(100))
-    # # model.add(tf.keras.layers.Dropout(0.2))
-    # model.add(tf.keras.layers.Flatten())
-    # model.add(tf.keras.layers.Dense(output_layer_size, activation='softmax'))
-    # model.compile(optimizer=optimizer, loss="sparse_categorical_crossentropy",
-    #     metrics=["accuracy", SparseTopKCategoricalAccuracy(k=3, name="k3_accuracy")])
+    config.FEATURE_ENGINEERING = False
+    config.PAD_INPUT = True
+    model = tf.keras.Sequential()
+    model.add(tf.keras.layers.Embedding(len(config.CIPHER_TYPES), 64, input_length=args.max_train_len))
+    # model.add(tf.keras.layers.Dropout(0.2))
+    model.add(tf.keras.layers.LSTM(config.lstm_units))
+    # model.add(tf.keras.layers.Dropout(0.2))
+    model.add(tf.keras.layers.Flatten())
+    model.add(tf.keras.layers.Dense(output_layer_size, activation='softmax'))
+    model.compile(optimizer=optimizer, loss="sparse_categorical_crossentropy",
+        metrics=["accuracy", SparseTopKCategoricalAccuracy(k=3, name="k3_accuracy")])
 
     # LSTM with Convolution
     # config.FEATURE_ENGINEERING = False
@@ -299,7 +298,7 @@ if __name__ == "__main__":
         model.summary()
     else:
         model = create_model()
-        model.summary()
+        # model.summary()
 
     print('Model created.\n')
 
