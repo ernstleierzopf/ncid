@@ -159,3 +159,7 @@ layers = 3
 
 # LSTM
 lstm_units = 100
+
+# DT
+criterion = 'gini'
+ccp_alpha = 0.0

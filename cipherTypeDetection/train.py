@@ -15,6 +15,9 @@ import tensorflow as tf
 from tensorflow.keras.metrics import SparseTopKCategoricalAccuracy
 from tensorflow.keras.optimizers import Adam, Adamax
 import tensorflow_datasets as tfds
+from sklearn import tree
+import matplotlib.pyplot as plt
+import pickle
 sys.path.append("../")
 import cipherTypeDetection.config as config
 from cipherImplementations.cipher import OUTPUT_ALPHABET
@@ -25,6 +28,7 @@ tf.debugging.set_log_device_placement(enabled=False)
 
 # for device in tf.config.list_physical_devices('GPU'):
 #    tf.config.experimental.set_memory_growth(device, True)
+architecture = None
 
 
 def str2bool(v):
@@ -32,6 +36,7 @@ def str2bool(v):
 
 
 def create_model():
+    global architecture
     optimizer = Adam(learning_rate=config.learning_rate, beta_1=config.beta_1, beta_2=config.beta_2, epsilon=config.epsilon, amsgrad=config.amsgrad)
     # optimizer = Adamax()
 
@@ -53,6 +58,7 @@ def create_model():
     # model.compile(optimizer='sgd', loss="sparse_categorical_crossentropy", metrics=["accuracy"])
 
     # FFNN
+    # architecture = "FFNN"
     # model = tf.keras.Sequential()
     # model.add(tf.keras.layers.Input(shape=(input_layer_size,)))
     # for i in range(5):
@@ -62,6 +68,7 @@ def create_model():
     #     metrics=["accuracy", SparseTopKCategoricalAccuracy(k=3, name="k3_accuracy")])
 
     # CNN
+    # architecture = "CNN"
     # config.FEATURE_ENGINEERING = False
     # config.PAD_INPUT = True
     # model = tf.keras.Sequential()
@@ -76,18 +83,20 @@ def create_model():
     #     metrics=["accuracy", SparseTopKCategoricalAccuracy(k=3, name="k3_accuracy")])
 
     # LSTM
-    config.FEATURE_ENGINEERING = False
-    config.PAD_INPUT = True
-    model = tf.keras.Sequential()
-    model.add(tf.keras.layers.Embedding(len(config.CIPHER_TYPES), 64, input_length=args.max_train_len))
-    # model.add(tf.keras.layers.Dropout(0.2))
-    model.add(tf.keras.layers.LSTM(config.lstm_units))
-    # model.add(tf.keras.layers.Dropout(0.2))
-    model.add(tf.keras.layers.Flatten())
-    model.add(tf.keras.layers.Dense(output_layer_size, activation='softmax'))
-    model.compile(optimizer=optimizer, loss="sparse_categorical_crossentropy",
-        metrics=["accuracy", SparseTopKCategoricalAccuracy(k=3, name="k3_accuracy")])
+    # architecture = "LSTM"
+    # config.FEATURE_ENGINEERING = False
+    # config.PAD_INPUT = True
+    # model = tf.keras.Sequential()
+    # model.add(tf.keras.layers.Embedding(len(config.CIPHER_TYPES), 64, input_length=args.max_train_len))
+    # # model.add(tf.keras.layers.Dropout(0.2))
+    # model.add(tf.keras.layers.LSTM(config.lstm_units))
+    # # model.add(tf.keras.layers.Dropout(0.2))
+    # model.add(tf.keras.layers.Flatten())
+    # model.add(tf.keras.layers.Dense(output_layer_size, activation='softmax'))
+    # model.compile(optimizer=optimizer, loss="sparse_categorical_crossentropy",
+    #     metrics=["accuracy", SparseTopKCategoricalAccuracy(k=3, name="k3_accuracy")])
 
+    # architecture = "LSTM"
     # LSTM with Convolution
     # config.FEATURE_ENGINEERING = False
     # config.PAD_INPUT = True
@@ -104,14 +113,17 @@ def create_model():
     #     metrics=["accuracy", SparseTopKCategoricalAccuracy(k=3, name="k3_accuracy")])
 
     # Transformer
+    # architecture = "Transformer"
     # https://keras.io/api/layers/attention_layers/attention/
     # could not create working code by using the example in the link above.
 
     # Decision Tree
-    # from sklearn import tree
-    # model = tree.DecisionTreeClassifier()
+    architecture = "DT"
+    model = tree.DecisionTreeClassifier(criterion=config.criterion, ccp_alpha=config.ccp_alpha)
 
+    # Naive Bayes
     # from sklearn.naive_bayes import MultinomialNB
+    # architecture = "NB"
     # model = MultinomialNB()
     return model
 
@@ -295,10 +307,12 @@ if __name__ == "__main__":
         strategy = tf.distribute.MirroredStrategy()
         with strategy.scope():
             model = create_model()
-        model.summary()
+        if architecture in ("FFNN", "CNN", "LSTM"):
+            model.summary()
     else:
         model = create_model()
-        # model.summary()
+        # if architecture in ("FFNN", "CNN", "LSTM"):
+        #     model.summary()
 
     print('Model created.\n')
 
@@ -326,6 +340,14 @@ if __name__ == "__main__":
             if train_ds.iteration < args.max_iter:
                 train_epoch = train_ds.epoch
                 processes, run1 = train_ds.__next__()
+        # use this only with decision trees
+        if architecture == "DT":
+            new_run = [[], []]
+            for batch, labels in run:
+                new_run[0].append(batch.numpy())
+                new_run[1].append(labels.numpy())
+            new_run = [(tf.convert_to_tensor(np.concatenate(new_run[0], axis=0)), tf.convert_to_tensor(np.concatenate(new_run[1], axis=0)))]
+            run = new_run
         for batch, labels in run:
             cntr += 1
             train_iter = args.train_dataset_size * cntr
@@ -336,17 +358,29 @@ if __name__ == "__main__":
                 labels = tf.convert_to_tensor(labels)
                 val_labels = tf.convert_to_tensor(val_labels)
             train_iter -= args.train_dataset_size * 0.1
+
             # Decision Tree training
-            # history = model.fit(batch, labels)
+            if architecture == "DT":
+                train_iter = len(labels) * 0.9
+                history = model.fit(batch, labels)
+                plt.gcf().set_size_inches(25, 25 / math.sqrt(2))
+                tree.plot_tree(model, max_depth=5, fontsize=6, filled=True)
+                plt.savefig('decision_tree.svg', dpi=200, bbox_inches='tight', pad_inches=0)
+
             # Naive Bayes training
-            # history = model.partial_fit(batch, labels, [i for i in range(len(config.CIPHER_TYPES))])
+            elif architecture == "NB":
+                history = model.partial_fit(batch, labels, [i for i in range(len(config.CIPHER_TYPES))])
+
+            else:
+                history = model.fit(batch, labels, batch_size=args.batch_size, validation_data=(val_data, val_labels), epochs=args.epochs,
+                                    callbacks=[early_stopping_callback, tensorboard_callback])
 
             # print for Decision Tree and Naive Bayes
-            # score = model.score(val_data, val_labels)
-            # print("accuracy: %f" % score)
+            if architecture in ("DT", "NB"):
+                val_score = model.score(val_data, val_labels)
+                train_score = model.score(batch, labels)
+                print("train accuracy: %f, validation accuracy: %f" % (train_score, val_score))
 
-            history = model.fit(batch, labels, batch_size=args.batch_size, validation_data=(val_data, val_labels), epochs=args.epochs,
-                                callbacks=[early_stopping_callback, tensorboard_callback])
             if train_epoch > 0:
                 train_epoch = train_iter // ((train_ds.iteration + train_ds.batch_size * train_ds.dataset_workers) // train_ds.epoch)
             print("Epoch: %d, Iteration: %d" % (train_epoch, train_iter))
@@ -373,11 +407,16 @@ if __name__ == "__main__":
     else:
         model_name = args.model_name
     model_path = os.path.join(args.save_folder, model_name)
-    model.save(model_path)
+    if architecture in ("FFNN", "CNN", "LSTM"):
+        model.save(model_path)
+    elif architecture in ("DT", "NB"):
+        with open(model_path, "wb") as f:
+            pickle.dump(model, f)
     with open(model_path.split('.')[0] + '_parameters.txt', 'w') as f:
         for arg in vars(args):
             f.write("{:23s}= {:s}\n".format(arg, str(getattr(args, arg))))
-    shutil.move('./logs', model_name.split('.')[0] + '_tensorboard_logs')
+    if architecture in ("FFNN", "CNN", "LSTM"):
+        shutil.move('./logs', model_name.split('.')[0] + '_tensorboard_logs')
     print('Model saved.\n')
 
     print('Predicting test data...\n')
@@ -417,11 +456,14 @@ if __name__ == "__main__":
                 processes, run1 = test_ds.__next__()
         for batch, labels in run:
             # Decision Tree prediction
-            # prediction = model.predict_proba(batch)
+            if architecture == "DT":
+                prediction = model.predict_proba(batch)
             # Naive Bayes prediction
-            # prediction = model.predict(batch)
-            # print('prediction accuracy %f' % prediction)
-            prediction = model.predict(batch, batch_size=args.batch_size, verbose=1)
+            elif architecture == "NB":
+                prediction = model.predict(batch)
+                print('prediction accuracy %f' % prediction)
+            else:
+                prediction = model.predict(batch, batch_size=args.batch_size, verbose=1)
             for i in range(0, len(prediction)):
                 if labels[i] == np.argmax(prediction[i]):
                     correct_all += 1
