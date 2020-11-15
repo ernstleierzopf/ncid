@@ -371,7 +371,7 @@ if __name__ == "__main__":
                 history = model.fit(batch, labels)
                 plt.gcf().set_size_inches(25, 25 / math.sqrt(2))
                 tree.plot_tree(model, max_depth=5, fontsize=6, filled=True)
-                plt.savefig('decision_tree.svg', dpi=200, bbox_inches='tight', pad_inches=0)
+                plt.savefig(args.model_name.split('.')[0] + '_decision_tree.svg', dpi=200, bbox_inches='tight', pad_inches=0)
 
             # Naive Bayes training
             elif architecture == "NB":
