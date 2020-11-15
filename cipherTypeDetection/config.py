@@ -158,8 +158,11 @@ kernel_size = 7
 layers = 3
 
 # LSTM
-lstm_units = 100
+lstm_units = 500
 
 # DT
 criterion = 'gini'
 ccp_alpha = 0.0
+
+# NB
+alpha = 1.0

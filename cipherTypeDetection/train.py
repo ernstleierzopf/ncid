@@ -96,8 +96,8 @@ def create_model():
     # model.compile(optimizer=optimizer, loss="sparse_categorical_crossentropy",
     #     metrics=["accuracy", SparseTopKCategoricalAccuracy(k=3, name="k3_accuracy")])
 
-    # architecture = "LSTM"
     # LSTM with Convolution
+    # architecture = "LSTM"
     # config.FEATURE_ENGINEERING = False
     # config.PAD_INPUT = True
     # model = tf.keras.Sequential()
@@ -124,7 +124,7 @@ def create_model():
     # Naive Bayes
     # from sklearn.naive_bayes import MultinomialNB
     # architecture = "NB"
-    # model = MultinomialNB()
+    # model = MultinomialNB(alpha=config.alpha)
     return model
 
 
@@ -328,6 +328,8 @@ if __name__ == "__main__":
     run = None
     run1 = None
     processes = []
+    classes = [i for i in range(len(config.CIPHER_TYPES))]
+    new_run = [[], []]
     while train_ds.iteration < args.max_iter:
         if run1 is None:
             train_epoch = 0
@@ -342,12 +344,16 @@ if __name__ == "__main__":
                 processes, run1 = train_ds.__next__()
         # use this only with decision trees
         if architecture == "DT":
-            new_run = [[], []]
             for batch, labels in run:
                 new_run[0].append(batch.numpy())
                 new_run[1].append(labels.numpy())
-            new_run = [(tf.convert_to_tensor(np.concatenate(new_run[0], axis=0)), tf.convert_to_tensor(np.concatenate(new_run[1], axis=0)))]
-            run = new_run
+            if train_ds.iteration < args.max_iter:
+                run = None
+                print("Loaded %d ciphertexts." % train_ds.iteration)
+                continue
+            else:
+                new_run = [(tf.convert_to_tensor(np.concatenate(new_run[0], axis=0)), tf.convert_to_tensor(np.concatenate(new_run[1], axis=0)))]
+                run = new_run
         for batch, labels in run:
             cntr += 1
             train_iter = args.train_dataset_size * cntr
@@ -369,7 +375,7 @@ if __name__ == "__main__":
 
             # Naive Bayes training
             elif architecture == "NB":
-                history = model.partial_fit(batch, labels, [i for i in range(len(config.CIPHER_TYPES))])
+                history = model.partial_fit(batch, labels, classes=classes)
 
             else:
                 history = model.fit(batch, labels, batch_size=args.batch_size, validation_data=(val_data, val_labels), epochs=args.epochs,
@@ -455,13 +461,9 @@ if __name__ == "__main__":
             if test_ds.iteration < args.max_iter:
                 processes, run1 = test_ds.__next__()
         for batch, labels in run:
-            # Decision Tree prediction
-            if architecture == "DT":
+            # Decision Tree, Naive Bayes prediction
+            if architecture in ("DT", "NB"):
                 prediction = model.predict_proba(batch)
-            # Naive Bayes prediction
-            elif architecture == "NB":
-                prediction = model.predict(batch)
-                print('prediction accuracy %f' % prediction)
             else:
                 prediction = model.predict(batch, batch_size=args.batch_size, verbose=1)
             for i in range(0, len(prediction)):
