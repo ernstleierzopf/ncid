@@ -18,16 +18,19 @@ import tensorflow_datasets as tfds
 from sklearn import tree
 import matplotlib.pyplot as plt
 import pickle
+import functools
 sys.path.append("../")
 import cipherTypeDetection.config as config
 from cipherImplementations.cipher import OUTPUT_ALPHABET
 from cipherTypeDetection.textLine2CipherStatisticsDataset import TextLine2CipherStatisticsDataset
 from cipherTypeDetection.miniBatchEarlyStoppingCallback import MiniBatchEarlyStopping
+from cipherTypeDetection.transformer import TransformerBlock, TokenAndPositionEmbedding, MultiHeadSelfAttention
 tf.debugging.set_log_device_placement(enabled=False)
-
-
+print = functools.partial(print, flush=True)
 # for device in tf.config.list_physical_devices('GPU'):
 #    tf.config.experimental.set_memory_growth(device, True)
+
+
 architecture = None
 
 
@@ -112,19 +115,45 @@ def create_model():
     # model.compile(optimizer=optimizer, loss="sparse_categorical_crossentropy",
     #     metrics=["accuracy", SparseTopKCategoricalAccuracy(k=3, name="k3_accuracy")])
 
-    # Transformer
-    # architecture = "Transformer"
-    # https://keras.io/api/layers/attention_layers/attention/
-    # could not create working code by using the example in the link above.
-
     # Decision Tree
-    architecture = "DT"
-    model = tree.DecisionTreeClassifier(criterion=config.criterion, ccp_alpha=config.ccp_alpha)
+    # architecture = "DT"
+    # model = tree.DecisionTreeClassifier(criterion=config.criterion, ccp_alpha=config.ccp_alpha)
 
     # Naive Bayes
     # from sklearn.naive_bayes import MultinomialNB
     # architecture = "NB"
-    # model = MultinomialNB(alpha=config.alpha)
+    # model = MultinomialNB(alpha=config.alpha, fit_prior=config.fit_prior)
+
+    # Random Forest
+    from sklearn.ensemble import RandomForestClassifier
+    architecture = 'RF'
+    model = RandomForestClassifier(n_estimators=config.n_estimators, criterion=config.criterion, bootstrap=config.bootstrap, n_jobs=30,
+                                   max_features=config.max_features)
+
+    # Transformer
+    # architecture = "Transformer"
+    # config.FEATURE_ENGINEERING = False
+    # config.PAD_INPUT = True
+    # vocab_size = config.vocab_size
+    # maxlen = args.max_train_len
+    # embed_dim = config.embed_dim  # Embedding size for each token
+    # num_heads = config.num_heads  # Number of attention heads
+    # ff_dim = config.ff_dim  # Hidden layer size in feed forward network inside transformer
+    #
+    # inputs = tf.keras.layers.Input(shape=(maxlen,))
+    # embedding_layer = TokenAndPositionEmbedding(maxlen, vocab_size, embed_dim)
+    # x = embedding_layer(inputs)
+    # transformer_block = TransformerBlock(embed_dim, num_heads, ff_dim)
+    # x = transformer_block(x)
+    # x = tf.keras.layers.GlobalAveragePooling1D()(x)
+    # # x = tf.keras.layers.Dropout(0.1)(x)
+    # # x = tf.keras.layers.Dense(100, activation="relu")(x)
+    # # x = tf.keras.layers.Dropout(0.1)(x)
+    # outputs = tf.keras.layers.Dense(output_layer_size, activation="softmax")(x)
+    #
+    # model = tf.keras.Model(inputs=inputs, outputs=outputs)
+    # model.compile(optimizer=optimizer, loss="sparse_categorical_crossentropy",
+    #     metrics=["accuracy", SparseTopKCategoricalAccuracy(k=3, name="k3_accuracy")])
     return model
 
 
@@ -343,16 +372,20 @@ if __name__ == "__main__":
                 train_epoch = train_ds.epoch
                 processes, run1 = train_ds.__next__()
         # use this only with decision trees
-        if architecture == "DT":
+        if architecture in ("DT", "RF"):
             for batch, labels in run:
-                new_run[0].append(batch.numpy())
-                new_run[1].append(labels.numpy())
+                new_run[0].extend(batch.numpy().tolist())
+                new_run[1].extend(labels.numpy().tolist())
             if train_ds.iteration < args.max_iter:
                 run = None
                 print("Loaded %d ciphertexts." % train_ds.iteration)
                 continue
             else:
-                new_run = [(tf.convert_to_tensor(np.concatenate(new_run[0], axis=0)), tf.convert_to_tensor(np.concatenate(new_run[1], axis=0)))]
+                print("Loaded %d ciphertexts." % train_ds.iteration)
+                for process in processes:
+                    if process.is_alive():
+                        process.terminate()
+                new_run = [(tf.convert_to_tensor(new_run[0]), tf.convert_to_tensor(new_run[1]))]
                 run = new_run
         for batch, labels in run:
             cntr += 1
@@ -366,12 +399,15 @@ if __name__ == "__main__":
             train_iter -= args.train_dataset_size * 0.1
 
             # Decision Tree training
-            if architecture == "DT":
+            if architecture in ("DT", "RF"):
                 train_iter = len(labels) * 0.9
+                print("Start training the decision tree.")
                 history = model.fit(batch, labels)
-                plt.gcf().set_size_inches(25, 25 / math.sqrt(2))
-                tree.plot_tree(model, max_depth=5, fontsize=6, filled=True)
-                plt.savefig(args.model_name.split('.')[0] + '_decision_tree.svg', dpi=200, bbox_inches='tight', pad_inches=0)
+                if architecture == "DT":
+                    plt.gcf().set_size_inches(25, 25 / math.sqrt(2))
+                    print("Plotting tree.")
+                    tree.plot_tree(model, max_depth=3, fontsize=6, filled=True)
+                    plt.savefig(args.model_name.split('.')[0] + '_decision_tree.svg', dpi=200, bbox_inches='tight', pad_inches=0.1)
 
             # Naive Bayes training
             elif architecture == "NB":
@@ -382,7 +418,7 @@ if __name__ == "__main__":
                                     callbacks=[early_stopping_callback, tensorboard_callback])
 
             # print for Decision Tree and Naive Bayes
-            if architecture in ("DT", "NB"):
+            if architecture in ("DT", "NB", "RF"):
                 val_score = model.score(val_data, val_labels)
                 train_score = model.score(batch, labels)
                 print("train accuracy: %f, validation accuracy: %f" % (train_score, val_score))
@@ -415,7 +451,7 @@ if __name__ == "__main__":
     model_path = os.path.join(args.save_folder, model_name)
     if architecture in ("FFNN", "CNN", "LSTM"):
         model.save(model_path)
-    elif architecture in ("DT", "NB"):
+    elif architecture in ("DT", "NB", "RF"):
         with open(model_path, "wb") as f:
             pickle.dump(model, f)
     with open(model_path.split('.')[0] + '_parameters.txt', 'w') as f:
@@ -462,7 +498,7 @@ if __name__ == "__main__":
                 processes, run1 = test_ds.__next__()
         for batch, labels in run:
             # Decision Tree, Naive Bayes prediction
-            if architecture in ("DT", "NB"):
+            if architecture in ("DT", "NB", "RF"):
                 prediction = model.predict_proba(batch)
             else:
                 prediction = model.predict(batch, batch_size=args.batch_size, verbose=1)

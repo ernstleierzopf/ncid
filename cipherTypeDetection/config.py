@@ -161,8 +161,20 @@ layers = 3
 lstm_units = 500
 
 # DT
-criterion = 'gini'
+criterion = 'entropy'
 ccp_alpha = 0.0
 
 # NB
 alpha = 1.0
+fit_prior = True
+
+# RF
+n_estimators = 100
+max_features = "sqrt"
+bootstrap = True
+
+# Transformer
+vocab_size = 20000
+embed_dim = 32
+num_heads = 2
+ff_dim = 32
