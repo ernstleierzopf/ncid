@@ -1339,9 +1339,9 @@ class TextLine2CipherStatisticsDataset:
                         # add the new data to the existing to speed up the searching process.
                         data += c.filter(self.iter.__next__().numpy(), self.keep_unknown_symbols)
                     if len(data) > self.max_text_len != -1:
-                        d.append(data[:self.max_text_len])
+                        d.append(data[:self.max_text_len-(self.max_text_len % 2)])
                     else:
-                        d.append(data)
+                        d.append(data[:len(data)-(len(data) % 2)])
                 except:
                     self.epoch += 1
                     self.__iter__()
@@ -1349,9 +1349,9 @@ class TextLine2CipherStatisticsDataset:
                     while len(data) < self.min_text_len:
                         data += c.filter(self.iter.__next__().numpy(), self.keep_unknown_symbols)
                     if len(data) > self.max_text_len:
-                        d.append(data[:self.max_text_len])
+                        d.append(data[:self.max_text_len-(self.max_text_len % 2)])
                     else:
-                        d.append(data)
+                        d.append(data[:len(data)-(len(data) % 2)])
             process = multiprocessing.Process(target=self._worker, args=(d, result_list))
             process.start()
             processes.append(process)

@@ -18,7 +18,7 @@ class RouteTransposition(Cipher):
 
     def encrypt(self, plaintext, key):
         if len(plaintext) % key != 0:
-            raise ValueError('The length of the plaintext must be divisible by the key. In this case the plaintext length is %d and the'
+            raise ValueError('The length of the plaintext must be divisible by the key. In this case the plaintext length is %d and the '
                              'key is %d' % (len(plaintext), key))
         ciphertext = []
         matrix = [list(range(i, i + key, 1)) for i in range(0, len(plaintext), key)]

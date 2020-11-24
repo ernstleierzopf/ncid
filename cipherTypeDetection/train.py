@@ -61,14 +61,14 @@ def create_model():
     # model.compile(optimizer='sgd', loss="sparse_categorical_crossentropy", metrics=["accuracy"])
 
     # FFNN
-    # architecture = "FFNN"
-    # model = tf.keras.Sequential()
-    # model.add(tf.keras.layers.Input(shape=(input_layer_size,)))
-    # for i in range(5):
-    #     model.add(tf.keras.layers.Dense(hidden_layer_size, activation='relu', use_bias=True))
-    # model.add(tf.keras.layers.Dense(output_layer_size, activation='softmax'))
-    # model.compile(optimizer=optimizer, loss="sparse_categorical_crossentropy",
-    #     metrics=["accuracy", SparseTopKCategoricalAccuracy(k=3, name="k3_accuracy")])
+    architecture = "FFNN"
+    model = tf.keras.Sequential()
+    model.add(tf.keras.layers.Input(shape=(input_layer_size,)))
+    for i in range(5):
+        model.add(tf.keras.layers.Dense(hidden_layer_size, activation='relu', use_bias=True))
+    model.add(tf.keras.layers.Dense(output_layer_size, activation='softmax'))
+    model.compile(optimizer=optimizer, loss="sparse_categorical_crossentropy",
+        metrics=["accuracy", SparseTopKCategoricalAccuracy(k=3, name="k3_accuracy")])
 
     # CNN
     # architecture = "CNN"
@@ -125,10 +125,16 @@ def create_model():
     # model = MultinomialNB(alpha=config.alpha, fit_prior=config.fit_prior)
 
     # Random Forest
-    from sklearn.ensemble import RandomForestClassifier
-    architecture = 'RF'
-    model = RandomForestClassifier(n_estimators=config.n_estimators, criterion=config.criterion, bootstrap=config.bootstrap, n_jobs=30,
-                                   max_features=config.max_features)
+    # from sklearn.ensemble import RandomForestClassifier
+    # architecture = 'RF'
+    # model = RandomForestClassifier(n_estimators=config.n_estimators, criterion=config.criterion, bootstrap=config.bootstrap, n_jobs=30,
+    #                                max_features=config.max_features, max_depth=30)
+
+    # Extra Trees
+    # from sklearn.ensemble import ExtraTreesClassifier
+    # architecture = 'RF'
+    # model = ExtraTreesClassifier(n_estimators=config.n_estimators, criterion=config.criterion, bootstrap=config.bootstrap, n_jobs=30,
+    #                              max_features=config.max_features, max_depth=30)
 
     # Transformer
     # architecture = "Transformer"
@@ -169,11 +175,11 @@ if __name__ == "__main__":
                         help='The number of parallel workers for reading the \ninput files.')
     parser.add_argument('--epochs', default=1, type=int,
                         help='Defines how many times the same data is used to fit the model.')
-    parser.add_argument('--input_folder', default='../data/gutenberg_en', type=str,
-                        help='Input folder of the plaintexts.')
+    parser.add_argument('--input_directory', default='../data/gutenberg_en', type=str,
+                        help='Input directory of the plaintexts.')
     parser.add_argument('--download_dataset', default=True, type=str2bool,
                         help='Download the dataset automatically.')
-    parser.add_argument('--save_folder', default='weights/',
+    parser.add_argument('--save_directory', default='weights/',
                         help='Directory for saving generated models. \n'
                              'When interrupting, the current model is \n'
                              'saved as interrupted_...')
@@ -217,7 +223,7 @@ if __name__ == "__main__":
     if len(os.path.splitext(args.model_name)) != 2 or os.path.splitext(args.model_name)[1] != '.h5':
         print('ERROR: The model name must have the ".h5" extension!', file=sys.stderr)
         exit(1)
-    args.input_folder = os.path.abspath(args.input_folder)
+    args.input_directory = os.path.abspath(args.input_directory)
     args.ciphers = args.ciphers.lower()
     cipher_types = args.ciphers.split(',')
     if config.MTC3 in cipher_types:
@@ -261,42 +267,42 @@ if __name__ == "__main__":
         cipher_types.append(config.CIPHER_TYPES[29])
         cipher_types.append(config.CIPHER_TYPES[30])
         cipher_types.append(config.CIPHER_TYPES[31])
-        cipher_types.append(config.CIPHER_TYPES[32])
-        cipher_types.append(config.CIPHER_TYPES[33])
-        cipher_types.append(config.CIPHER_TYPES[34])
-        cipher_types.append(config.CIPHER_TYPES[35])
-        cipher_types.append(config.CIPHER_TYPES[36])
-        cipher_types.append(config.CIPHER_TYPES[37])
-        cipher_types.append(config.CIPHER_TYPES[38])
-        cipher_types.append(config.CIPHER_TYPES[39])
-        cipher_types.append(config.CIPHER_TYPES[40])
-        cipher_types.append(config.CIPHER_TYPES[41])
-        cipher_types.append(config.CIPHER_TYPES[42])
-        cipher_types.append(config.CIPHER_TYPES[43])
-        cipher_types.append(config.CIPHER_TYPES[44])
-        cipher_types.append(config.CIPHER_TYPES[45])
-        cipher_types.append(config.CIPHER_TYPES[46])
-        cipher_types.append(config.CIPHER_TYPES[47])
-        cipher_types.append(config.CIPHER_TYPES[48])
-        cipher_types.append(config.CIPHER_TYPES[49])
-        cipher_types.append(config.CIPHER_TYPES[50])
-        cipher_types.append(config.CIPHER_TYPES[51])
-        cipher_types.append(config.CIPHER_TYPES[52])
-        cipher_types.append(config.CIPHER_TYPES[53])
-        cipher_types.append(config.CIPHER_TYPES[54])
-        cipher_types.append(config.CIPHER_TYPES[55])
+        # cipher_types.append(config.CIPHER_TYPES[32])
+        # cipher_types.append(config.CIPHER_TYPES[33])
+        # cipher_types.append(config.CIPHER_TYPES[34])
+        # cipher_types.append(config.CIPHER_TYPES[35])
+        # cipher_types.append(config.CIPHER_TYPES[36])
+        # cipher_types.append(config.CIPHER_TYPES[37])
+        # cipher_types.append(config.CIPHER_TYPES[38])
+        # cipher_types.append(config.CIPHER_TYPES[39])
+        # cipher_types.append(config.CIPHER_TYPES[40])
+        # cipher_types.append(config.CIPHER_TYPES[41])
+        # cipher_types.append(config.CIPHER_TYPES[42])
+        # cipher_types.append(config.CIPHER_TYPES[43])
+        # cipher_types.append(config.CIPHER_TYPES[44])
+        # cipher_types.append(config.CIPHER_TYPES[45])
+        # cipher_types.append(config.CIPHER_TYPES[46])
+        # cipher_types.append(config.CIPHER_TYPES[47])
+        # cipher_types.append(config.CIPHER_TYPES[48])
+        # cipher_types.append(config.CIPHER_TYPES[49])
+        # cipher_types.append(config.CIPHER_TYPES[50])
+        # cipher_types.append(config.CIPHER_TYPES[51])
+        # cipher_types.append(config.CIPHER_TYPES[52])
+        # cipher_types.append(config.CIPHER_TYPES[53])
+        # cipher_types.append(config.CIPHER_TYPES[54])
+        # cipher_types.append(config.CIPHER_TYPES[55])
     if args.train_dataset_size * args.dataset_workers > args.max_iter:
         print("ERROR: --train_dataset_size * --dataset_workers must not be bigger than --max_iter. "
               "In this case it was %d > %d" % (args.train_dataset_size * args.dataset_workers, args.max_iter), file=sys.stderr)
         exit(1)
 
-    if args.download_dataset and not os.path.exists(args.input_folder) and args.input_folder == os.path.abspath('../data/gutenberg_en'):
+    if args.download_dataset and not os.path.exists(args.input_directory) and args.input_directory == os.path.abspath('../data/gutenberg_en'):
         print("Downloading Datsets...")
         tfds.download.add_checksums_dir('../data/checksums/')
-        download_manager = tfds.download.download_manager.DownloadManager(download_dir='../data/', extract_dir=args.input_folder)
+        download_manager = tfds.download.download_manager.DownloadManager(download_dir='../data/', extract_dir=args.input_directory)
         download_manager.download_and_extract('https://drive.google.com/uc?id=1bF5sSVjxTxa3DB-P5wxn87nxWndRhK_V&export=download')
-        path = os.path.join(args.input_folder, 'ZIP.ucid_1bF5sSVjxTx-P5wxn87nxWn_V_export_downloadR9Cwhunev5CvJ-ic__'
-                                               'HawxhTtGOlSdcCrro4fxfEI8A', os.path.basename(args.input_folder))
+        path = os.path.join(args.input_directory, 'ZIP.ucid_1bF5sSVjxTx-P5wxn87nxWn_V_export_downloadR9Cwhunev5CvJ-ic__'
+                                                  'HawxhTtGOlSdcCrro4fxfEI8A', os.path.basename(args.input_directory))
         dir_name = os.listdir(path)
         for name in dir_name:
             p = Path(os.path.join(path, name))
@@ -308,9 +314,9 @@ if __name__ == "__main__":
 
     print("Loading Datasets...")
     plaintext_files = []
-    dir_name = os.listdir(args.input_folder)
+    dir_name = os.listdir(args.input_directory)
     for name in dir_name:
-        path = os.path.join(args.input_folder, name)
+        path = os.path.join(args.input_directory, name)
         if os.path.isfile(path):
             plaintext_files.append(path)
     train, test = train_test_split(plaintext_files, test_size=0.05, random_state=42, shuffle=True)
@@ -332,15 +338,16 @@ if __name__ == "__main__":
     print('Creating model...')
 
     gpu_count = len(tf.config.list_physical_devices('GPU')) + len(tf.config.list_physical_devices('XLA_GPU'))
+    # print(gpu_count)
     if gpu_count > 1:
         strategy = tf.distribute.MirroredStrategy()
         with strategy.scope():
             model = create_model()
-        if architecture in ("FFNN", "CNN", "LSTM"):
+        if architecture in ("FFNN", "CNN", "LSTM", "Transformer"):
             model.summary()
     else:
         model = create_model()
-        # if architecture in ("FFNN", "CNN", "LSTM"):
+        # if architecture in ("FFNN", "CNN", "LSTM", "Transformer"):
         #     model.summary()
 
     print('Model created.\n')
@@ -443,21 +450,22 @@ if __name__ == "__main__":
     print('Saving model...')
     if args.model_name == 'm.h5':
         i = 1
-        while os.path.exists(os.path.join(args.save_folder, args.model_name.split('.')[0] + str(i) + '.h5')):
+        while os.path.exists(os.path.join(args.save_directory, args.model_name.split('.')[0] + str(i) + '.h5')):
             i += 1
         model_name = args.model_name.split('.')[0] + str(i) + '.h5'
     else:
         model_name = args.model_name
-    model_path = os.path.join(args.save_folder, model_name)
-    if architecture in ("FFNN", "CNN", "LSTM"):
+    model_path = os.path.join(args.save_directory, model_name)
+    if architecture in ("FFNN", "CNN", "LSTM", "Transformer"):
         model.save(model_path)
-    elif architecture in ("DT", "NB", "RF"):
-        with open(model_path, "wb") as f:
-            pickle.dump(model, f)
+    # elif architecture in ("DT", "NB", "RF"):
+    #     with open(model_path, "wb") as f:
+    #         # this gets very large
+    #         pickle.dump(model, f)
     with open(model_path.split('.')[0] + '_parameters.txt', 'w') as f:
         for arg in vars(args):
             f.write("{:23s}= {:s}\n".format(arg, str(getattr(args, arg))))
-    if architecture in ("FFNN", "CNN", "LSTM"):
+    if architecture in ("FFNN", "CNN", "LSTM", "Transformer"):
         shutil.move('./logs', model_name.split('.')[0] + '_tensorboard_logs')
     print('Model saved.\n')
 
