@@ -61,43 +61,43 @@ def create_model():
     # model.compile(optimizer='sgd', loss="sparse_categorical_crossentropy", metrics=["accuracy"])
 
     # FFNN
-    architecture = "FFNN"
-    model = tf.keras.Sequential()
-    model.add(tf.keras.layers.Input(shape=(input_layer_size,)))
-    for i in range(5):
-        model.add(tf.keras.layers.Dense(hidden_layer_size, activation='relu', use_bias=True))
-    model.add(tf.keras.layers.Dense(output_layer_size, activation='softmax'))
-    model.compile(optimizer=optimizer, loss="sparse_categorical_crossentropy",
-        metrics=["accuracy", SparseTopKCategoricalAccuracy(k=3, name="k3_accuracy")])
+    if architecture == 'FFNN':
+        model = tf.keras.Sequential()
+        model.add(tf.keras.layers.Input(shape=(input_layer_size,)))
+        for i in range(5):
+            model.add(tf.keras.layers.Dense(hidden_layer_size, activation='relu', use_bias=True))
+        model.add(tf.keras.layers.Dense(output_layer_size, activation='softmax'))
+        model.compile(optimizer=optimizer, loss="sparse_categorical_crossentropy",
+            metrics=["accuracy", SparseTopKCategoricalAccuracy(k=3, name="k3_accuracy")])
 
     # CNN
-    # architecture = "CNN"
-    # config.FEATURE_ENGINEERING = False
-    # config.PAD_INPUT = True
-    # model = tf.keras.Sequential()
-    # model.add(tf.keras.layers.Conv1D(filters=config.filters, kernel_size=config.kernel_size, input_shape=(args.max_train_len, 1), activation='relu'))
-    # for i in range(config.layers - 1):
-    #     model.add(tf.keras.layers.Conv1D(filters=config.filters, kernel_size=config.kernel_size, activation='relu'))
-    # # model.add(tf.keras.layers.Dropout(0.2))
-    # model.add(tf.keras.layers.MaxPooling1D(pool_size=2))
-    # model.add(tf.keras.layers.Flatten())
-    # model.add(tf.keras.layers.Dense(output_layer_size, activation='softmax'))
-    # model.compile(optimizer=optimizer, loss="sparse_categorical_crossentropy",
-    #     metrics=["accuracy", SparseTopKCategoricalAccuracy(k=3, name="k3_accuracy")])
+    if architecture == 'CNN':
+        config.FEATURE_ENGINEERING = False
+        config.PAD_INPUT = True
+        model = tf.keras.Sequential()
+        model.add(tf.keras.layers.Conv1D(filters=config.filters, kernel_size=config.kernel_size, input_shape=(args.max_train_len, 1), activation='relu'))
+        for i in range(config.layers - 1):
+            model.add(tf.keras.layers.Conv1D(filters=config.filters, kernel_size=config.kernel_size, activation='relu'))
+        # model.add(tf.keras.layers.Dropout(0.2))
+        model.add(tf.keras.layers.MaxPooling1D(pool_size=2))
+        model.add(tf.keras.layers.Flatten())
+        model.add(tf.keras.layers.Dense(output_layer_size, activation='softmax'))
+        model.compile(optimizer=optimizer, loss="sparse_categorical_crossentropy",
+            metrics=["accuracy", SparseTopKCategoricalAccuracy(k=3, name="k3_accuracy")])
 
     # LSTM
-    # architecture = "LSTM"
-    # config.FEATURE_ENGINEERING = False
-    # config.PAD_INPUT = True
-    # model = tf.keras.Sequential()
-    # model.add(tf.keras.layers.Embedding(len(config.CIPHER_TYPES), 64, input_length=args.max_train_len))
-    # # model.add(tf.keras.layers.Dropout(0.2))
-    # model.add(tf.keras.layers.LSTM(config.lstm_units))
-    # # model.add(tf.keras.layers.Dropout(0.2))
-    # model.add(tf.keras.layers.Flatten())
-    # model.add(tf.keras.layers.Dense(output_layer_size, activation='softmax'))
-    # model.compile(optimizer=optimizer, loss="sparse_categorical_crossentropy",
-    #     metrics=["accuracy", SparseTopKCategoricalAccuracy(k=3, name="k3_accuracy")])
+    if architecture == 'LSTM':
+        config.FEATURE_ENGINEERING = False
+        config.PAD_INPUT = True
+        model = tf.keras.Sequential()
+        model.add(tf.keras.layers.Embedding(len(config.CIPHER_TYPES), 64, input_length=args.max_train_len))
+        # model.add(tf.keras.layers.Dropout(0.2))
+        model.add(tf.keras.layers.LSTM(config.lstm_units))
+        # model.add(tf.keras.layers.Dropout(0.2))
+        model.add(tf.keras.layers.Flatten())
+        model.add(tf.keras.layers.Dense(output_layer_size, activation='softmax'))
+        model.compile(optimizer=optimizer, loss="sparse_categorical_crossentropy",
+            metrics=["accuracy", SparseTopKCategoricalAccuracy(k=3, name="k3_accuracy")])
 
     # LSTM with Convolution
     # architecture = "LSTM"
@@ -116,50 +116,50 @@ def create_model():
     #     metrics=["accuracy", SparseTopKCategoricalAccuracy(k=3, name="k3_accuracy")])
 
     # Decision Tree
-    # architecture = "DT"
-    # model = tree.DecisionTreeClassifier(criterion=config.criterion, ccp_alpha=config.ccp_alpha)
+    if architecture == 'DT':
+        model = tree.DecisionTreeClassifier(criterion=config.criterion, ccp_alpha=config.ccp_alpha)
 
     # Naive Bayes
-    # from sklearn.naive_bayes import MultinomialNB
-    # architecture = "NB"
-    # model = MultinomialNB(alpha=config.alpha, fit_prior=config.fit_prior)
+    if architecture == 'NB':
+        from sklearn.naive_bayes import MultinomialNB
+        model = MultinomialNB(alpha=config.alpha, fit_prior=config.fit_prior)
 
     # Random Forest
-    # from sklearn.ensemble import RandomForestClassifier
-    # architecture = 'RF'
-    # model = RandomForestClassifier(n_estimators=config.n_estimators, criterion=config.criterion, bootstrap=config.bootstrap, n_jobs=30,
-    #                                max_features=config.max_features, max_depth=30)
+    if architecture == 'RF':
+        from sklearn.ensemble import RandomForestClassifier
+        model = RandomForestClassifier(n_estimators=config.n_estimators, criterion=config.criterion, bootstrap=config.bootstrap, n_jobs=30,
+                                       max_features=config.max_features, max_depth=30)
 
     # Extra Trees
-    # from sklearn.ensemble import ExtraTreesClassifier
-    # architecture = 'RF'
-    # model = ExtraTreesClassifier(n_estimators=config.n_estimators, criterion=config.criterion, bootstrap=config.bootstrap, n_jobs=30,
-    #                              max_features=config.max_features, max_depth=30)
+    if architecture == 'ET':
+        from sklearn.ensemble import ExtraTreesClassifier
+        model = ExtraTreesClassifier(n_estimators=config.n_estimators, criterion=config.criterion, bootstrap=config.bootstrap, n_jobs=30,
+                                     max_features=config.max_features, max_depth=30)
 
     # Transformer
-    # architecture = "Transformer"
-    # config.FEATURE_ENGINEERING = False
-    # config.PAD_INPUT = True
-    # vocab_size = config.vocab_size
-    # maxlen = args.max_train_len
-    # embed_dim = config.embed_dim  # Embedding size for each token
-    # num_heads = config.num_heads  # Number of attention heads
-    # ff_dim = config.ff_dim  # Hidden layer size in feed forward network inside transformer
-    #
-    # inputs = tf.keras.layers.Input(shape=(maxlen,))
-    # embedding_layer = TokenAndPositionEmbedding(maxlen, vocab_size, embed_dim)
-    # x = embedding_layer(inputs)
-    # transformer_block = TransformerBlock(embed_dim, num_heads, ff_dim)
-    # x = transformer_block(x)
-    # x = tf.keras.layers.GlobalAveragePooling1D()(x)
-    # # x = tf.keras.layers.Dropout(0.1)(x)
-    # # x = tf.keras.layers.Dense(100, activation="relu")(x)
-    # # x = tf.keras.layers.Dropout(0.1)(x)
-    # outputs = tf.keras.layers.Dense(output_layer_size, activation="softmax")(x)
-    #
-    # model = tf.keras.Model(inputs=inputs, outputs=outputs)
-    # model.compile(optimizer=optimizer, loss="sparse_categorical_crossentropy",
-    #     metrics=["accuracy", SparseTopKCategoricalAccuracy(k=3, name="k3_accuracy")])
+    if architecture == "Transformer":
+        config.FEATURE_ENGINEERING = False
+        config.PAD_INPUT = True
+        vocab_size = config.vocab_size
+        maxlen = args.max_train_len
+        embed_dim = config.embed_dim  # Embedding size for each token
+        num_heads = config.num_heads  # Number of attention heads
+        ff_dim = config.ff_dim  # Hidden layer size in feed forward network inside transformer
+
+        inputs = tf.keras.layers.Input(shape=(maxlen,))
+        embedding_layer = TokenAndPositionEmbedding(maxlen, vocab_size, embed_dim)
+        x = embedding_layer(inputs)
+        transformer_block = TransformerBlock(embed_dim, num_heads, ff_dim)
+        x = transformer_block(x)
+        x = tf.keras.layers.GlobalAveragePooling1D()(x)
+        # x = tf.keras.layers.Dropout(0.1)(x)
+        # x = tf.keras.layers.Dense(100, activation="relu")(x)
+        # x = tf.keras.layers.Dropout(0.1)(x)
+        outputs = tf.keras.layers.Dense(output_layer_size, activation="softmax")(x)
+
+        model = tf.keras.Model(inputs=inputs, outputs=outputs)
+        model.compile(optimizer=optimizer, loss="sparse_categorical_crossentropy",
+            metrics=["accuracy", SparseTopKCategoricalAccuracy(k=3, name="k3_accuracy")])
     return model
 
 
@@ -215,6 +215,11 @@ if __name__ == "__main__":
     parser.add_argument('--max_test_len', default=-1, type=int,
                         help='The maximum length of a plaintext to be encrypted in testing. \n'
                              'If this argument is set to -1 no upper limit is used.')
+    parser.add_argument('--architecture', default='FFNN', type=str,
+                        help='The architecture to be used for training. \n'
+                             'Possible values are:\n'
+                             '- FFNN\n'
+                             '- ')
 
     args = parser.parse_args()
     for arg in vars(args):
@@ -225,6 +230,7 @@ if __name__ == "__main__":
         exit(1)
     args.input_directory = os.path.abspath(args.input_directory)
     args.ciphers = args.ciphers.lower()
+    architecture = args.architecture
     cipher_types = args.ciphers.split(',')
     if config.MTC3 in cipher_types:
         del cipher_types[cipher_types.index(config.MTC3)]
@@ -267,30 +273,30 @@ if __name__ == "__main__":
         cipher_types.append(config.CIPHER_TYPES[29])
         cipher_types.append(config.CIPHER_TYPES[30])
         cipher_types.append(config.CIPHER_TYPES[31])
-        # cipher_types.append(config.CIPHER_TYPES[32])
-        # cipher_types.append(config.CIPHER_TYPES[33])
-        # cipher_types.append(config.CIPHER_TYPES[34])
-        # cipher_types.append(config.CIPHER_TYPES[35])
-        # cipher_types.append(config.CIPHER_TYPES[36])
-        # cipher_types.append(config.CIPHER_TYPES[37])
-        # cipher_types.append(config.CIPHER_TYPES[38])
-        # cipher_types.append(config.CIPHER_TYPES[39])
-        # cipher_types.append(config.CIPHER_TYPES[40])
-        # cipher_types.append(config.CIPHER_TYPES[41])
-        # cipher_types.append(config.CIPHER_TYPES[42])
-        # cipher_types.append(config.CIPHER_TYPES[43])
-        # cipher_types.append(config.CIPHER_TYPES[44])
-        # cipher_types.append(config.CIPHER_TYPES[45])
-        # cipher_types.append(config.CIPHER_TYPES[46])
-        # cipher_types.append(config.CIPHER_TYPES[47])
-        # cipher_types.append(config.CIPHER_TYPES[48])
-        # cipher_types.append(config.CIPHER_TYPES[49])
-        # cipher_types.append(config.CIPHER_TYPES[50])
-        # cipher_types.append(config.CIPHER_TYPES[51])
-        # cipher_types.append(config.CIPHER_TYPES[52])
-        # cipher_types.append(config.CIPHER_TYPES[53])
-        # cipher_types.append(config.CIPHER_TYPES[54])
-        # cipher_types.append(config.CIPHER_TYPES[55])
+        cipher_types.append(config.CIPHER_TYPES[32])
+        cipher_types.append(config.CIPHER_TYPES[33])
+        cipher_types.append(config.CIPHER_TYPES[34])
+        cipher_types.append(config.CIPHER_TYPES[35])
+        cipher_types.append(config.CIPHER_TYPES[36])
+        cipher_types.append(config.CIPHER_TYPES[37])
+        cipher_types.append(config.CIPHER_TYPES[38])
+        cipher_types.append(config.CIPHER_TYPES[39])
+        cipher_types.append(config.CIPHER_TYPES[40])
+        cipher_types.append(config.CIPHER_TYPES[41])
+        cipher_types.append(config.CIPHER_TYPES[42])
+        cipher_types.append(config.CIPHER_TYPES[43])
+        cipher_types.append(config.CIPHER_TYPES[44])
+        cipher_types.append(config.CIPHER_TYPES[45])
+        cipher_types.append(config.CIPHER_TYPES[46])
+        cipher_types.append(config.CIPHER_TYPES[47])
+        cipher_types.append(config.CIPHER_TYPES[48])
+        cipher_types.append(config.CIPHER_TYPES[49])
+        cipher_types.append(config.CIPHER_TYPES[50])
+        cipher_types.append(config.CIPHER_TYPES[51])
+        cipher_types.append(config.CIPHER_TYPES[52])
+        cipher_types.append(config.CIPHER_TYPES[53])
+        cipher_types.append(config.CIPHER_TYPES[54])
+        cipher_types.append(config.CIPHER_TYPES[55])
     if args.train_dataset_size * args.dataset_workers > args.max_iter:
         print("ERROR: --train_dataset_size * --dataset_workers must not be bigger than --max_iter. "
               "In this case it was %d > %d" % (args.train_dataset_size * args.dataset_workers, args.max_iter), file=sys.stderr)
@@ -338,7 +344,6 @@ if __name__ == "__main__":
     print('Creating model...')
 
     gpu_count = len(tf.config.list_physical_devices('GPU')) + len(tf.config.list_physical_devices('XLA_GPU'))
-    # print(gpu_count)
     if gpu_count > 1:
         strategy = tf.distribute.MirroredStrategy()
         with strategy.scope():
@@ -379,7 +384,7 @@ if __name__ == "__main__":
                 train_epoch = train_ds.epoch
                 processes, run1 = train_ds.__next__()
         # use this only with decision trees
-        if architecture in ("DT", "RF"):
+        if architecture in ("DT", "RF", "ET"):
             for batch, labels in run:
                 new_run[0].extend(batch.numpy().tolist())
                 new_run[1].extend(labels.numpy().tolist())
@@ -406,7 +411,7 @@ if __name__ == "__main__":
             train_iter -= args.train_dataset_size * 0.1
 
             # Decision Tree training
-            if architecture in ("DT", "RF"):
+            if architecture in ("DT", "RF", "ET"):
                 train_iter = len(labels) * 0.9
                 print("Start training the decision tree.")
                 history = model.fit(batch, labels)
@@ -425,7 +430,7 @@ if __name__ == "__main__":
                                     callbacks=[early_stopping_callback, tensorboard_callback])
 
             # print for Decision Tree and Naive Bayes
-            if architecture in ("DT", "NB", "RF"):
+            if architecture in ("DT", "NB", "RF", "ET"):
                 val_score = model.score(val_data, val_labels)
                 train_score = model.score(batch, labels)
                 print("train accuracy: %f, validation accuracy: %f" % (train_score, val_score))
@@ -458,7 +463,7 @@ if __name__ == "__main__":
     model_path = os.path.join(args.save_directory, model_name)
     if architecture in ("FFNN", "CNN", "LSTM", "Transformer"):
         model.save(model_path)
-    # elif architecture in ("DT", "NB", "RF"):
+    # elif architecture in ("DT", "NB", "RF", "ET):
     #     with open(model_path, "wb") as f:
     #         # this gets very large
     #         pickle.dump(model, f)
@@ -506,7 +511,7 @@ if __name__ == "__main__":
                 processes, run1 = test_ds.__next__()
         for batch, labels in run:
             # Decision Tree, Naive Bayes prediction
-            if architecture in ("DT", "NB", "RF"):
+            if architecture in ("DT", "NB", "RF", "ET"):
                 prediction = model.predict_proba(batch)
             else:
                 prediction = model.predict(batch, batch_size=args.batch_size, verbose=1)

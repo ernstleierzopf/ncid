@@ -169,7 +169,7 @@ alpha = 1.0
 fit_prior = True
 
 # RF
-n_estimators = 100
+n_estimators = 1000
 max_features = "sqrt"
 bootstrap = True
 

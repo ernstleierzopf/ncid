@@ -5,15 +5,15 @@ import sys
 import os
 from datetime import datetime
 # This environ variable must be set before all tensorflow imports!
-from util.textUtils import map_text_into_numberspace
-from util.fileUtils import print_progress
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 import tensorflow as tf
 import tensorflow_datasets as tfds
 sys.path.append("../")
+from util.textUtils import map_text_into_numberspace
+from util.fileUtils import print_progress
 import cipherTypeDetection.config as config
-from cipherImplementations.cipher import OUTPUT_ALPHABET
+from cipherImplementations.cipher import OUTPUT_ALPHABET, UNKNOWN_SYMBOL_NUMBER
 from cipherTypeDetection.textLine2CipherStatisticsDataset import TextLine2CipherStatisticsDataset, calculate_statistics
 tf.debugging.set_log_device_placement(enabled=False)
 
@@ -137,7 +137,7 @@ def evaluate(args, model):
                 for line in fd.readlines():
                     # remove newline
                     line = line[:-1]
-                    ciphertext = map_text_into_numberspace(line, OUTPUT_ALPHABET, config.UNKNOWN_SYMBOL_NUMBER)
+                    ciphertext = map_text_into_numberspace(line, OUTPUT_ALPHABET, UNKNOWN_SYMBOL_NUMBER)
                     statistics = calculate_statistics(ciphertext)
                     batch.append(statistics)
                     iterations += 1
@@ -177,7 +177,7 @@ def predict_single_line(args, model):
         # remove newline
         line = line[:-1]
         print(line)
-        ciphertext = map_text_into_numberspace(line, config.OUTPUT_ALPHABET, config.UNKNOWN_SYMBOL_NUMBER)
+        ciphertext = map_text_into_numberspace(line, OUTPUT_ALPHABET, UNKNOWN_SYMBOL_NUMBER)
         statistics = calculate_statistics(ciphertext)
         result = model.predict(tf.convert_to_tensor([statistics]), args.batch_size, verbose=0)
         if args.verbose:
@@ -225,7 +225,7 @@ if __name__ == "__main__":
                         help='the maximal number of iterations before stopping evaluation.')
     parser.add_argument('--model', default='./weights/model.h5', type=str,
                         help='Name of the model file. The file must have the .h5 extension.')
-    parser.add_argument('--ciphers', '--ciphers', default='mtc3', type=str,
+    parser.add_argument('--ciphers', '--ciphers', default='aca', type=str,
                         help='A comma seperated list of the ciphers to be created.\n'
                              'Be careful to not use spaces or use \' to define the string.\n'
                              'Possible values are:\n'
