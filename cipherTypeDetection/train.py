@@ -64,7 +64,7 @@ def create_model():
     if architecture == 'FFNN':
         model = tf.keras.Sequential()
         model.add(tf.keras.layers.Input(shape=(input_layer_size,)))
-        for i in range(5):
+        for i in range(config.hidden_layers):
             model.add(tf.keras.layers.Dense(hidden_layer_size, activation='relu', use_bias=True))
         model.add(tf.keras.layers.Dense(output_layer_size, activation='softmax'))
         model.compile(optimizer=optimizer, loss="sparse_categorical_crossentropy",
@@ -98,22 +98,6 @@ def create_model():
         model.add(tf.keras.layers.Dense(output_layer_size, activation='softmax'))
         model.compile(optimizer=optimizer, loss="sparse_categorical_crossentropy",
             metrics=["accuracy", SparseTopKCategoricalAccuracy(k=3, name="k3_accuracy")])
-
-    # LSTM with Convolution
-    # architecture = "LSTM"
-    # config.FEATURE_ENGINEERING = False
-    # config.PAD_INPUT = True
-    # model = tf.keras.Sequential()
-    # model.add(tf.keras.layers.Embedding(len(OUTPUT_ALPHABET) + 1, 64, input_length=args.max_train_len))
-    # # model.add(tf.keras.layers.Dropout(0.2))
-    # model.add(tf.keras.layers.Conv1D(filters=64, kernel_size=3, padding='same', activation='relu'))
-    # model.add(tf.keras.layers.MaxPooling1D(pool_size=2))
-    # model.add(tf.keras.layers.LSTM(100))
-    # # model.add(tf.keras.layers.Dropout(0.2))
-    # model.add(tf.keras.layers.Flatten())
-    # model.add(tf.keras.layers.Dense(output_layer_size, activation='softmax'))
-    # model.compile(optimizer=optimizer, loss="sparse_categorical_crossentropy",
-    #     metrics=["accuracy", SparseTopKCategoricalAccuracy(k=3, name="k3_accuracy")])
 
     # Decision Tree
     if architecture == 'DT':
@@ -152,9 +136,6 @@ def create_model():
         transformer_block = TransformerBlock(embed_dim, num_heads, ff_dim)
         x = transformer_block(x)
         x = tf.keras.layers.GlobalAveragePooling1D()(x)
-        # x = tf.keras.layers.Dropout(0.1)(x)
-        # x = tf.keras.layers.Dense(100, activation="relu")(x)
-        # x = tf.keras.layers.Dropout(0.1)(x)
         outputs = tf.keras.layers.Dense(output_layer_size, activation="softmax")(x)
 
         model = tf.keras.Model(inputs=inputs, outputs=outputs)
@@ -335,11 +316,6 @@ if __name__ == "__main__":
         print("WARNING: the --train_dataset_size parameter must be dividable by the amount of --ciphers  and the length configured "
               "KEY_LENGTHS in config.py. The current key_lengths_count is %d" % train_ds.key_lengths_count, file=sys.stderr)
     print("Datasets loaded.\n")
-
-    # print("Shuffling data...")
-    # train_ds = train_ds.shuffle(50000, seed=42, reshuffle_each_iteration=False)
-    # test_ds = test_ds.shuffle(50000, seed=42, reshuffle_each_iteration=False)
-    # print("Data shuffled.\n")
 
     print('Creating model...')
 

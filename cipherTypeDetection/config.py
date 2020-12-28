@@ -152,6 +152,9 @@ epsilon = 1e-7
 amsgrad = False
 activation = 'relu'
 
+# FFNN
+hidden_layers = 5
+
 # CNN
 filters = 64
 kernel_size = 7
@@ -175,6 +178,6 @@ bootstrap = True
 
 # Transformer
 vocab_size = 20000
-embed_dim = 32
-num_heads = 2
-ff_dim = 32
+embed_dim = 128
+num_heads = 8
+ff_dim = 1024

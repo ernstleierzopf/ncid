@@ -1358,7 +1358,6 @@ class TextLine2CipherStatisticsDataset:
         return processes, result_list
 
     def _worker(self, data, result):
-        #mem("before")
         batch = []
         labels = []
         for d in data:
@@ -1382,9 +1381,3 @@ class TextLine2CipherStatisticsDataset:
             result.append((tf.convert_to_tensor(batch), tf.convert_to_tensor(labels)))
         else:
             result.append((tf.convert_to_tensor(batch), tf.convert_to_tensor(labels)))
-        #mem("after")
-#
-# import resource
-#
-# def mem(string):
-#     print('%s: Memory usage         : % 2.2f MB' % (string, round(resource.getrusage(resource.RUSAGE_SELF).ru_maxrss/1024.0,1)))
