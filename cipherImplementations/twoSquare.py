@@ -1,5 +1,4 @@
 from cipherImplementations.cipher import Cipher, generate_random_keyword, generate_keyword_alphabet
-import random
 import numpy as np
 
 

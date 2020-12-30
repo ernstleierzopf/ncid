@@ -12,8 +12,7 @@ class NihilistTranspositionTest(CipherTestBase):
 
     def test1generate_random_key_allowed_length(self):
         for i in range(0, 100):
-            key = self.cipher.generate_random_key(i)
-            self.assertIsNone(key)
+            self.assertIsNone(self.cipher.generate_random_key(i))
 
     def test3filter_keep_unknown_symbols(self):
         self.run_test3filter_keep_unknown_symbols()

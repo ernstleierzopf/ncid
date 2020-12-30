@@ -21,6 +21,7 @@ def calc_column_number(key_length, string_length, char_num):
 
 class Amsco(Cipher):
     """Adapted implementation from https://github.com/csmith50/AMSCO_Cipher"""
+
     def __init__(self, alphabet, unknown_symbol, unknown_symbol_number, start_with_letter_count=2):
         if not 0 < start_with_letter_count < 3:
             raise ValueError('start_with_letter_count must be 1 or 2!')
@@ -48,7 +49,7 @@ class Amsco(Cipher):
         counter = string_length
         key_counter = 0
         while counter > 0:  # works just like calc_col_number except with chars
-            number, col_number = digits_with_chars[key_counter]
+            number, _col_number = digits_with_chars[key_counter]
             for i in range(self.char_num):
                 chopped[int(number) - 1].append(plaintext[i])
             plaintext = plaintext[self.char_num:]
@@ -80,7 +81,7 @@ class Amsco(Cipher):
         # chop up text
         chopped = [[] for _ in range(key_length)]
         for i in range(key_length):
-            digit, col_number = digits_with_chars[i]
+            _digit, col_number = digits_with_chars[i]
             for j in range(col_number):
                 chopped[i].append(ciphertext[j])
             ciphertext = ciphertext[col_number:]

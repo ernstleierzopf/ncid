@@ -1,10 +1,10 @@
-import numpy as np
 from cipherImplementations.cipher import Cipher
 from cipherImplementations.vigenere import Vigenere
 
 
 class RunningKey(Cipher):
     """This implementation takes the ciphertext off in rows."""
+
     def __init__(self, alphabet, unknown_symbol, unknown_symbol_number):
         self.alphabet = alphabet
         self.unknown_symbol = unknown_symbol

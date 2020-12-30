@@ -5,6 +5,7 @@ import numpy as np
 
 class Bifid(Cipher):
     """Adapted implementation from https://github.com/tigertv/secretpy"""
+
     def __init__(self, alphabet, unknown_symbol, unknown_symbol_number):
         self.alphabet = alphabet
         self.unknown_symbol = unknown_symbol
@@ -21,13 +22,13 @@ class Bifid(Cipher):
         __polybius = Polybius(key[0], self.unknown_symbol, self.unknown_symbol_number)
         if not key[1] > 0:
             key[1] = len(plaintext)
-        code = __polybius.encrypt(plaintext, [i for i in range(len(self.alphabet))])
+        code = __polybius.encrypt(plaintext, list(range(len(self.alphabet))))
         even = code[::2]
         odd = code[1::2]
         ret = []
         for i in range(0, len(even), key[1]):
             ret += even[i:i + key[1]] + odd[i:i + key[1]]
-        ct = __polybius.decrypt(ret, [i for i in range(len(self.alphabet))])
+        ct = __polybius.decrypt(ret, list(range(len(self.alphabet))))
         ciphertext = []
         for c in ct:
             ciphertext.append(key[0][c])
@@ -41,7 +42,7 @@ class Bifid(Cipher):
         __polybius = Polybius(key[0], self.unknown_symbol, self.unknown_symbol_number)
         if not key[1] > 0:
             key[1] = len(ciphertext)
-        code = __polybius.encrypt(ciphertext, [i for i in range(len(self.alphabet))])
+        code = __polybius.encrypt(ciphertext, list(range(len(self.alphabet))))
         even = ''
         odd = ''
         rem = len(code) % (key[1] << 1)
@@ -56,7 +57,7 @@ class Bifid(Cipher):
         code = []
         for i in range(len(even)):
             code += even[i] + odd[i]
-        pt = __polybius.decrypt(code, [i for i in range(len(self.alphabet))])
+        pt = __polybius.decrypt(code, list(range(len(self.alphabet))))
         plaintext = []
         for p in pt:
             plaintext.append(key[0][p])

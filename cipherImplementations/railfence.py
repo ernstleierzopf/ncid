@@ -11,4 +11,4 @@ class Railfence(Redefence):
             raise ValueError('The length of a key must be greater than 0 and must not be None.')
         if not isinstance(length, int):
             raise ValueError('Length must be of type integer.')
-        return [np.array([i for i in range(length)]), random.randint(0, 15)]
+        return [np.array(list(range(length))), random.randint(0, 15)]

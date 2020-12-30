@@ -20,9 +20,7 @@ class ProgressiveKey(Cipher):
     def encrypt(self, plaintext, key):
         progression_index = self.progression_index
         if progression_index is None:
-            progression_index = int(len(key) / 2)
-            if progression_index < 1:
-                progression_index = 1
+            progression_index = max(int(len(key) / 2), 1)
         ciphertext = self.vigenere.encrypt(plaintext, key)
         for i in range(1, progression_index + 1, 1):
             new_key = []
@@ -34,9 +32,7 @@ class ProgressiveKey(Cipher):
     def decrypt(self, ciphertext, key):
         progression_index = self.progression_index
         if progression_index is None:
-            progression_index = int(len(key) / 2)
-            if progression_index < 1:
-                progression_index = 1
+            progression_index = max(int(len(key) / 2), 1)
         for i in range(progression_index, 0, -1):
             new_key = []
             for j in range(len(ciphertext)):

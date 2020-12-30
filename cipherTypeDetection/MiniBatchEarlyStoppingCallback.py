@@ -83,11 +83,11 @@ class MiniBatchEarlyStopping(Callback):
             else:
                 self.monitor_op = np.less
 
-        if self.monitor_op == np.greater:
+        if self.monitor_op is np.greater:
             self.min_delta *= 1
         else:
             self.min_delta *= -1
-        self.best = np.Inf if self.monitor_op == np.less else -np.Inf
+        self.best = np.Inf if self.monitor_op is np.less else -np.Inf
 
     def on_epoch_end(self, epoch, logs=None):
         current = self.get_monitor_value(logs)

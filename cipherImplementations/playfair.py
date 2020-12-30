@@ -97,7 +97,7 @@ class Playfair(Cipher):
             p0, p1 = plaintext[position - 1], plaintext[position]
             output.append(p0)
             if p0 == p1:
-                output.append(120) # 120 = 'x'
+                output.append(120)  # 120 = 'x'
         output.append(plaintext[len(plaintext)-1])
         plaintext = bytes(output)
         return plaintext

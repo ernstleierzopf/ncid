@@ -6,10 +6,6 @@ import numpy as np
 
 class CMBifid(Bifid):
     """Adapted implementation from https://github.com/tigertv/secretpy"""
-    def __init__(self, alphabet, unknown_symbol, unknown_symbol_number):
-        self.alphabet = alphabet
-        self.unknown_symbol = unknown_symbol
-        self.unknown_symbol_number = unknown_symbol_number
 
     def generate_random_key(self, length):
         key1 = generate_keyword_alphabet(self.alphabet, generate_random_keyword(self.alphabet, length))
@@ -24,13 +20,13 @@ class CMBifid(Bifid):
         __polybius = Polybius(key[1], self.unknown_symbol, self.unknown_symbol_number)
         if not key[0] > 0:
             key[0] = len(plaintext)
-        code = __polybius.encrypt(plaintext, [i for i in range(len(self.alphabet))])
+        code = __polybius.encrypt(plaintext, list(range(len(self.alphabet))))
         even = code[::2]
         odd = code[1::2]
         ret = []
         for i in range(0, len(even), key[0]):
             ret += even[i:i + key[0]] + odd[i:i + key[0]]
-        ct = __polybius.decrypt(ret, [i for i in range(len(self.alphabet))])
+        ct = __polybius.decrypt(ret, list(range(len(self.alphabet))))
         ciphertext = []
         for c in ct:
             ciphertext.append(key[2][c])
@@ -44,7 +40,7 @@ class CMBifid(Bifid):
         __polybius = Polybius(key[1], self.unknown_symbol, self.unknown_symbol_number)
         if not key[0] > 0:
             key[0] = len(ciphertext)
-        code = __polybius.encrypt(ciphertext, [i for i in range(len(self.alphabet))])
+        code = __polybius.encrypt(ciphertext, list(range(len(self.alphabet))))
         even = ''
         odd = ''
         rem = len(code) % (key[0] << 1)
@@ -59,7 +55,7 @@ class CMBifid(Bifid):
         code = []
         for i in range(len(even)):
             code += even[i] + odd[i]
-        pt = __polybius.decrypt(code, [i for i in range(len(self.alphabet))])
+        pt = __polybius.decrypt(code, list(range(len(self.alphabet))))
         plaintext = []
         for p in pt:
             plaintext.append(key[1][p])

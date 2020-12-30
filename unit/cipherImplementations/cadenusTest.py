@@ -1,7 +1,6 @@
 from cipherImplementations.cadenus import Cadenus
 from unit.cipherImplementations.CipherTestBase import CipherTestBase
 from util.textUtils import map_text_into_numberspace
-import copy
 
 
 class CadenusTest(CipherTestBase):

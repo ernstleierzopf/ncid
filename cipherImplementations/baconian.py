@@ -22,7 +22,7 @@ class Baconian(Cipher):
                     r = random.randint(0, 12)
                 else:
                     r = random.randint(13, 25)
-                if r == 9 or r == 21:  # remove j and v
+                if r in (9, 21):  # remove j and v
                     r -= 1
                 ciphertext.append(r)
         return np.array(ciphertext)

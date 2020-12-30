@@ -4,6 +4,7 @@ import numpy as np
 
 class Autokey(Cipher):
     """Adapted implementation from https://github.com/nishimehta/AutokeyCryptanalysis"""
+
     def __init__(self, alphabet, unknown_symbol, unknown_symbol_number):
         self.alphabet = alphabet
         self.unknown_symbol = unknown_symbol

@@ -1,5 +1,5 @@
 import numpy as np
-from cipherImplementations.cipher import Cipher, generate_random_keyword, generate_keyword_alphabet, OUTPUT_ALPHABET
+from cipherImplementations.cipher import Cipher, generate_random_keyword, generate_keyword_alphabet
 
 
 class Trifid(Cipher):
@@ -19,7 +19,7 @@ class Trifid(Cipher):
 
     def encrypt(self, plaintext, key):
         ciphertext = []
-        mapping = [list() for _ in range(3)]
+        mapping = [[] for _ in range(3)]
         for p in plaintext:
             val = self.key_dict[np.where(key[0] == p)[0][0]]
             mapping[0].append(val[0])

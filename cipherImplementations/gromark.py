@@ -11,9 +11,10 @@ class Gromark(Cipher):
 
     def generate_random_key(self, length):
         primer = []
-        for i in range(5):
+        for _ in range(5):
             primer.append(random.randint(0, 9))
-        key = generate_keyword_alphabet(self.alphabet, generate_random_keyword(self.alphabet, length, unique=True), indexed_kw_transposition=True)
+        key = generate_keyword_alphabet(
+            self.alphabet, generate_random_keyword(self.alphabet, length, unique=True), indexed_kw_transposition=True)
         return [primer, key]
 
     def encrypt(self, plaintext, key):

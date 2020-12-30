@@ -1,6 +1,5 @@
 from cipherImplementations.nihilistTransposition import NihilistTransposition
 from unit.cipherImplementations.CipherTestBase import CipherTestBase
-import random
 import numpy as np
 
 

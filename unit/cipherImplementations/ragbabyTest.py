@@ -4,7 +4,8 @@ from unit.cipherImplementations.CipherTestBase import CipherTestBase
 
 
 class RagbabyTest(CipherTestBase):
-    cipher = Ragbaby(CipherTestBase.ALPHABET.replace(b'j', b'').replace(b'x', b'') + b' ', CipherTestBase.UNKNOWN_SYMBOL, CipherTestBase.UNKNOWN_SYMBOL_NUMBER)
+    cipher = Ragbaby(CipherTestBase.ALPHABET.replace(b'j', b'').replace(b'x', b'') + b' ', CipherTestBase.UNKNOWN_SYMBOL,
+                     CipherTestBase.UNKNOWN_SYMBOL_NUMBER)
     plaintext = b'Word divisions are kept'
     ciphertext = b'ybbl hngqdufgl def hfyr'
     decrypted_plaintext = b'word divisions are kept'

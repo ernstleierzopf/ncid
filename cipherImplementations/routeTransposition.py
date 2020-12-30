@@ -4,6 +4,7 @@ from cipherImplementations.cipher import Cipher
 
 class RouteTransposition(Cipher):
     """This implementation takes the ciphertext off in rows."""
+
     def __init__(self, alphabet, unknown_symbol, unknown_symbol_number):
         self.alphabet = alphabet
         self.unknown_symbol = unknown_symbol
@@ -45,13 +46,13 @@ class RouteTransposition(Cipher):
                 cntr += 1
 
         k = 0
-        l = 0
+        l1 = 0
         m = len(matrix)
         n = key
         a = matrix
 
-        while k < m and l < n:
-            for i in range(l, n):
+        while k < m and l1 < n:
+            for i in range(l1, n):
                 ciphertext.append(a[k][i])
             k += 1
 
@@ -60,14 +61,14 @@ class RouteTransposition(Cipher):
             n -= 1
 
             if k < m:
-                for i in range(n - 1, (l - 1), -1):
+                for i in range(n - 1, (l1 - 1), -1):
                     ciphertext.append(a[m - 1][i])
                 m -= 1
 
-            if l < n:
+            if l1 < n:
                 for i in range(m - 1, k - 1, -1):
-                    ciphertext.append(a[i][l])
-                l += 1
+                    ciphertext.append(a[i][l1])
+                l1 += 1
         return np.array(ciphertext)
 
     def decrypt(self, ciphertext, key):

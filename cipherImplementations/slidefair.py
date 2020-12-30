@@ -4,6 +4,7 @@ from cipherImplementations.cipher import Cipher, generate_random_keyword
 
 class Slidefair(Cipher):
     """This implementation takes the ciphertext off in rows."""
+
     def __init__(self, alphabet, unknown_symbol, unknown_symbol_number):
         self.alphabet = alphabet
         self.unknown_symbol = unknown_symbol

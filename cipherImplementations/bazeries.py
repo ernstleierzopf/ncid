@@ -16,7 +16,7 @@ def num999(n):
     a = int(((n % 1000) - (b * 10) - c) / 100)  # hundreds digit
     t = ""
     h = ""
-    if a != 0: #and b == 0 and c == 0:
+    if a != 0:
         t = ones[a] + "hundred"
     if b <= 1:
         h = ones[n % 100]
@@ -47,8 +47,10 @@ def num2word(num):
 
 
 class Bazeries(Cipher):
-    """Adapted implementation from https://github.com/tigertv/secretpy and
-    https://www.quora.com/How-do-I-convert-numbers-to-words-in-Python"""
+    """
+    Adapted implementation from https://github.com/tigertv/secretpy and https://www.quora.com/How-do-I-convert-numbers-to-words-in-Python
+    """
+
     def __init__(self, alphabet, unknown_symbol, unknown_symbol_number):
         self.alphabet = alphabet
         self.unknown_symbol = unknown_symbol
@@ -70,7 +72,7 @@ class Bazeries(Cipher):
         return plaintext
 
     def __enc_dec(self, alphabet, text, key, is_encrypt=True):
-        square1 = PolybiusSquare(alphabet, [i for i in range(len(alphabet))])
+        square1 = PolybiusSquare(alphabet, list(range(len(self.alphabet))))
 
         # key is a number, make it a string
         square2 = PolybiusSquare(alphabet, key[0])

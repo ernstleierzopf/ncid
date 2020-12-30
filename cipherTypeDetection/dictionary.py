@@ -1,7 +1,7 @@
 USE_DICTIONARY = False
 GENERATE_RANDOM_ALPHABETS = False
-WORD_DICT = dict()
-UNIQUE_WORD_DICT = dict()
+WORD_DICT = {}
+UNIQUE_WORD_DICT = {}
 
 if USE_DICTIONARY:
     with open('../data/word_lists/wiki-270k.txt', 'rb') as f:

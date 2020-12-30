@@ -1,6 +1,5 @@
 import numpy as np
 from cipherImplementations.cipher import Cipher, generate_random_list_of_unique_digits
-import random
 
 
 def get_row_index(i, key):
@@ -9,10 +8,12 @@ def get_row_index(i, key):
     for j in range(len(key)):
         if key[j][index] == key_index:
             return j
+    return 0
 
 
 class Swagman(Cipher):
     """This implementation takes the ciphertext off in rows."""
+
     def __init__(self, alphabet, unknown_symbol, unknown_symbol_number):
         self.alphabet = alphabet
         self.unknown_symbol = unknown_symbol

@@ -29,7 +29,7 @@ class Quagmire(Cipher):
         if self.keyword_type in (1, 3, 4):
             pt_alphabet = key[1]
         else:
-            pt_alphabet = np.array([i for i in range(len(self.alphabet))])
+            pt_alphabet = np.array(list(range(len(self.alphabet))))
         ct_alphabet = self.generate_ct_alphabet(key)
         ciphertext = []
         for i, p in enumerate(plaintext):
@@ -40,7 +40,7 @@ class Quagmire(Cipher):
         if self.keyword_type in (1, 3, 4):
             pt_alphabet = key[1]
         else:
-            pt_alphabet = np.array([i for i in range(len(self.alphabet))])
+            pt_alphabet = np.array(list(range(len(self.alphabet))))
         ct_alphabet = self.generate_ct_alphabet(key)
         plaintext = []
         for i, c in enumerate(ciphertext):

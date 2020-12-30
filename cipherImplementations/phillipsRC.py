@@ -2,9 +2,6 @@ from cipherImplementations.phillips import Phillips
 
 
 class PhillipsRC(Phillips):
-    def __init__(self, alphabet, unknown_symbol, unknown_symbol_number):
-        super(PhillipsRC, self).__init__(alphabet, unknown_symbol, unknown_symbol_number)
-
     def shift_key(self, i, key, key_shift_cntr, new_key):
         row_shift = 5 * key_shift_cntr
         tmp = new_key[row_shift:row_shift + 5]

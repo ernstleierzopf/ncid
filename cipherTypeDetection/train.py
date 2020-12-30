@@ -8,7 +8,7 @@ import shutil
 from sklearn.model_selection import train_test_split
 import os
 import math
-import pickle
+# import pickle
 import functools
 from sklearn import tree
 import matplotlib.pyplot as plt
@@ -17,7 +17,7 @@ from datetime import datetime
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 import tensorflow as tf
 from tensorflow.keras.metrics import SparseTopKCategoricalAccuracy
-from tensorflow.keras.optimizers import Adam, Adamax
+from tensorflow.keras.optimizers import Adam  # , Adamax
 import tensorflow_datasets as tfds
 sys.path.append("../")
 import cipherTypeDetection.config as config
@@ -42,13 +42,15 @@ def str2bool(v):
 
 def create_model():
     global architecture
-    optimizer = Adam(learning_rate=config.learning_rate, beta_1=config.beta_1, beta_2=config.beta_2, epsilon=config.epsilon, amsgrad=config.amsgrad)
+    optimizer = Adam(
+        learning_rate=config.learning_rate, beta_1=config.beta_1, beta_2=config.beta_2, epsilon=config.epsilon, amsgrad=config.amsgrad)
     # optimizer = Adamax()
+    model_ = None
 
     # sizes for layers
     total_frequencies_size = 0
-    for i in range(1, 3):
-        total_frequencies_size += math.pow(len(OUTPUT_ALPHABET), i)
+    for j in range(1, 3):
+        total_frequencies_size += math.pow(len(OUTPUT_ALPHABET), j)
     total_frequencies_size = int(total_frequencies_size)
 
     # total_ny_gram_frequencies_size = int(math.pow(len(OUTPUT_ALPHABET), 2)) * 6
@@ -58,69 +60,70 @@ def create_model():
     hidden_layer_size = int(2 * (input_layer_size / 3) + output_layer_size)
 
     # logistic regression baseline
-    # model = tf.keras.Sequential()
-    # model.add(tf.keras.layers.Dense(output_layer_size, input_dim=input_layer_size, activation='softmax', use_bias=True))
-    # model.compile(optimizer='sgd', loss="sparse_categorical_crossentropy", metrics=["accuracy"])
+    # model_ = tf.keras.Sequential()
+    # model_.add(tf.keras.layers.Dense(output_layer_size, input_dim=input_layer_size, activation='softmax', use_bias=True))
+    # model_.compile(optimizer='sgd', loss="sparse_categorical_crossentropy", metrics=["accuracy"])
 
     # FFNN
     if architecture == 'FFNN':
-        model = tf.keras.Sequential()
-        model.add(tf.keras.layers.Input(shape=(input_layer_size,)))
-        for i in range(config.hidden_layers):
-            model.add(tf.keras.layers.Dense(hidden_layer_size, activation='relu', use_bias=True))
-        model.add(tf.keras.layers.Dense(output_layer_size, activation='softmax'))
-        model.compile(optimizer=optimizer, loss="sparse_categorical_crossentropy",
-            metrics=["accuracy", SparseTopKCategoricalAccuracy(k=3, name="k3_accuracy")])
+        model_ = tf.keras.Sequential()
+        model_.add(tf.keras.layers.Input(shape=(input_layer_size,)))
+        for _ in range(config.hidden_layers):
+            model_.add(tf.keras.layers.Dense(hidden_layer_size, activation='relu', use_bias=True))
+        model_.add(tf.keras.layers.Dense(output_layer_size, activation='softmax'))
+        model_.compile(optimizer=optimizer, loss="sparse_categorical_crossentropy", metrics=["accuracy", SparseTopKCategoricalAccuracy(
+            k=3, name="k3_accuracy")])
 
     # CNN
     if architecture == 'CNN':
         config.FEATURE_ENGINEERING = False
         config.PAD_INPUT = True
-        model = tf.keras.Sequential()
-        model.add(tf.keras.layers.Conv1D(filters=config.filters, kernel_size=config.kernel_size, input_shape=(args.max_train_len, 1), activation='relu'))
-        for i in range(config.layers - 1):
-            model.add(tf.keras.layers.Conv1D(filters=config.filters, kernel_size=config.kernel_size, activation='relu'))
-        # model.add(tf.keras.layers.Dropout(0.2))
-        model.add(tf.keras.layers.MaxPooling1D(pool_size=2))
-        model.add(tf.keras.layers.Flatten())
-        model.add(tf.keras.layers.Dense(output_layer_size, activation='softmax'))
-        model.compile(optimizer=optimizer, loss="sparse_categorical_crossentropy",
-            metrics=["accuracy", SparseTopKCategoricalAccuracy(k=3, name="k3_accuracy")])
+        model_ = tf.keras.Sequential()
+        model_.add(tf.keras.layers.Conv1D(
+            filters=config.filters, kernel_size=config.kernel_size, input_shape=(args.max_train_len, 1), activation='relu'))
+        for _ in range(config.layers - 1):
+            model_.add(tf.keras.layers.Conv1D(filters=config.filters, kernel_size=config.kernel_size, activation='relu'))
+        # model_.add(tf.keras.layers.Dropout(0.2))
+        model_.add(tf.keras.layers.MaxPooling1D(pool_size=2))
+        model_.add(tf.keras.layers.Flatten())
+        model_.add(tf.keras.layers.Dense(output_layer_size, activation='softmax'))
+        model_.compile(optimizer=optimizer, loss="sparse_categorical_crossentropy", metrics=["accuracy", SparseTopKCategoricalAccuracy(
+            k=3, name="k3_accuracy")])
 
     # LSTM
     if architecture == 'LSTM':
         config.FEATURE_ENGINEERING = False
         config.PAD_INPUT = True
-        model = tf.keras.Sequential()
-        model.add(tf.keras.layers.Embedding(len(config.CIPHER_TYPES), 64, input_length=args.max_train_len))
-        # model.add(tf.keras.layers.Dropout(0.2))
-        model.add(tf.keras.layers.LSTM(config.lstm_units))
-        # model.add(tf.keras.layers.Dropout(0.2))
-        model.add(tf.keras.layers.Flatten())
-        model.add(tf.keras.layers.Dense(output_layer_size, activation='softmax'))
-        model.compile(optimizer=optimizer, loss="sparse_categorical_crossentropy",
-            metrics=["accuracy", SparseTopKCategoricalAccuracy(k=3, name="k3_accuracy")])
+        model_ = tf.keras.Sequential()
+        model_.add(tf.keras.layers.Embedding(len(config.CIPHER_TYPES), 64, input_length=args.max_train_len))
+        # model_.add(tf.keras.layers.Dropout(0.2))
+        model_.add(tf.keras.layers.LSTM(config.lstm_units))
+        # model_.add(tf.keras.layers.Dropout(0.2))
+        model_.add(tf.keras.layers.Flatten())
+        model_.add(tf.keras.layers.Dense(output_layer_size, activation='softmax'))
+        model_.compile(optimizer=optimizer, loss="sparse_categorical_crossentropy", metrics=["accuracy", SparseTopKCategoricalAccuracy(
+            k=3, name="k3_accuracy")])
 
     # Decision Tree
     if architecture == 'DT':
-        model = tree.DecisionTreeClassifier(criterion=config.criterion, ccp_alpha=config.ccp_alpha)
+        model_ = tree.DecisionTreeClassifier(criterion=config.criterion, ccp_alpha=config.ccp_alpha)
 
     # Naive Bayes
     if architecture == 'NB':
         from sklearn.naive_bayes import MultinomialNB
-        model = MultinomialNB(alpha=config.alpha, fit_prior=config.fit_prior)
+        model_ = MultinomialNB(alpha=config.alpha, fit_prior=config.fit_prior)
 
     # Random Forest
     if architecture == 'RF':
         from sklearn.ensemble import RandomForestClassifier
-        model = RandomForestClassifier(n_estimators=config.n_estimators, criterion=config.criterion, bootstrap=config.bootstrap, n_jobs=30,
-                                       max_features=config.max_features, max_depth=30)
+        model_ = RandomForestClassifier(n_estimators=config.n_estimators, criterion=config.criterion, bootstrap=config.bootstrap, n_jobs=30,
+                                        max_features=config.max_features, max_depth=30)
 
     # Extra Trees
     if architecture == 'ET':
         from sklearn.ensemble import ExtraTreesClassifier
-        model = ExtraTreesClassifier(n_estimators=config.n_estimators, criterion=config.criterion, bootstrap=config.bootstrap, n_jobs=30,
-                                     max_features=config.max_features, max_depth=30)
+        model_ = ExtraTreesClassifier(n_estimators=config.n_estimators, criterion=config.criterion, bootstrap=config.bootstrap, n_jobs=30,
+                                      max_features=config.max_features, max_depth=30)
 
     # Transformer
     if architecture == "Transformer":
@@ -140,10 +143,10 @@ def create_model():
         x = tf.keras.layers.GlobalAveragePooling1D()(x)
         outputs = tf.keras.layers.Dense(output_layer_size, activation="softmax")(x)
 
-        model = tf.keras.Model(inputs=inputs, outputs=outputs)
-        model.compile(optimizer=optimizer, loss="sparse_categorical_crossentropy",
-            metrics=["accuracy", SparseTopKCategoricalAccuracy(k=3, name="k3_accuracy")])
-    return model
+        model_ = tf.keras.Model(inputs=inputs, outputs=outputs)
+        model_.compile(optimizer=optimizer, loss="sparse_categorical_crossentropy", metrics=["accuracy", SparseTopKCategoricalAccuracy(
+            k=3, name="k3_accuracy")])
+    return model_
 
 
 if __name__ == "__main__":
@@ -210,7 +213,7 @@ if __name__ == "__main__":
     m = os.path.splitext(args.model_name)
     if len(os.path.splitext(args.model_name)) != 2 or os.path.splitext(args.model_name)[1] != '.h5':
         print('ERROR: The model name must have the ".h5" extension!', file=sys.stderr)
-        exit(1)
+        sys.exit(1)
     args.input_directory = os.path.abspath(args.input_directory)
     args.ciphers = args.ciphers.lower()
     architecture = args.architecture
@@ -283,9 +286,10 @@ if __name__ == "__main__":
     if args.train_dataset_size * args.dataset_workers > args.max_iter:
         print("ERROR: --train_dataset_size * --dataset_workers must not be bigger than --max_iter. "
               "In this case it was %d > %d" % (args.train_dataset_size * args.dataset_workers, args.max_iter), file=sys.stderr)
-        exit(1)
+        sys.exit(1)
 
-    if args.download_dataset and not os.path.exists(args.input_directory) and args.input_directory == os.path.abspath('../data/gutenberg_en'):
+    if args.download_dataset and not os.path.exists(args.input_directory) and args.input_directory == os.path.abspath(
+            '../data/gutenberg_en'):
         print("Downloading Datsets...")
         tfds.download.add_checksums_dir('../data/checksums/')
         download_manager = tfds.download.download_manager.DownloadManager(download_dir='../data/', extract_dir=args.input_directory)
@@ -337,7 +341,8 @@ if __name__ == "__main__":
 
     print('Training model...')
     tensorboard_callback = tf.keras.callbacks.TensorBoard(log_dir='./logs', update_freq='epoch')
-    early_stopping_callback = MiniBatchEarlyStopping(min_delta=1e-5, patience=250, monitor='accuracy', mode='max', restore_best_weights=True)
+    early_stopping_callback = MiniBatchEarlyStopping(
+        min_delta=1e-5, patience=250, monitor='accuracy', mode='max', restore_best_weights=True)
     # time_based_decay_lrate_callback = TimeBasedDecayLearningRateScheduler(args.train_dataset_size)
     # custom_step_decay_lrate_callback = CustomStepDecayLearningRateScheduler(early_stopping_callback)
     start_time = time.time()
@@ -349,7 +354,7 @@ if __name__ == "__main__":
     run = None
     run1 = None
     processes = []
-    classes = [i for i in range(len(config.CIPHER_TYPES))]
+    classes = list(range(len(config.CIPHER_TYPES)))
     new_run = [[], []]
     while train_ds.iteration < args.max_iter:
         if run1 is None:
@@ -372,13 +377,12 @@ if __name__ == "__main__":
                 run = None
                 print("Loaded %d ciphertexts." % train_ds.iteration)
                 continue
-            else:
-                print("Loaded %d ciphertexts." % train_ds.iteration)
-                for process in processes:
-                    if process.is_alive():
-                        process.terminate()
-                new_run = [(tf.convert_to_tensor(new_run[0]), tf.convert_to_tensor(new_run[1]))]
-                run = new_run
+            print("Loaded %d ciphertexts." % train_ds.iteration)
+            for process in processes:
+                if process.is_alive():
+                    process.terminate()
+            new_run = [(tf.convert_to_tensor(new_run[0]), tf.convert_to_tensor(new_run[1]))]
+            run = new_run
         for batch, labels in run:
             cntr += 1
             train_iter = args.train_dataset_size * cntr
@@ -407,7 +411,7 @@ if __name__ == "__main__":
 
             else:
                 history = model.fit(batch, labels, batch_size=args.batch_size, validation_data=(val_data, val_labels), epochs=args.epochs,
-                                    callbacks=[early_stopping_callback, tensorboard_callback])#, custom_step_decay_lrate_callback])
+                                    callbacks=[early_stopping_callback, tensorboard_callback])  # , custom_step_decay_lrate_callback])
                 # time_based_decay_lrate_callback.iteration = train_iter
 
             # print for Decision Tree and Naive Bayes

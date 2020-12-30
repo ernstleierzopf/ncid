@@ -22,11 +22,11 @@ class NihilistSubstitution(Cipher):
             pt.append(np.where(key[1] == p)[0][0])
         plaintext = pt
         __polybius = Polybius(key[1], self.unknown_symbol, self.unknown_symbol_number)
-        code = __polybius.encrypt(plaintext, [i for i in range(len(self.alphabet))])
+        code = __polybius.encrypt(plaintext, list(range(len(self.alphabet))))
         kw = []
         for k in key[0]:
             kw.append(np.where(key[1] == k)[0][0])
-        keyword_code = __polybius.encrypt(kw, [i for i in range(len(self.alphabet))])
+        keyword_code = __polybius.encrypt(kw, list(range(len(self.alphabet))))
         kw = []
         for i in range(0, len(keyword_code), 2):
             kw.append(int(keyword_code[i:i+2]))
@@ -50,7 +50,7 @@ class NihilistSubstitution(Cipher):
         kw = []
         for k in key[0]:
             kw.append(np.where(key[1] == k)[0][0])
-        keyword_code = __polybius.encrypt(kw, [i for i in range(len(self.alphabet))])
+        keyword_code = __polybius.encrypt(kw, list(range(len(self.alphabet))))
         kw = []
         for i in range(0, len(keyword_code), 2):
             kw.append(int(keyword_code[i:i + 2]))

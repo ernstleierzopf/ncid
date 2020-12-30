@@ -1,5 +1,6 @@
 import numpy as np
-from cipherImplementations.cipher import Cipher, generate_random_keyword, generate_random_list_of_unique_digits, generate_keyword_alphabet, OUTPUT_ALPHABET
+from cipherImplementations.cipher import Cipher, generate_random_keyword, generate_random_list_of_unique_digits, generate_keyword_alphabet,\
+    OUTPUT_ALPHABET
 
 
 class Tridigital(Cipher):

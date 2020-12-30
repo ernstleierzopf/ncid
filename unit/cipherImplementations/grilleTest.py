@@ -1,5 +1,4 @@
 from cipherImplementations.grille import Grille
-from util.textUtils import map_text_into_numberspace
 from unit.cipherImplementations.CipherTestBase import CipherTestBase
 import numpy as np
 

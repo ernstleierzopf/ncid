@@ -4,7 +4,8 @@ from unit.cipherImplementations.CipherTestBase import CipherTestBase
 
 
 class ProgressiveKeyTest(CipherTestBase):
-    cipher = ProgressiveKey(CipherTestBase.ALPHABET, CipherTestBase.UNKNOWN_SYMBOL, CipherTestBase.UNKNOWN_SYMBOL_NUMBER, progression_index=1)
+    cipher = ProgressiveKey(
+        CipherTestBase.ALPHABET, CipherTestBase.UNKNOWN_SYMBOL, CipherTestBase.UNKNOWN_SYMBOL_NUMBER, progression_index=1)
     plaintext = b'This cipher can be used with any of the periodics.'
     ciphertext = b'zyihgngbmkjsorjakzmqqmjrtfhbdcnjhjpwxfno'
     decrypted_plaintext = b'thisciphercanbeusedwithanyoftheperiodics'

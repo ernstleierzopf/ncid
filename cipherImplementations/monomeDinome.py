@@ -1,4 +1,5 @@
-from cipherImplementations.cipher import Cipher, generate_keyword_alphabet, generate_random_keyword, generate_random_list_of_unique_digits, OUTPUT_ALPHABET
+from cipherImplementations.cipher import Cipher, generate_keyword_alphabet, generate_random_keyword, generate_random_list_of_unique_digits,\
+    OUTPUT_ALPHABET
 import numpy as np
 
 

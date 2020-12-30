@@ -16,17 +16,17 @@ class RailfenceTest(CipherTestBase):
     def test1generate_random_key(self):
         length = 5
         key, offset = self.cipher.generate_random_key(length)
-        self.assertTrue(np.array_equal(key, np.array([i for i in range(length)])))
+        self.assertTrue(np.array_equal(key, np.array(list(range(length)))))
         self.assertTrue(0 <= offset <= 15)
 
         length = 19
         key, offset = self.cipher.generate_random_key(length)
-        self.assertTrue(np.array_equal(key, np.array([i for i in range(length)])))
+        self.assertTrue(np.array_equal(key, np.array(list(range(length)))))
         self.assertTrue(0 <= offset <= 15)
 
         length = 25
         key, offset = self.cipher.generate_random_key(length)
-        self.assertTrue(np.array_equal(key, np.array([i for i in range(length)])))
+        self.assertTrue(np.array_equal(key, np.array(list(range(length)))))
         self.assertTrue(0 <= offset <= 15)
 
     def test2generate_random_key_wrong_length_parameter(self):

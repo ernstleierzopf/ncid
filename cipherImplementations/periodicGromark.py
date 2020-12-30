@@ -16,7 +16,7 @@ class PeriodicGromark(Cipher):
         if not isinstance(length, int):
             raise ValueError('Length must be of type integer.')
         periodic_key = []
-        for i in range(length):
+        for _ in range(length):
             periodic_key.append(random.randint(0, len(self.alphabet) - 1))
         kw = generate_random_keyword(self.alphabet, length, unique=True)
         indices = np.argsort(map_text_into_numberspace(kw, self.alphabet, self.unknown_symbol_number))
@@ -54,5 +54,6 @@ class PeriodicGromark(Cipher):
 
         plaintext = []
         for i, c in enumerate(ciphertext[length:-1]):
-            plaintext.append((np.where(key[2] == c)[0][0] - primer[i] - periodic_key[int(i / len(periodic_key)) % len(periodic_key)]) % len(self.alphabet))
+            plaintext.append((np.where(key[2] == c)[0][0] - primer[i] - periodic_key[int(i / len(periodic_key)) % len(
+                periodic_key)]) % len(self.alphabet))
         return np.array(plaintext)

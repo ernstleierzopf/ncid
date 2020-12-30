@@ -31,7 +31,7 @@ class CipherTestBase(unittest.TestCase):
 
     def run_test1generate_random_list_of_unique_digits(self):
         for i in range(1, 100):
-            length = random.randint(i)
+            length = random.randint(0, i)
             key = self.cipher.generate_random_key(length)
             self.assertEqual(length, len(np.unique(key)))
 

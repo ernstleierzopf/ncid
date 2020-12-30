@@ -3,6 +3,7 @@ import math
 
 class PolybiusSquare:
     """PolybiusSquare. It's used by many classical ciphers"""
+
     __alphabet = None
     __side = 0
 

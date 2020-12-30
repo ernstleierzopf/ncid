@@ -1,8 +1,8 @@
 from cipherImplementations.pollux import Pollux
-from util.textUtils import map_text_into_numberspace
-from unit.cipherImplementations.CipherTestBase import CipherTestBase
-import numpy as np
 from cipherImplementations.cipher import OUTPUT_ALPHABET
+from unit.cipherImplementations.CipherTestBase import CipherTestBase
+from util.textUtils import map_text_into_numberspace
+import numpy as np
 
 
 class PolluxTest(CipherTestBase):

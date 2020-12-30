@@ -44,7 +44,7 @@ class MultiHeadSelfAttention(tf.keras.layers.Layer):
         value = self.separate_heads(
             value, batch_size
         )  # (batch_size, num_heads, seq_len, projection_dim)
-        attention, weights = self.attention(query, key, value)
+        attention, _weights = self.attention(query, key, value)
         attention = tf.transpose(
             attention, perm=[0, 2, 1, 3]
         )  # (batch_size, seq_len, num_heads, projection_dim)

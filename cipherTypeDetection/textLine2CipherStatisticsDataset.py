@@ -8,9 +8,9 @@ from util.textUtils import map_text_into_numberspace
 import copy
 import math
 import multiprocessing
-sys.path.append("../")
 import numpy as np
 from py_mini_racer import py_mini_racer
+sys.path.append("../")
 
 
 js_functions = """var max_period = 15;
@@ -78,20 +78,20 @@ var sdd = new Array(
 
 
 function convert_string() {
-	var num_code = new Array(),i,clen,n;
+    var num_code = new Array(),i,clen,n;
 
-	code = document.puzzle.ciphertext.value;
-	code = code.toUpperCase();
-    code = code.replace(/Ø/g,'0');    
-	clen=0;
-	for (i=0;i<code.length;i++) {
-		n = cipher_symbols.indexOf(code.charAt(i))
-		if ( n != -1){
-			num_code[clen]=n;
-			clen++;
-		}
-	}
-	return num_code;
+    code = document.puzzle.ciphertext.value;
+    code = code.toUpperCase();
+    code = code.replace(/Ø/g,'0');
+    clen=0;
+    for (i=0;i<code.length;i++) {
+        n = cipher_symbols.indexOf(code.charAt(i))
+        if ( n != -1){
+            num_code[clen]=n;
+            clen++;
+        }
+    }
+    return num_code;
 }
 
 // vig family functions
@@ -144,20 +144,20 @@ function best_di(col,ciph_type,period,buffer){
                 ct = 0;
                 kl1 = kl;
                 kr1 = kr;
-		        for (j=0;j<rows;j++) {
-                	if ( col+j*period+1>=buf_len)
-                	        break;
-                	cl = buffer[col+j*period];
-                	cr = buffer[col+1+j*period];
-                	pl = decode_let(cl,kl1,ciph_type);
-                	pr = decode_let(cr,kr1,ciph_type);
-                	score += logdi[pl][pr];
-                	ct++;
-                	if ( ciph_type <= 9 // PAUTOKEY 
-                		&& ciph_type >= 6 ){ //VAUTOKEY) 
-                	        kl1 = pl;
-                	        kr1 = pr;
-                	}
+                for (j=0;j<rows;j++) {
+                    if ( col+j*period+1>=buf_len)
+                            break;
+                    cl = buffer[col+j*period];
+                    cr = buffer[col+1+j*period];
+                    pl = decode_let(cl,kl1,ciph_type);
+                    pr = decode_let(cr,kr1,ciph_type);
+                    score += logdi[pl][pr];
+                    ct++;
+                    if ( ciph_type <= 9 // PAUTOKEY
+                        && ciph_type >= 6 ){ //VAUTOKEY)
+                            kl1 = pl;
+                            kr1 = pr;
+                    }
                 }/* next j */
                 score *= 100;
                 score /= ct;
@@ -222,10 +222,10 @@ original_attributes = ['IC'0,'MIC'1,'MKA'2,'DIC'3,'EDI'4,'LR'5,'ROD'6,'LDI'7,'SD
 */
 
 function get_vig_values(dat) {
-	var s,type_name,hi,n,i;
-	var ciph_type, start_type;
-	var best_score;
-	var period,best_period;
+    var s,type_name,hi,n,i;
+    var ciph_type, start_type;
+    var best_score;
+    var period,best_period;
     var attribute_group_scores;
     var group_index;
 
@@ -246,20 +246,20 @@ PAUTOKEY 9
 
     var xlate_indices = [ 3,3,4,4,1,2,0,0,0,0];
 
-	buf_len = dat.length;	
-	best_score = 0;
+    buf_len = dat.length;
+    best_score = 0;
 
     var min_period = 3;
-	if ( (buf_len%2) == 0) start_type = 0;
-	else start_type = 2;
+    if ( (buf_len%2) == 0) start_type = 0;
+    else start_type = 2;
     attribute_group_scores = [0,0,0,0,0];
-	for (ciph_type = start_type; ciph_type<=9;ciph_type++) {
+    for (ciph_type = start_type; ciph_type<=9;ciph_type++) {
         group_index = xlate_indices[ciph_type];
-		for (period = min_period; period <= max_period; period++) {
-        	sum = 0;
-            for (col = 0; col <period;col++) 
-            	if ( ciph_type > 1) //BSLIDEFAIR
-                	sum += best_di(col,ciph_type,period,dat);
+        for (period = min_period; period <= max_period; period++) {
+            sum = 0;
+            for (col = 0; col <period;col++)
+                if ( ciph_type > 1) //BSLIDEFAIR
+                    sum += best_di(col,ciph_type,period,dat);
                 else
                     sum += best_sldi(col,ciph_type,period,dat);
                 sum /= period;
@@ -268,8 +268,8 @@ PAUTOKEY 9
                     attribute_group_scores[group_index] = n;
                 }
          } /* next period */
-	} /* next ciphertype */
-	return(attribute_group_scores);
+    } /* next ciphertype */
+    return(attribute_group_scores);
 }
 
 
@@ -284,42 +284,42 @@ function decode_pair(k,c1, c2) {
         rvalue = [0,0,0];
         sum = t_flag+b_flag;
         if ( sum == 2)
-			if (c1-13 != (c2 >> 1)) // c1,c2 not verticaly aligned
-				rvalue = [1, (c2 >> 1)+13,(c1-13) << 1]
+            if (c1-13 != (c2 >> 1)) // c1,c2 not verticaly aligned
+                rvalue = [1, (c2 >> 1)+13,(c1-13) << 1]
         if ( sum == 3)
-			if (c1-13 != (c2>>1))// c2, c2 not vertically aligned
-				rvalue = [1,(c2>>1)+13,( (c1-13)<<1 )+1 ]
+            if (c1-13 != (c2>>1))// c2, c2 not vertically aligned
+                rvalue = [1,(c2>>1)+13,( (c1-13)<<1 )+1 ]
         return(rvalue);
 } /* end decode_pair */
 
 
 function calc_portax_logdi(nc){
-	var s, count,score,hi,j,k,result
-	var big_step;
-	var best_score;
-	var period,best_period;
+    var s, count,score,hi,j,k,result
+    var big_step;
+    var best_score;
+    var period,best_period;
     var c1,c2,c3,c4;
 
     if (nc.length&1 != 0) {//odd number of letters
         return 0
-    }    
+    }
     var buf_len = nc.length;
 
     best_score = 0;
-	for (period = 3; period <= max_period; period++) {
+    for (period = 3; period <= max_period; period++) {
         /* do encryption/decryption */
         big_step = 2*period;
         count = 0;
         score = 0;
-        for (j=0;j<buf_len;j=j+big_step) 
+        for (j=0;j<buf_len;j=j+big_step)
                 for (k=0;k<period;k++) {
                         c1 = nc[j+k];
                         c2 = nc[j+k+period];
                         if (j+k+period >= buf_len) break;
                         result = decode_pair(k,c1,c2)
                         if (result[0]==1 ) {
-	                        	c3 = result[1];
-	                        	c4 = result[2];
+                                c3 = result[1];
+                                c4 = result[2];
                                 /* plaintext independent of key values*/
                                 score += logdi[c3][c4];
                                 count++;
@@ -340,7 +340,7 @@ function calc_portax_logdi(nc){
 
 
 var columnar_calcs = function(){
-    // put pseudo-global variables in this closure 
+    // put pseudo-global variables in this closure
     var code = [];
     var numb_long_cols, numb_short_cols;
     var min_start = [];
@@ -353,23 +353,23 @@ var columnar_calcs = function(){
     var best_col_array=[];
     var diff_array=[];
     var next_col, next_dif;
-    
+
     var key_len, numb_rows;
 
     var col_pos = [];
-    
+
     function get_best_di(col){
         var i,j,k;
         var max,sum;
         var index,dif,long_corr,short_corr;
         max = 0;
-    
+
         for (j= col;j<key_len;j++) {
         long_corr = short_corr = 0;
         if ( col>=numb_long_cols && col_array[j] >= numb_short_cols)
             short_corr = 1;
         else if ( col<numb_long_cols && col_array[j] >= numb_long_cols)
-            long_corr=1;	
+            long_corr=1;
         for (dif = short_corr;dif<=max_diff[ col_array[j] ] - long_corr ;dif++) {
             sum = 0;
             for (k=0;k<numb_rows;k++) {
@@ -391,7 +391,7 @@ var columnar_calcs = function(){
         var str, alpha,out_str,c,n,i,ct,sum,c1,c2;
         var j,best_score, current_dif,index,t0,score,tn,swap;
         var normal_score,best_key_len;
-        
+
         /*
         alpha="ABCDEFGHIJKLMNOPQRSTUVWXYZ";
         out_str="";
@@ -444,8 +444,8 @@ var columnar_calcs = function(){
                 }
                 max_diff[j] = max_start[j]-min_start[j];
             }
-        
-            /* set column pointers to minimum for each column*/		
+
+            /* set column pointers to minimum for each column*/
             for (j=0;j<key_len;j++) {
                 col_pos[j] = min_start[j];
             }
@@ -456,7 +456,7 @@ var columnar_calcs = function(){
                 if (0<numb_long_cols && t0 >= numb_long_cols)
                     long_corr=1;
                 else long_corr=0;
-                for ( current_dif=0;current_dif <= max_diff[t0] - long_corr ;current_dif++) {	
+                for ( current_dif=0;current_dif <= max_diff[t0] - long_corr ;current_dif++) {
                     diff_array[0] = current_dif;
                     index = 1;
                     for (j=0;j<key_len;j++)
@@ -486,7 +486,7 @@ var columnar_calcs = function(){
     } // end do_cal_calc function
     return (do_col_calc); // return this function which can access pseudo_global variables
 } // end columnar_calcs closure function
-  
+
 function get_cdd(dat){
     var s;
 
@@ -498,7 +498,6 @@ function get_cdd(dat){
 
 var swagman_calcs = function(){
 // T has compressed binary Single letter - Trigraph Discrepancy values
-// had to replace \ by \\
 var T="sP5D4475HAAPRphXWR=><I@A42p`E1"
 T=T+"N71rHAR2ApH2`M8BAiEW75A@uiAYU1"
 T=T+"r`NpS1IDR51@8D2@p5pI4PpTOO>D4p"
@@ -597,65 +596,65 @@ function construct_table(){
                 if (i >= n)  break;
             }
         }
-    }    
+    }
 }
 
 construct_table();
 
 
 function next_per(str,le){
-	/*
-	get next permutation of array str of length le
-	return 0 if finished, 1 otherwise.
-	*/
-	if (le < 2) return (0);
-	//find last element not in reverse alphabetic order
-	var last = le-2;
-	while (str[last] >= str[last+1]){
-		if (last == 0) return(0);
-		last -= 1;
+    /*
+    get next permutation of array str of length le
+    return 0 if finished, 1 otherwise.
+    */
+    if (le < 2) return (0);
+    //find last element not in reverse alphabetic order
+    var last = le-2;
+    while (str[last] >= str[last+1]){
+        if (last == 0) return(0);
+        last -= 1;
     }
-	// find first element that is larger than the element at last
-	var fst = le-1;
-	while (str[fst] <= str[last])
-		fst -= 1;
+    // find first element that is larger than the element at last
+    var fst = le-1;
+    while (str[fst] <= str[last])
+        fst -= 1;
 
-	//swap these two
-	var c = str[last];
-	str[last] = str[fst];
-	str[fst] = c;
+    //swap these two
+    var c = str[last];
+    str[last] = str[fst];
+    str[fst] = c;
 
-	//put part of string at tail into ascending order
-	if (str[last+1] != str[le-1] ){
-		var i = 1;
-		while (last+i < le -i){
-			c = str[last+i];
-			str[last+i] = str[le-i];
-			str[le-i] = c;
-			i += 1;
+    //put part of string at tail into ascending order
+    if (str[last+1] != str[le-1] ){
+        var i = 1;
+        while (last+i < le -i){
+            c = str[last+i];
+            str[last+i] = str[le-i];
+            str[le-i] = c;
+            i += 1;
         }
     }
-	return(1);
+    return(1);
 }
 
-	function construct_row(row_order,swag_array,period,numb_columns){
+    function construct_row(row_order,swag_array,period,numb_columns){
         var i,c;
-		var row = []
-		var index = 0
+        var row = []
+        var index = 0
         for (i=0;i<numb_columns;i++){
-			c = swag_array[ row_order[index] ][i]
+            c = swag_array[ row_order[index] ][i]
             row[i] = c;
-			index += 1;
-			if (index == period ) index = 0;
+            index += 1;
+            if (index == period ) index = 0;
         }
-		return(row);
+        return(row);
     }
 
-	function score_row(row){
-		var score = 0
+    function score_row(row){
+        var score = 0
         for (var i=0;i<row.length-2;i++)
-			score += bstd[row[i]+26*row[i+1]+26*26*row[i+2]];
-		return score;
+            score += bstd[row[i]+26*row[i+1]+26*26*row[i+2]];
+        return score;
     }
 
 
@@ -707,7 +706,7 @@ function next_per(str,le){
         //var code_len,code;
         var code_len;
         var period, best_score, best_line,result,best_period;
-       
+
         /*
         alpha="ABCDEFGHIJKLMNOPQRSTUVWXYZ";
         out_str="";
@@ -1150,10 +1149,10 @@ def calculate_bdi(text):
             for j in range(i, limit-second_row, 1):
                 freq[text[j]+26*text[j+second_row]] += 1
             numb += limit - second_row - i
-        sum = 0
+        sum_ = 0
         for i in np.nonzero(np.array(freq))[0]:
-            sum += freq[i] * (freq[i] - 1)
-        score = 100*normalizer * sum // (numb*(numb-1)) / 1000
+            sum_ += freq[i] * (freq[i] - 1)
+        score = 100*normalizer * sum_ // (numb*(numb-1)) / 1000
         best_score = max(best_score, score)
     return best_score
 
@@ -1195,8 +1194,8 @@ def encrypt(plaintext, label, key_length, keep_unknown_symbols):
     elif isinstance(key, list) and len(key) == 3 and isinstance(key[0], int) and isinstance(key[1], bytes) and isinstance(key[2], bytes):
         key[1] = map_text_into_numberspace(key[1], cipher.alphabet, cipher.unknown_symbol_number)
         key[2] = map_text_into_numberspace(key[2], cipher.alphabet, cipher.unknown_symbol_number)
-    elif isinstance(key, list) and len(key) == 2 and (isinstance(key[0], list) or isinstance(key[0], np.ndarray)) and (
-            len(key[0]) == 5 or len(key[0]) == 10) and isinstance(key[1], bytes):
+    elif isinstance(key, list) and len(key) == 2 and isinstance(key[0], (list, np.ndarray)) and (len(key[0]) == 5 or len(
+            key[0]) == 10) and isinstance(key[1], bytes):
         key[1] = map_text_into_numberspace(key[1], cipher.alphabet, cipher.unknown_symbol_number)
     elif isinstance(key, list) and len(key) == 3 and isinstance(key[0], list) and isinstance(key[1], np.ndarray) and isinstance(
             key[2], bytes):
@@ -1274,12 +1273,12 @@ def calculate_statistics(datum):
     # return [unigram_ioc] + [digraphic_ioc] + [has_j] + [entropy] + [chi_square] + [has_h] + [has_sp] + [has_x] + [has_0] + [rep] + [
     #     ldi] + [rod] + [lr] + [nomor] + [dbl] + [sdd] + frequencies
 
-    return [unigram_ioc] + [digraphic_ioc] + frequencies + [has_0] + [has_h] + [has_j] + [has_x] + [has_sp] + [rod] + [lr] + [sdd] + [ldi] +\
-           [nomor] + [phic] + [bdi] + [ptx] + [nic] + [mka] + [mic] # + ldi_stats
+    return [unigram_ioc] + [digraphic_ioc] + frequencies + [has_0] + [has_h] + [has_j] + [has_x] + [has_sp] + [rod] + [lr] + [sdd] +\
+           [ldi] + [nomor] + [phic] + [bdi] + [ptx] + [nic] + [mka] + [mic]  # + ldi_stats
 
     # all features
-    # return [unigram_ioc] + [digraphic_ioc] + [has_j] + [entropy] + [chi_square] + [has_h] + [has_sp] + [has_x] + [has_0] + [mic] + [mka] +\
-    #        [rep] + [edi] + [ldi] + [rdi] + [rod] + [lr] + [nomor] + [dbl] + [nic] + [sdd] + ldi_stats + [ptx] +\
+    # return [unigram_ioc] + [digraphic_ioc] + [has_j] + [entropy] + [chi_square] + [has_h] + [has_sp] + [has_x] + [has_0] + [mic] +\
+    #        [mka] + [rep] + [edi] + [ldi] + [rdi] + [rod] + [lr] + [nomor] + [dbl] + [nic] + [sdd] + ldi_stats + [ptx] +\
     #        [phic] + [bdi] + [cdd] + [sstd] + autocorrelation + frequencies
 
     # all features with maximal calculation time of 3 ms.

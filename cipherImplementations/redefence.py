@@ -6,6 +6,7 @@ from collections import deque
 
 class Redefence(Cipher):
     """This implementation takes the ciphertext off in rows."""
+
     def __init__(self, alphabet, unknown_symbol, unknown_symbol_number):
         self.alphabet = alphabet
         self.unknown_symbol = unknown_symbol
@@ -21,14 +22,14 @@ class Redefence(Cipher):
     def encrypt(self, plaintext, key):
         ciphertext = []
         row_size = len(key[0])
-        rows = [list() for _ in range(row_size)]
+        rows = [[] for _ in range(row_size)]
         pos = 0
         direction = 1
         for i in range(len(plaintext) + key[1]):
             if i >= key[1]:
                 rows[pos].append(plaintext[i-key[1]])
             pos += 1 * direction
-            if pos == row_size - 1 or pos == 0:
+            if pos in (row_size - 1, 0):
                 direction = direction * -1
         for i in range(len(rows)):
             ciphertext += rows[np.where(key[0] == i)[0][0]]
@@ -44,7 +45,7 @@ class Redefence(Cipher):
             if i >= key[1]:
                 row_sizes[pos] += 1
             pos += 1 * direction
-            if pos == size - 1 or pos == 0:
+            if pos in (size - 1, 0):
                 direction = direction * -1
         start = 0
         row_sizes = [row_sizes[np.where(key[0] == i)[0][0]] for i in range(len(key[0]))]
@@ -59,6 +60,6 @@ class Redefence(Cipher):
             if i >= key[1]:
                 plaintext.append(rows[pos].popleft())
             pos += 1 * direction
-            if pos == size - 1 or pos == 0:
+            if pos in (size - 1, 0):
                 direction = direction * -1
         return np.array(plaintext)

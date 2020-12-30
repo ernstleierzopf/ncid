@@ -4,6 +4,7 @@ from cipherImplementations.polybius_square import PolybiusSquare
 
 class Polybius(Cipher):
     """Adapted implementation from https://github.com/tigertv/secretpy"""
+
     def __init__(self, alphabet, unknown_symbol, unknown_symbol_number):
         self.alphabet = alphabet
         self.unknown_symbol = unknown_symbol

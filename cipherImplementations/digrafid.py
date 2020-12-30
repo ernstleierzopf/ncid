@@ -8,12 +8,14 @@ def arrange_table(size,  text, horizontal_vertical_flag):
     if horizontal_vertical_flag:
         # horizontal table
         table = [[] for _ in range(size)]
+        i = 0
         for i, c in enumerate(text):
             table[int(i / split_size)].append(c)
         table[int(i / split_size)].append(OUTPUT_ALPHABET.index(b'#'))
     else:
         # vertical table
         table = [[] for _ in range(split_size)]
+        i = 0
         for i, c in enumerate(text):
             table[int(i / size)].append(c)
         table[int(i / size)].append(OUTPUT_ALPHABET.index(b'#'))
@@ -21,8 +23,11 @@ def arrange_table(size,  text, horizontal_vertical_flag):
 
 
 class Digrafid(Cipher):
-    """Decryption currently only works for maximally 1 remaining table of numbers!!
-    This cipher should be tested again. Also the # must be filtered to be able to calculate features."""
+    """
+    Decryption currently only works for maximally 1 remaining table of numbers!! This cipher should be tested again. Also the # must be
+    filtered to be able to calculate features.
+    """
+
     def __init__(self, alphabet, unknown_symbol, unknown_symbol_number):
         self.alphabet = alphabet
         self.unknown_symbol = unknown_symbol

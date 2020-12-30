@@ -11,16 +11,13 @@ class RunningKeyTest(CipherTestBase):
 
     def test1generate_random_key(self):
         length = 5
-        key = self.cipher.generate_random_key(length)
-        self.assertIsNone(key)
+        self.assertIsNone(self.cipher.generate_random_key(length))
 
         length = 19
-        key = self.cipher.generate_random_key(length)
-        self.assertIsNone(key)
+        self.assertIsNone(self.cipher.generate_random_key(length))
 
         length = 25
-        key = self.cipher.generate_random_key(length)
-        self.assertIsNone(key)
+        self.assertIsNone(self.cipher.generate_random_key(length))
 
     def test3filter_keep_unknown_symbols(self):
         self.run_test3filter_keep_unknown_symbols()

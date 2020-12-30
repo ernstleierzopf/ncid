@@ -1,11 +1,9 @@
 from pathlib import Path
-
 import argparse
 import sys
 import os
 from datetime import datetime
 # This environ variable must be set before all tensorflow imports!
-
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 import tensorflow as tf
 import tensorflow_datasets as tfds
@@ -13,8 +11,8 @@ sys.path.append("../")
 from util.textUtils import map_text_into_numberspace
 from util.fileUtils import print_progress
 import cipherTypeDetection.config as config
-from cipherImplementations.cipher import OUTPUT_ALPHABET, UNKNOWN_SYMBOL_NUMBER
 from cipherTypeDetection.textLine2CipherStatisticsDataset import TextLine2CipherStatisticsDataset, calculate_statistics
+from cipherImplementations.cipher import OUTPUT_ALPHABET, UNKNOWN_SYMBOL_NUMBER
 tf.debugging.set_log_device_placement(enabled=False)
 
 
@@ -22,21 +20,21 @@ def str2bool(v):
     return v.lower() in ("yes", "true", "t", "1")
 
 
-def benchmark(args, model):
-    args.plaintext_folder = os.path.abspath(args.plaintext_folder)
-    if args.dataset_size * args.dataset_workers > args.max_iter:
+def benchmark(args_, model_):
+    args_.plaintext_folder = os.path.abspath(args_.plaintext_folder)
+    if args_.dataset_size * args_.dataset_workers > args_.max_iter:
         print("ERROR: --dataset_size * --dataset_workers must not be bigger than --max_iter. In this case it was %d > %d" % (
-            args.dataset_size * args.dataset_workers, args.max_iter), file=sys.stderr)
-        exit(1)
-    if args.download_dataset and not os.path.exists(args.plaintext_folder) and args.plaintext_folder == os.path.abspath(
+            args_.dataset_size * args_.dataset_workers, args_.max_iter), file=sys.stderr)
+        sys.exit(1)
+    if args_.download_dataset and not os.path.exists(args_.plaintext_folder) and args_.plaintext_folder == os.path.abspath(
             '../data/gutenberg_en'):
         print("Downloading Datsets...")
         tfds.download.add_checksums_dir('../data/checksums/')
-        download_manager = tfds.download.download_manager.DownloadManager(download_dir='../data/', extract_dir=args.plaintext_folder)
+        download_manager = tfds.download.download_manager.DownloadManager(download_dir='../data/', extract_dir=args_.plaintext_folder)
         download_manager.download_and_extract(
             'https://drive.google.com/uc?id=1bF5sSVjxTxa3DB-P5wxn87nxWndRhK_V&export=download')
-        path = os.path.join(args.plaintext_folder, 'ZIP.ucid_1bF5sSVjxTx-P5wxn87nxWn_V_export_downloadR9Cwhunev5CvJ-ic__'
-                                                   'HawxhTtGOlSdcCrro4fxfEI8A', os.path.basename(args.plaintext_folder))
+        path = os.path.join(args_.plaintext_folder, 'ZIP.ucid_1bF5sSVjxTx-P5wxn87nxWn_V_export_downloadR9Cwhunev5CvJ-ic__'
+                                                    'HawxhTtGOlSdcCrro4fxfEI8A', os.path.basename(args_.plaintext_folder))
         dir_nam = os.listdir(path)
         for name in dir_nam:
             p = Path(os.path.join(path, name))
@@ -48,14 +46,14 @@ def benchmark(args, model):
 
     print("Loading Datasets...")
     plaintext_files = []
-    dir_nam = os.listdir(args.plaintext_folder)
+    dir_nam = os.listdir(args_.plaintext_folder)
     for name in dir_nam:
-        path = os.path.join(args.plaintext_folder, name)
+        path = os.path.join(args_.plaintext_folder, name)
         if os.path.isfile(path):
             plaintext_files.append(path)
-    dataset = TextLine2CipherStatisticsDataset(plaintext_files, cipher_types, args.dataset_size, args.min_text_len, args.max_text_len,
-                                               args.keep_unknown_symbols, args.dataset_workers)
-    if args.dataset_size % dataset.key_lengths_count != 0:
+    dataset = TextLine2CipherStatisticsDataset(plaintext_files, cipher_types, args_.dataset_size, args_.min_text_len, args_.max_text_len,
+                                               args_.keep_unknown_symbols, args_.dataset_workers)
+    if args_.dataset_size % dataset.key_lengths_count != 0:
         print("WARNING: the --dataset_size parameter must be dividable by the amount of --ciphers  and the length configured KEY_LENGTHS in"
               " config.py. The current key_lengths_count is %d" % dataset.key_lengths_count, file=sys.stderr)
     print("Datasets loaded.\n")
@@ -64,7 +62,7 @@ def benchmark(args, model):
     dataset = dataset.shuffle(50000, seed=42, reshuffle_each_iteration=False)
     print("Data shuffled.\n")
 
-    print('Evaluating model...')
+    print('Evaluating model_...')
     import time
     start_time = time.time()
     cntr = 0
@@ -74,7 +72,7 @@ def benchmark(args, model):
     run = None
     run1 = None
     processes = []
-    while dataset.iteration < args.max_iter:
+    while dataset.iteration < args_.max_iter:
         if run1 is None:
             epoch = 0
             processes, run1 = dataset.__next__()
@@ -83,20 +81,20 @@ def benchmark(args, model):
                 process.join()
             run = run1
             dataset.iteration += dataset.batch_size * dataset.dataset_workers
-            if dataset.iteration < args.max_iter:
+            if dataset.iteration < args_.max_iter:
                 epoch = dataset.epoch
                 processes, run1 = dataset.__next__()
         for batch, labels in run:
-            results.append(model.evaluate(batch, labels, batch_size=args.batch_size))
+            results.append(model_.evaluate(batch, labels, batch_size=args_.batch_size))
             cntr += 1
-            iteration = args.dataset_size * cntr
+            iteration = args_.dataset_size * cntr
             epoch = dataset.epoch
             if epoch > 0:
                 epoch = iteration // (dataset.iteration // dataset.epoch)
             print("Epoch: %d, Iteration: %d" % (epoch, iteration))
-            if iteration >= args.max_iter:
+            if iteration >= args_.max_iter:
                 break
-        if dataset.iteration >= args.max_iter:
+        if dataset.iteration >= args_.max_iter:
             break
     elapsed_evaluation_time = datetime.fromtimestamp(time.time()) - datetime.fromtimestamp(start_time)
     print('Finished evaluation in %d days %d hours %d minutes %d seconds with %d iterations and %d epochs.\n' % (
@@ -114,19 +112,19 @@ def benchmark(args, model):
     print("Average evaluation results: loss: %f, accuracy: %f\n" % (avg_loss, avg_acc))
 
 
-def evaluate(args, model):
+def evaluate(args_, model_):
     results_list = []
-    dir_name = os.listdir(args.ciphertext_folder)
+    dir_name = os.listdir(args_.ciphertext_folder)
     dir_name.sort()
     cntr = 0
     iterations = 0
     basename = ''
     for name in dir_name:
-        if iterations > args.max_iter:
+        if iterations > args_.max_iter:
             break
-        path = os.path.join(args.ciphertext_folder, name)
+        path = os.path.join(args_.ciphertext_folder, name)
         if os.path.isfile(path):
-            if iterations > args.max_iter:
+            if iterations > args_.max_iter:
                 break
             batch = []
             label = config.CIPHER_TYPES.index(os.path.basename(path).split('-')[1])
@@ -141,15 +139,15 @@ def evaluate(args, model):
                     statistics = calculate_statistics(ciphertext)
                     batch.append(statistics)
                     iterations += 1
-                    if iterations == args.max_iter:
+                    if iterations == args_.max_iter:
                         break
-            result = model.evaluate(tf.convert_to_tensor(batch), tf.convert_to_tensor([label]*len(batch)), args.batch_size, verbose=0)
+            result = model_.evaluate(tf.convert_to_tensor(batch), tf.convert_to_tensor([label] * len(batch)), args_.batch_size, verbose=0)
             results_list.append(result)
             cntr += 1
-            if args.evaluation_mode == 'per_file':
+            if args_.evaluation_mode == 'per_file':
                 print("%s (%d lines) test_loss: %f, test_accuracy: %f (progress: %d%%)" % (
                     os.path.basename(path), len(batch), result[0], result[1], max(
-                        int(cntr / len(dir_name) * 100), int(iterations / args.max_iter) * 100)))
+                        int(cntr / len(dir_name) * 100), int(iterations / args_.max_iter) * 100)))
             else:
                 print_progress("Evaluating files", cntr, len(dir_name), factor=5)
 
@@ -164,13 +162,13 @@ def evaluate(args, model):
         iterations, avg_test_loss, avg_test_acc))
 
 
-def predict_single_line(args, model):
+def predict_single_line(args_, model_):
     cipher_id_result = ''
     ciphertexts = []
-    if args.ciphertext is not None:
-        ciphertexts.append(bytes(args.ciphertext, 'ascii'))
+    if args_.ciphertext is not None:
+        ciphertexts.append(bytes(args_.ciphertext, 'ascii'))
     else:
-        ciphertexts = open(args.file, 'rb')
+        ciphertexts = open(args_.file, 'rb')
 
     print()
     for line in ciphertexts:
@@ -179,9 +177,9 @@ def predict_single_line(args, model):
         print(line)
         ciphertext = map_text_into_numberspace(line, OUTPUT_ALPHABET, UNKNOWN_SYMBOL_NUMBER)
         statistics = calculate_statistics(ciphertext)
-        result = model.predict(tf.convert_to_tensor([statistics]), args.batch_size, verbose=0)
-        if args.verbose:
-            for cipher in args.ciphers:
+        result = model_.predict(tf.convert_to_tensor([statistics]), args_.batch_size, verbose=0)
+        if args_.verbose:
+            for cipher in args_.ciphers:
                 print("{:23s} {:f}%".format(cipher, result[0].tolist()[config.CIPHER_TYPES.index(cipher)]*100))
             result_list = result[0].tolist()
             max_val = max(result_list)
@@ -194,19 +192,8 @@ def predict_single_line(args, model):
         print()
         cipher_id_result += cipher[0].upper()
 
-    if args.file is not None:
+    if args_.file is not None:
         ciphertexts.close()
-    # print(cipher_id_result)
-    # print('C: %d' %cipher_id_result.count('C'))
-    # print('H: %d' % cipher_id_result.count('H'))
-    # print('P: %d' % cipher_id_result.count('P'))
-    # print('S: %d' % cipher_id_result.count('S'))
-    # print('V: %d' % cipher_id_result.count('V'))
-    # solution = 'SCPHHCVHSSSHHVVPSSVPVCVVHPHCCVPHSPVPPPSHHCSHSVPPSSHVCVSCSCSSCVVSVHSHSSCCPVHVPHPPSPSHCVHCCSSVHHCHPSVSSVCHVCPSVPHVVPPVCHCPCSVCHVCVCPPPSCVPHPVVHCCSVHHHSPCPHCCVHHPSCSPVSCCHVCSPHHHSCCPSPPCVVVVHVCSCSVVHHHPHPCVVHPPVVCSVHCSHHVSVPVCPSHSSVHPPCCHCSSVVCPHSCCPCHCCHVHCHVVVSCSPSVPVCSCCPSSSVHCPSPHVVPCHHSPPHVCHSPPCHVCHPCCPCCPSPSSSVHVSSSSHPVCSCPPCHPSPCVCPHPSSSCSHHCSPVSVPVSSPCVHHVPPCPPPHSCHPCSHPHPPCVSCCSHCVHVHCPCHCSHPVCVVSPPPSCVHPPHHHVPSSVVCCPSPVHSCHHSPVSHHHVSCHHPSCHPVPSHCPVHVCHVVPHVVHSSHVVCPVPPSSCVPHVSPPCCSCHVCCS'
-    #
-    # for i, c in enumerate(cipher_id_result):
-    #     if c != solution[i]:
-    #         print('solution: %s, prediction: %s, position: %d' % (solution[i], c, i))
 
 
 if __name__ == "__main__":
@@ -215,7 +202,7 @@ if __name__ == "__main__":
     sp = parser.add_subparsers()
     bench_parser = sp.add_parser('benchmark',
                                  help='Use this argument to create ciphertexts on the fly, \nlike in training mode, and evaluate them with '
-                                      'the model. \nThis option is optimized for large throughput to test the model.')
+                                      'the model_. \nThis option is optimized for large throughput to test the model_.')
     eval_parser = sp.add_parser('evaluate', help='Use this argument to evaluate cipher types for single files or directories.')
     single_line_parser = sp.add_parser('single_line', help='Use this argument to predict a single line of ciphertext.')
 
@@ -223,8 +210,8 @@ if __name__ == "__main__":
                         help='Batch size for training.')
     parser.add_argument('--max_iter', default=1000000, type=int,
                         help='the maximal number of iterations before stopping evaluation.')
-    parser.add_argument('--model', default='./weights/model.h5', type=str,
-                        help='Name of the model file. The file must have the .h5 extension.')
+    parser.add_argument('--model_', default='./weights/model_.h5', type=str,
+                        help='Name of the model_ file. The file must have the .h5 extension.')
     parser.add_argument('--ciphers', '--ciphers', default='aca', type=str,
                         help='A comma seperated list of the ciphers to be created.\n'
                              'Be careful to not use spaces or use \' to define the string.\n'
@@ -265,8 +252,8 @@ if __name__ == "__main__":
 
     eval_group = parser.add_argument_group('evaluate')
     eval_group.add_argument('--evaluation_mode',
-                            help='- To create an single evaluation result over all iterated ciphertext files use the \'summarized\' option.\n'
-                                 '  This option is to be preferred over the benchmark option, if the tests should be reproducable.\n'
+                            help='- To create an single evaluation result over all iterated ciphertext files use the \'summarized\' option.'
+                                 '\n  This option is to be preferred over the benchmark option, if the tests should be reproducable.\n'
                                  '- To create an evaluation for every file use \'per_file\' option. This mode allows the \n'
                                  '  calculation of the \n  - average value of the prediction \n'
                                  '  - lower quartile - value at the position of 25 percent of the sorted predictions\n'
@@ -281,8 +268,8 @@ if __name__ == "__main__":
     data.add_argument('--file', default=None, type=str)
 
     single_line_group = parser.add_argument_group('single_line')
-    single_line_group.add_argument('--ciphertext', help='A single line of ciphertext to be predicted by the model.')
-    single_line_group.add_argument('--file', help='A file with lines of ciphertext to be predicted line by line by the model.')
+    single_line_group.add_argument('--ciphertext', help='A single line of ciphertext to be predicted by the model_.')
+    single_line_group.add_argument('--file', help='A file with lines of ciphertext to be predicted line by line by the model_.')
     single_line_group.add_argument('--verbose', help='If true all predicted ciphers are printed. \n'
                                                      'If false only the most accurate prediction is printed.')
 
@@ -291,8 +278,8 @@ if __name__ == "__main__":
         print("{:23s}= {:s}".format(arg, str(getattr(args, arg))))
     m = os.path.splitext(args.model)
     if len(os.path.splitext(args.model)) != 2 or os.path.splitext(args.model)[1] != '.h5':
-        print('ERROR: The model name must have the ".h5" extension!', file=sys.stderr)
-        exit(1)
+        print('ERROR: The model_ name must have the ".h5" extension!', file=sys.stderr)
+        sys.exit(1)
 
     args.ciphers = args.ciphers.lower()
     cipher_types = args.ciphers.split(',')

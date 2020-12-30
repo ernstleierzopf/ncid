@@ -1,6 +1,5 @@
 from cipherImplementations.cipher import Cipher, generate_random_keyword
 import numpy as np
-import random
 import copy
 
 
@@ -34,7 +33,7 @@ class Cadenus(Cipher):
         keyalphabet = key[1]
         ordered_keyword = copy.copy(keyword)
         ordered_keyword.sort()
-        for i in range(len(pt_table)):
+        for _ in range(len(pt_table)):
             for c in ordered_keyword:
                 r = c
                 if r == 22:  # c = 'w' -> c = 'v'

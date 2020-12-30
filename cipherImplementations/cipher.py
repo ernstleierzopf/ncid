@@ -3,7 +3,6 @@ import sys
 import numpy as np
 from cipherTypeDetection.dictionary import USE_DICTIONARY, GENERATE_RANDOM_ALPHABETS, WORD_DICT, UNIQUE_WORD_DICT
 from collections import OrderedDict
-
 sys.path.append("../../../")
 from util.textUtils import remove_unknown_symbols, map_text_into_numberspace
 
@@ -67,7 +66,8 @@ def generate_random_keyword(alphabet, length, unique=False, middle_char=None):
     return bytes(key)
 
 
-def generate_keyword_alphabet(alphabet, keyword, shift_randomly=False, vertical=False, indexed_kw_transposition=False, second_index_kw=None):
+def generate_keyword_alphabet(
+        alphabet, keyword, shift_randomly=False, vertical=False, indexed_kw_transposition=False, second_index_kw=None):
     if GENERATE_RANDOM_ALPHABETS:
         alphabet2 = b'' + alphabet
         key = b''
@@ -109,7 +109,6 @@ def generate_keyword_alphabet(alphabet, keyword, shift_randomly=False, vertical=
         return alph_out
 
     if indexed_kw_transposition:
-        t = map_text_into_numberspace(keyword, alphabet, 90)
         indizes = np.argsort(map_text_into_numberspace(keyword, alphabet, 90))
         if second_index_kw is not None:
             indizes = np.argsort(map_text_into_numberspace(second_index_kw, alphabet, 90))
@@ -126,6 +125,7 @@ def generate_keyword_alphabet(alphabet, keyword, shift_randomly=False, vertical=
 
 class Cipher:
     """This is the interface of the cipher implementations."""
+
     def generate_random_key(self, length):
         raise Exception('Interface method called')
 

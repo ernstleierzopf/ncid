@@ -3,8 +3,11 @@ from cipherImplementations.cipher import Cipher, generate_random_keyword, genera
 
 
 class Headlines(Cipher):
-    """This implementation differs from the ACA-described implementation. It does not shift the setting after every plaintext, but it
-    divides the plaintext in 5 equally long parts and encrypts every part with the corresponding setting."""
+    """
+    This implementation differs from the ACA-described implementation. It does not shift the setting after every plaintext, but it
+    divides the plaintext in 5 equally long parts and encrypts every part with the corresponding setting.
+    """
+
     def __init__(self, alphabet, unknown_symbol, unknown_symbol_number):
         self.alphabet = alphabet
         self.unknown_symbol = unknown_symbol

@@ -10,9 +10,9 @@ def str2bool(v):
     return v.lower() in ("yes", "true", "t", "1")
 
 
-def encrypt_file_with_all_cipher_types(filename, save_folder, cipher_types, append_key, keep_unknown_symbols, min_text_len, max_text_len):
+def encrypt_file_with_all_cipher_types(filename, save_folder, cipher_types_, append_key, keep_unknown_symbols, min_text_len, max_text_len):
     plaintexts = fileUtils.read_txt_list_from_file(filename)
-    for cipher_type in cipher_types:
+    for cipher_type in cipher_types_:
         index = config.Cipher = config.CIPHER_TYPES.index(cipher_type)
         if index > -1:
             print('Encrypting File: %s, Cipher: %s' % (filename, cipher_type))

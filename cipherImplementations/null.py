@@ -5,6 +5,7 @@ from util.textUtils import map_text_into_numberspace
 
 class Null(Cipher):
     """This implementation takes off ciphertext by columns."""
+
     def __init__(self, alphabet, unknown_symbol, unknown_symbol_number):
         self.alphabet = alphabet
         self.unknown_symbol = unknown_symbol

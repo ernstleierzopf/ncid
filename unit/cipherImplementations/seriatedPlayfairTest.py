@@ -4,7 +4,8 @@ from util.textUtils import map_text_into_numberspace
 
 
 class SeriatedPlayfairTest(CipherTestBase):
-    cipher = SeriatedPlayfair(CipherTestBase.ALPHABET.replace(b'j', b''), CipherTestBase.UNKNOWN_SYMBOL, CipherTestBase.UNKNOWN_SYMBOL_NUMBER)
+    cipher = SeriatedPlayfair(
+        CipherTestBase.ALPHABET.replace(b'j', b''), CipherTestBase.UNKNOWN_SYMBOL, CipherTestBase.UNKNOWN_SYMBOL_NUMBER)
     plaintext = b'Come quickly we need help immediately. tom.'
     ciphertext = b'nlbcspcdfgxzqqcdcmgcgqtbhcftrhfgwhgb'
     decrypted_plaintext = b'comequicklyweneedhelpimmediatelytom'

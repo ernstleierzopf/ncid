@@ -7,7 +7,8 @@ import copy
 class CheckerboardTest(CipherTestBase):
     cipher = Checkerboard(CipherTestBase.ALPHABET.replace(b'j', b''), CipherTestBase.UNKNOWN_SYMBOL, CipherTestBase.UNKNOWN_SYMBOL_NUMBER)
     plaintext = b'numberscanalsobeusedascoordinates'
-    ciphertext = [b'hrrysgsseaoaoyesrshrrsegoyrgssearyoyeaeyrsoyesrgrgoaeyhahrrsoseaoy', b'bhatcwcekililtkeaebhaekwltawcekiatltkiktaeltkeawawliktbibhaelekilt']
+    ciphertext = [b'hrrysgsseaoaoyesrshrrsegoyrgssearyoyeaeyrsoyesrgrgoaeyhahrrsoseaoy',
+                  b'bhatcwcekililtkeaebhaekwltawcekiatltkiktaeltkeawawliktbibhaelekilt']
     decrypted_plaintext = b'numberscanalsobeusedascoordinates'
     key = [map_text_into_numberspace(b'horseblack', cipher.alphabet, cipher.unknown_symbol_number), map_text_into_numberspace(
            b'grayswhite', cipher.alphabet, cipher.unknown_symbol_number), map_text_into_numberspace(

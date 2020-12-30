@@ -270,7 +270,8 @@ class TextLine2CipherStatisticsDatasetTest(unittest.TestCase):
     def test11_calculate_maximum_index_of_coincidence(self):
         self.assertEqual(round(ds.calculate_maximum_index_of_coincidence(self.ciphertext_numberspace), 3), 0.116)
         self.assertEqual(round(ds.calculate_maximum_index_of_coincidence(self.plaintext_numberspace), 3), 0.116)
-        self.assertEqual(ds.calculate_maximum_index_of_coincidence(self.ciphertext_numberspace), ds.calculate_maximum_index_of_coincidence(self.plaintext_numberspace))
+        self.assertEqual(ds.calculate_maximum_index_of_coincidence(self.ciphertext_numberspace), ds.calculate_maximum_index_of_coincidence(
+            self.plaintext_numberspace))
 
     def test12_calculate_max_kappa(self):
         self.assertEqual(round(ds.calculate_max_kappa(self.ciphertext_numberspace), 3), 0.133)
@@ -281,7 +282,7 @@ class TextLine2CipherStatisticsDatasetTest(unittest.TestCase):
         self.assertEqual(round(ds.calculate_digraphic_index_of_coincidence_even(self.ciphertext_numberspace), 4), 0.0106)
         self.assertEqual(round(ds.calculate_digraphic_index_of_coincidence_even(self.plaintext_numberspace), 4), 0.0106)
         self.assertEqual(round(ds.calculate_digraphic_index_of_coincidence_even(self.ciphertext_numberspace), 4),
-            round(ds.calculate_digraphic_index_of_coincidence_even(self.plaintext_numberspace), 4))
+                         round(ds.calculate_digraphic_index_of_coincidence_even(self.plaintext_numberspace), 4))
 
     def test14_calculate_rod_lr(self):
         rod, lr = ds.calculate_rod_lr([0,0,0,0,1,1,1,1,2,2,2,2])
@@ -332,7 +333,6 @@ class TextLine2CipherStatisticsDatasetTest(unittest.TestCase):
     def test23_calculate_sstd(self):
         self.assertEqual(round(ds.calculate_sstd(self.ciphertext_numberspace), 3), 0.33)
         self.assertEqual(round(ds.calculate_sstd(self.plaintext_numberspace), 3), 0.60)
-
 
     '''The methods calculate_statistics and encrypt can not be tested properly, because they are either random or are only depending on
     other methods'''

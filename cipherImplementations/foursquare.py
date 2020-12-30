@@ -17,7 +17,7 @@ class Foursquare(Cipher):
     def encrypt(self, plaintext, key):
         square01 = PolybiusSquare(self.alphabet, key[0])
         square10 = PolybiusSquare(self.alphabet, key[1])
-        square = PolybiusSquare(self.alphabet, [i for i in range(len(self.alphabet))])
+        square = PolybiusSquare(self.alphabet, list(range(len(self.alphabet))))
 
         odd = plaintext[1::2]
         even = plaintext[::2]
@@ -39,7 +39,7 @@ class Foursquare(Cipher):
     def decrypt(self, ciphertext, key):
         square01 = PolybiusSquare(self.alphabet, key[0])
         square10 = PolybiusSquare(self.alphabet, key[1])
-        square = PolybiusSquare(self.alphabet, [i for i in range(len(self.alphabet))])
+        square = PolybiusSquare(self.alphabet, list(range(len(self.alphabet))))
 
         odd = ciphertext[1::2]
         even = ciphertext[::2]

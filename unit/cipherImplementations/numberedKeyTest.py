@@ -1,7 +1,7 @@
 from cipherImplementations.numberedKey import NumberedKey
+from cipherImplementations.cipher import OUTPUT_ALPHABET
 from unit.cipherImplementations.CipherTestBase import CipherTestBase
 from util.textUtils import map_text_into_numberspace, map_numbers_into_textspace
-from cipherImplementations.cipher import OUTPUT_ALPHABET
 
 
 class NihilistTranspositionTest(CipherTestBase):
