@@ -1,8 +1,5 @@
 import argparse
 import os
-import sys
-
-sys.path.append("../../../")
 from util import fileUtils
 
 

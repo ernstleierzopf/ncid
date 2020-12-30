@@ -3,8 +3,6 @@ import os
 from pathlib import Path
 import sys
 import cipherTypeDetection.config as config
-
-sys.path.append("../../../")
 from util import fileUtils, textUtils
 
 
