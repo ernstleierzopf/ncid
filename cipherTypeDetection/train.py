@@ -8,6 +8,10 @@ import shutil
 from sklearn.model_selection import train_test_split
 import os
 import math
+import pickle
+import functools
+from sklearn import tree
+import matplotlib.pyplot as plt
 from datetime import datetime
 # This environ variable must be set before all tensorflow imports!
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
@@ -15,17 +19,15 @@ import tensorflow as tf
 from tensorflow.keras.metrics import SparseTopKCategoricalAccuracy
 from tensorflow.keras.optimizers import Adam, Adamax
 import tensorflow_datasets as tfds
-from sklearn import tree
-import matplotlib.pyplot as plt
-import pickle
-import functools
 sys.path.append("../")
 import cipherTypeDetection.config as config
 from cipherImplementations.cipher import OUTPUT_ALPHABET
 from cipherTypeDetection.textLine2CipherStatisticsDataset import TextLine2CipherStatisticsDataset
 from cipherTypeDetection.miniBatchEarlyStoppingCallback import MiniBatchEarlyStopping
-from cipherTypeDetection.transformer import TransformerBlock, TokenAndPositionEmbedding, MultiHeadSelfAttention
+from cipherTypeDetection.transformer import TransformerBlock, TokenAndPositionEmbedding
+# from cipherTypeDetection.learningRateSchedulers import TimeBasedDecayLearningRateScheduler, CustomStepDecayLearningRateScheduler
 tf.debugging.set_log_device_placement(enabled=False)
+# always flush after print as some architectures like RF need very long time before printing anything.
 print = functools.partial(print, flush=True)
 # for device in tf.config.list_physical_devices('GPU'):
 #    tf.config.experimental.set_memory_growth(device, True)
@@ -335,7 +337,9 @@ if __name__ == "__main__":
 
     print('Training model...')
     tensorboard_callback = tf.keras.callbacks.TensorBoard(log_dir='./logs', update_freq='epoch')
-    early_stopping_callback = MiniBatchEarlyStopping(min_delta=0.00001, patience=250, monitor='accuracy', mode='max', restore_best_weights=True)
+    early_stopping_callback = MiniBatchEarlyStopping(min_delta=1e-5, patience=250, monitor='accuracy', mode='max', restore_best_weights=True)
+    # time_based_decay_lrate_callback = TimeBasedDecayLearningRateScheduler(args.train_dataset_size)
+    # custom_step_decay_lrate_callback = CustomStepDecayLearningRateScheduler(early_stopping_callback)
     start_time = time.time()
     cntr = 0
     train_iter = 0
@@ -403,7 +407,8 @@ if __name__ == "__main__":
 
             else:
                 history = model.fit(batch, labels, batch_size=args.batch_size, validation_data=(val_data, val_labels), epochs=args.epochs,
-                                    callbacks=[early_stopping_callback, tensorboard_callback])
+                                    callbacks=[early_stopping_callback, tensorboard_callback])#, custom_step_decay_lrate_callback])
+                # time_based_decay_lrate_callback.iteration = train_iter
 
             # print for Decision Tree and Naive Bayes
             if architecture in ("DT", "NB", "RF", "ET"):
