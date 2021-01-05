@@ -10,7 +10,9 @@ import os
 import math
 # import pickle
 import functools
-from sklearn import tree
+from sklearn.tree import DecisionTreeClassifier, plot_tree
+from sklearn.ensemble import RandomForestClassifier, ExtraTreesClassifier
+from sklearn.naive_bayes import MultinomialNB
 import matplotlib.pyplot as plt
 from datetime import datetime
 # This environ variable must be set before all tensorflow imports!
@@ -106,22 +108,19 @@ def create_model():
 
     # Decision Tree
     if architecture == 'DT':
-        model_ = tree.DecisionTreeClassifier(criterion=config.criterion, ccp_alpha=config.ccp_alpha)
+        model_ = DecisionTreeClassifier(criterion=config.criterion, ccp_alpha=config.ccp_alpha)
 
     # Naive Bayes
     if architecture == 'NB':
-        from sklearn.naive_bayes import MultinomialNB
         model_ = MultinomialNB(alpha=config.alpha, fit_prior=config.fit_prior)
 
     # Random Forest
     if architecture == 'RF':
-        from sklearn.ensemble import RandomForestClassifier
         model_ = RandomForestClassifier(n_estimators=config.n_estimators, criterion=config.criterion, bootstrap=config.bootstrap, n_jobs=30,
                                         max_features=config.max_features, max_depth=30)
 
     # Extra Trees
     if architecture == 'ET':
-        from sklearn.ensemble import ExtraTreesClassifier
         model_ = ExtraTreesClassifier(n_estimators=config.n_estimators, criterion=config.criterion, bootstrap=config.bootstrap, n_jobs=30,
                                       max_features=config.max_features, max_depth=30)
 
@@ -402,7 +401,7 @@ if __name__ == "__main__":
                 if architecture == "DT":
                     plt.gcf().set_size_inches(25, 25 / math.sqrt(2))
                     print("Plotting tree.")
-                    tree.plot_tree(model, max_depth=3, fontsize=6, filled=True)
+                    plot_tree(model, max_depth=3, fontsize=6, filled=True)
                     plt.savefig(args.model_name.split('.')[0] + '_decision_tree.svg', dpi=200, bbox_inches='tight', pad_inches=0.1)
 
             # Naive Bayes training
