@@ -8,7 +8,7 @@ import shutil
 from sklearn.model_selection import train_test_split
 import os
 import math
-# import pickle
+import pickle
 import functools
 from sklearn.tree import DecisionTreeClassifier, plot_tree
 from sklearn.ensemble import RandomForestClassifier, ExtraTreesClassifier
@@ -117,12 +117,14 @@ def create_model():
     # Random Forest
     if architecture == 'RF':
         model_ = RandomForestClassifier(n_estimators=config.n_estimators, criterion=config.criterion, bootstrap=config.bootstrap, n_jobs=30,
-                                        max_features=config.max_features, max_depth=30)
+                                        max_features=config.max_features, max_depth=30, min_samples_split=config.min_samples_split,
+                                        min_samples_leaf=config.min_samples_leaf)
 
     # Extra Trees
     if architecture == 'ET':
         model_ = ExtraTreesClassifier(n_estimators=config.n_estimators, criterion=config.criterion, bootstrap=config.bootstrap, n_jobs=30,
-                                      max_features=config.max_features, max_depth=30)
+                                      max_features=config.max_features, max_depth=30, min_samples_split=config.min_samples_split,
+                                      min_samples_leaf=config.min_samples_leaf)
 
     # Transformer
     if architecture == "Transformer":
@@ -447,10 +449,10 @@ if __name__ == "__main__":
     model_path = os.path.join(args.save_directory, model_name)
     if architecture in ("FFNN", "CNN", "LSTM", "Transformer"):
         model.save(model_path)
-    # elif architecture in ("DT", "NB", "RF", "ET):
-    #     with open(model_path, "wb") as f:
-    #         # this gets very large
-    #         pickle.dump(model, f)
+    elif architecture in ("DT", "NB", "RF", "ET"):
+        with open(model_path, "wb") as f:
+            # this gets very large
+            pickle.dump(model, f)
     with open(model_path.split('.')[0] + '_parameters.txt', 'w') as f:
         for arg in vars(args):
             f.write("{:23s}= {:s}\n".format(arg, str(getattr(args, arg))))

@@ -172,9 +172,11 @@ alpha = 1.0
 fit_prior = True
 
 # RF
-n_estimators = 1000
+n_estimators = 100
 max_features = "sqrt"
 bootstrap = True
+min_samples_split = 10
+min_samples_leaf = 10
 
 # Transformer
 vocab_size = 20000
