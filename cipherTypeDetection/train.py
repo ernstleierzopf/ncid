@@ -147,6 +147,18 @@ def create_model():
         model_ = tf.keras.Model(inputs=inputs, outputs=outputs)
         model_.compile(optimizer=optimizer, loss="sparse_categorical_crossentropy", metrics=["accuracy", SparseTopKCategoricalAccuracy(
             k=3, name="k3_accuracy")])
+
+    # FFNN, NB
+    if architecture == "[FFNN,NB]":
+        model_ffnn = tf.keras.Sequential()
+        model_ffnn.add(tf.keras.layers.Input(shape=(input_layer_size,)))
+        for _ in range(config.hidden_layers):
+            model_ffnn.add(tf.keras.layers.Dense(hidden_layer_size, activation='relu', use_bias=True))
+        model_ffnn.add(tf.keras.layers.Dense(output_layer_size, activation='softmax'))
+        model_ffnn.compile(optimizer=optimizer, loss="sparse_categorical_crossentropy",
+                           metrics=["accuracy", SparseTopKCategoricalAccuracy(k=3, name="k3_accuracy")])
+        model_nb = MultinomialNB(alpha=config.alpha, fit_prior=config.fit_prior)
+        return [model_ffnn, model_nb]
     return model_
 
 
@@ -180,6 +192,7 @@ if __name__ == "__main__":
                              '        Columnar Transposition, Plaifair and Hill)\n'
                              '- aca (contains all currently implemented ciphers from \n'
                              '       https://www.cryptogram.org/resource-area/cipher-types/)\n'
+                             '- all aca ciphers in lower case'
                              '- simple_substitution\n'
                              '- vigenere\n'
                              '- columnar_transposition\n'
@@ -202,11 +215,19 @@ if __name__ == "__main__":
     parser.add_argument('--max_test_len', default=-1, type=int,
                         help='The maximum length of a plaintext to be encrypted in testing. \n'
                              'If this argument is set to -1 no upper limit is used.')
-    parser.add_argument('--architecture', default='FFNN', type=str,
+    parser.add_argument('--architecture', default='FFNN', type=str, choices=['FFNN', 'CNN', 'LSTM', 'DT', 'NB', 'RF', 'ET', 'Transformer',
+                        '[FFNN,NB]'],
                         help='The architecture to be used for training. \n'
                              'Possible values are:\n'
                              '- FFNN\n'
-                             '- ')
+                             '- CNN\n'
+                             '- LSTM\n'
+                             '- DT\n'
+                             '- NB\n'
+                             '- RF\n'
+                             '- ET\n'
+                             '- Transformer\n'
+                             '- [FFNN,NB]')
 
     args = parser.parse_args()
     for arg in vars(args):
@@ -410,15 +431,27 @@ if __name__ == "__main__":
             elif architecture == "NB":
                 history = model.partial_fit(batch, labels, classes=classes)
 
+            # FFNN, NB
+            elif architecture == "[FFNN,NB]":
+                history = model[0].fit(batch, labels, batch_size=args.batch_size, validation_data=(val_data, val_labels), epochs=args.epochs,
+                                    callbacks=[early_stopping_callback, tensorboard_callback])  # , custom_step_decay_lrate_callback])
+                # time_based_decay_lrate_callback.iteration = train_iter
+                history = model[1].partial_fit(batch, labels, classes=classes)
+
             else:
                 history = model.fit(batch, labels, batch_size=args.batch_size, validation_data=(val_data, val_labels), epochs=args.epochs,
                                     callbacks=[early_stopping_callback, tensorboard_callback])  # , custom_step_decay_lrate_callback])
                 # time_based_decay_lrate_callback.iteration = train_iter
 
-            # print for Decision Tree and Naive Bayes
+            # print for Decision Tree, Naive Bayes and Random Forests
             if architecture in ("DT", "NB", "RF", "ET"):
                 val_score = model.score(val_data, val_labels)
                 train_score = model.score(batch, labels)
+                print("train accuracy: %f, validation accuracy: %f" % (train_score, val_score))
+
+            if architecture == "[FFNN,NB]":
+                val_score = model[1].score(val_data, val_labels)
+                train_score = model[1].score(batch, labels)
                 print("train accuracy: %f, validation accuracy: %f" % (train_score, val_score))
 
             if train_epoch > 0:
@@ -453,6 +486,11 @@ if __name__ == "__main__":
         with open(model_path, "wb") as f:
             # this gets very large
             pickle.dump(model, f)
+    elif architecture == "[FFNN,NB]":
+        model[0].save(model_path.split('.')[0] + "_ffnn.h5")
+        with open(model_path.split('.')[0] + "_nb.h5", "wb") as f:
+            # this gets very large
+            pickle.dump(model[1], f)
     with open(model_path.split('.')[0] + '_parameters.txt', 'w') as f:
         for arg in vars(args):
             f.write("{:23s}= {:s}\n".format(arg, str(getattr(args, arg))))
@@ -499,6 +537,8 @@ if __name__ == "__main__":
             # Decision Tree, Naive Bayes prediction
             if architecture in ("DT", "NB", "RF", "ET"):
                 prediction = model.predict_proba(batch)
+            elif architecture == "[FFNN,NB]":
+                prediction = model[0].predict(batch, batch_size=args.batch_size, verbose=1)
             else:
                 prediction = model.predict(batch, batch_size=args.batch_size, verbose=1)
             for i in range(0, len(prediction)):
