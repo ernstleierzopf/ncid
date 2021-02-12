@@ -27,7 +27,7 @@ from cipherImplementations.cipher import OUTPUT_ALPHABET
 from cipherTypeDetection.textLine2CipherStatisticsDataset import TextLine2CipherStatisticsDataset
 from cipherTypeDetection.miniBatchEarlyStoppingCallback import MiniBatchEarlyStopping
 from cipherTypeDetection.transformer import TransformerBlock, TokenAndPositionEmbedding
-# from cipherTypeDetection.learningRateSchedulers import TimeBasedDecayLearningRateScheduler, CustomStepDecayLearningRateScheduler
+from cipherTypeDetection.learningRateSchedulers import TimeBasedDecayLearningRateScheduler, CustomStepDecayLearningRateScheduler
 tf.debugging.set_log_device_placement(enabled=False)
 # always flush after print as some architectures like RF need very long time before printing anything.
 print = functools.partial(print, flush=True)
@@ -65,6 +65,23 @@ def create_model():
     # model_ = tf.keras.Sequential()
     # model_.add(tf.keras.layers.Dense(output_layer_size, input_dim=input_layer_size, activation='softmax', use_bias=True))
     # model_.compile(optimizer='sgd', loss="sparse_categorical_crossentropy", metrics=["accuracy"])
+
+    # extend model
+    if extend_model is not None:
+        # remove the last layer
+        print("Summary before pop")
+        extend_model.summary()
+        extend_model._layers.pop()
+        print("Summary after pop")
+        extend_model.summary()
+        # x = tf.keras.layers.Dense(output_layer_size, activation='softmax')(extend_model.layers[-1].output)
+        extend_model._layers.append(tf.keras.layers.Dense(output_layer_size, activation='softmax'))
+        extend_model.build(None)
+        extend_model.compile(optimizer=optimizer, loss="sparse_categorical_crossentropy",
+                             metrics=["accuracy", SparseTopKCategoricalAccuracy(k=3, name="k3_accuracy")])
+        print("Summary after compile")
+        extend_model.summary()
+        return extend_model
 
     # FFNN
     if architecture == 'FFNN':
@@ -228,6 +245,8 @@ if __name__ == "__main__":
                              '- ET\n'
                              '- Transformer\n'
                              '- [FFNN,NB]')
+    parser.add_argument('--extend_model', default=None, type=str,
+                        help='Load a trained model from a file and use it as basis for the new training.')
 
     args = parser.parse_args()
     for arg in vars(args):
@@ -240,6 +259,15 @@ if __name__ == "__main__":
     args.ciphers = args.ciphers.lower()
     architecture = args.architecture
     cipher_types = args.ciphers.split(',')
+    extend_model = args.extend_model
+    if extend_model is not None:
+        if architecture not in ('FFNN', 'CNN', 'LSTM'):
+            print('ERROR: Models with the architecture %s can not be extended!' % architecture, file=sys.stderr)
+            sys.exit(1)
+        if len(os.path.splitext(extend_model)) != 2 or os.path.splitext(extend_model)[1] != '.h5':
+            print('ERROR: The extended model name must have the ".h5" extension!', file=sys.stderr)
+            sys.exit(1)
+        extend_model = tf.keras.models.load_model(extend_model, compile=False)
     if config.MTC3 in cipher_types:
         del cipher_types[cipher_types.index(config.MTC3)]
         cipher_types.append(config.CIPHER_TYPES[0])
@@ -366,7 +394,7 @@ if __name__ == "__main__":
     early_stopping_callback = MiniBatchEarlyStopping(
         min_delta=1e-5, patience=250, monitor='accuracy', mode='max', restore_best_weights=True)
     # time_based_decay_lrate_callback = TimeBasedDecayLearningRateScheduler(args.train_dataset_size)
-    # custom_step_decay_lrate_callback = CustomStepDecayLearningRateScheduler(early_stopping_callback)
+    custom_step_decay_lrate_callback = CustomStepDecayLearningRateScheduler(early_stopping_callback)
     start_time = time.time()
     cntr = 0
     train_iter = 0
@@ -434,13 +462,13 @@ if __name__ == "__main__":
             # FFNN, NB
             elif architecture == "[FFNN,NB]":
                 history = model[0].fit(batch, labels, batch_size=args.batch_size, validation_data=(val_data, val_labels), epochs=args.epochs,
-                                    callbacks=[early_stopping_callback, tensorboard_callback])  # , custom_step_decay_lrate_callback])
+                                    callbacks=[early_stopping_callback, tensorboard_callback, custom_step_decay_lrate_callback])
                 # time_based_decay_lrate_callback.iteration = train_iter
                 history = model[1].partial_fit(batch, labels, classes=classes)
 
             else:
                 history = model.fit(batch, labels, batch_size=args.batch_size, validation_data=(val_data, val_labels), epochs=args.epochs,
-                                    callbacks=[early_stopping_callback, tensorboard_callback])  # , custom_step_decay_lrate_callback])
+                                    callbacks=[early_stopping_callback, tensorboard_callback, custom_step_decay_lrate_callback])
                 # time_based_decay_lrate_callback.iteration = train_iter
 
             # print for Decision Tree, Naive Bayes and Random Forests

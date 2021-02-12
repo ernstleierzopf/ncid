@@ -145,7 +145,7 @@ FEATURE_ENGINEERING = True
 PAD_INPUT = False
 
 # adam
-learning_rate = 0.001
+learning_rate = 5e-4
 beta_1 = 0.9
 beta_2 = 0.999
 epsilon = 1e-7
@@ -153,7 +153,7 @@ amsgrad = False
 activation = 'relu'
 
 # FFNN
-hidden_layers = 5
+hidden_layers = 3
 
 # CNN
 filters = 64
