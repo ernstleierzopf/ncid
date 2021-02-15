@@ -2,6 +2,7 @@ from pathlib import Path
 import argparse
 import sys
 import os
+import pickle
 from datetime import datetime
 # This environ variable must be set before all tensorflow imports!
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
@@ -16,11 +17,15 @@ from cipherImplementations.cipher import OUTPUT_ALPHABET, UNKNOWN_SYMBOL_NUMBER
 tf.debugging.set_log_device_placement(enabled=False)
 
 
+architecture = None
+model_path = None
+
+
 def str2bool(v):
     return v.lower() in ("yes", "true", "t", "1")
 
 
-def benchmark(args_, model_):
+def benchmark(args_, model):
     args_.plaintext_folder = os.path.abspath(args_.plaintext_folder)
     if args_.dataset_size * args_.dataset_workers > args_.max_iter:
         print("ERROR: --dataset_size * --dataset_workers must not be bigger than --max_iter. In this case it was %d > %d" % (
@@ -46,6 +51,7 @@ def benchmark(args_, model_):
 
     print("Loading Datasets...")
     plaintext_files = []
+    print(args_.plaintext_folder)
     dir_nam = os.listdir(args_.plaintext_folder)
     for name in dir_nam:
         path = os.path.join(args_.plaintext_folder, name)
@@ -62,7 +68,7 @@ def benchmark(args_, model_):
     dataset = dataset.shuffle(50000, seed=42, reshuffle_each_iteration=False)
     print("Data shuffled.\n")
 
-    print('Evaluating model_...')
+    print('Evaluating model...')
     import time
     start_time = time.time()
     cntr = 0
@@ -85,7 +91,10 @@ def benchmark(args_, model_):
                 epoch = dataset.epoch
                 processes, run1 = dataset.__next__()
         for batch, labels in run:
-            results.append(model_.evaluate(batch, labels, batch_size=args_.batch_size))
+            if architecture in ("FFNN", "CNN", "LSTM", "Transformer"):
+                results.append(model.evaluate(batch, labels, batch_size=args_.batch_size))
+            elif architecture in ("DT", "NB", "RF", "ET"):
+                results.append(model.score(batch, labels))
             cntr += 1
             iteration = args_.dataset_size * cntr
             epoch = dataset.epoch
@@ -141,7 +150,10 @@ def evaluate(args_, model_):
                     iterations += 1
                     if iterations == args_.max_iter:
                         break
-            result = model_.evaluate(tf.convert_to_tensor(batch), tf.convert_to_tensor([label] * len(batch)), args_.batch_size, verbose=0)
+            if architecture in ("FFNN", "CNN", "LSTM", "Transformer"):
+                result = model_.evaluate(tf.convert_to_tensor(batch), tf.convert_to_tensor([label] * len(batch)), args_.batch_size, verbose=0)
+            elif architecture in ("DT", "NB", "RF", "ET"):
+                result = model.score(batch, tf.convert_to_tensor([label] * len(batch)))
             results_list.append(result)
             cntr += 1
             if args_.evaluation_mode == 'per_file':
@@ -177,7 +189,10 @@ def predict_single_line(args_, model_):
         print(line)
         ciphertext = map_text_into_numberspace(line, OUTPUT_ALPHABET, UNKNOWN_SYMBOL_NUMBER)
         statistics = calculate_statistics(ciphertext)
-        result = model_.predict(tf.convert_to_tensor([statistics]), args_.batch_size, verbose=0)
+        if architecture in ("FFNN", "CNN", "LSTM", "Transformer"):
+            result = model_.predict(tf.convert_to_tensor([statistics]), args_.batch_size, verbose=0)
+        elif architecture in ("DT", "NB", "RF", "ET"):
+            result = model_.predict(tf.convert_to_tensor([statistics]))
         if args_.verbose:
             for cipher in args_.ciphers:
                 print("{:23s} {:f}%".format(cipher, result[0].tolist()[config.CIPHER_TYPES.index(cipher)]*100))
@@ -196,13 +211,23 @@ def predict_single_line(args_, model_):
         ciphertexts.close()
 
 
+def load_model():
+    global architecture
+    global model_path
+    if architecture in ("FFNN", "CNN", "LSTM", "Transformer"):
+        return tf.keras.models.load_model(args.model)
+    elif architecture in ("DT", "NB", "RF", "ET"):
+        with open(model_path, "rb") as f:
+            return pickle.load(f)
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description='CANN Ciphertype Detection Neuronal Network Evaluation Script', formatter_class=argparse.RawTextHelpFormatter)
     sp = parser.add_subparsers()
     bench_parser = sp.add_parser('benchmark',
                                  help='Use this argument to create ciphertexts on the fly, \nlike in training mode, and evaluate them with '
-                                      'the model_. \nThis option is optimized for large throughput to test the model_.')
+                                      'the model. \nThis option is optimized for large throughput to test the model.')
     eval_parser = sp.add_parser('evaluate', help='Use this argument to evaluate cipher types for single files or directories.')
     single_line_parser = sp.add_parser('single_line', help='Use this argument to predict a single line of ciphertext.')
 
@@ -210,8 +235,21 @@ if __name__ == "__main__":
                         help='Batch size for training.')
     parser.add_argument('--max_iter', default=1000000, type=int,
                         help='the maximal number of iterations before stopping evaluation.')
-    parser.add_argument('--model_', default='./weights/model_.h5', type=str,
-                        help='Name of the model_ file. The file must have the .h5 extension.')
+    parser.add_argument('--model', default='./weights/model.h5', type=str,
+                        help='Name of the model file. The file must have the .h5 extension.')
+    parser.add_argument('--architecture', default='FFNN', type=str, choices=[
+        'FFNN', 'CNN', 'LSTM', 'DT', 'NB', 'RF', 'ET', 'Transformer', 'Ensemble'],
+        help='The architecture to be used for training. \n'
+             'Possible values are:\n'
+             '- FFNN\n'
+             '- CNN\n'
+             '- LSTM\n'
+             '- DT\n'
+             '- NB\n'
+             '- RF\n'
+             '- ET\n'
+             '- Transformer\n'
+             '- Ensemble')
     parser.add_argument('--ciphers', '--ciphers', default='aca', type=str,
                         help='A comma seperated list of the ciphers to be created.\n'
                              'Be careful to not use spaces or use \' to define the string.\n'
@@ -248,7 +286,7 @@ if __name__ == "__main__":
                              'If this argument is set to -1 no upper limit is used.')
 
     eval_parser.add_argument('--evaluation_mode', nargs='?', choices=('summarized', 'per_file'), default='summarized', type=str)
-    eval_parser.add_argument('--ciphertext_folder', default='../data/ciphertexts_gutenberg_en', type=str)
+    eval_parser.add_argument('--ciphertext_folder', default='../data/gutenberg_en', type=str)
 
     eval_group = parser.add_argument_group('evaluate')
     eval_group.add_argument('--evaluation_mode',
@@ -268,8 +306,8 @@ if __name__ == "__main__":
     data.add_argument('--file', default=None, type=str)
 
     single_line_group = parser.add_argument_group('single_line')
-    single_line_group.add_argument('--ciphertext', help='A single line of ciphertext to be predicted by the model_.')
-    single_line_group.add_argument('--file', help='A file with lines of ciphertext to be predicted line by line by the model_.')
+    single_line_group.add_argument('--ciphertext', help='A single line of ciphertext to be predicted by the model.')
+    single_line_group.add_argument('--file', help='A file with lines of ciphertext to be predicted line by line by the model.')
     single_line_group.add_argument('--verbose', help='If true all predicted ciphers are printed. \n'
                                                      'If false only the most accurate prediction is printed.')
 
@@ -278,9 +316,11 @@ if __name__ == "__main__":
         print("{:23s}= {:s}".format(arg, str(getattr(args, arg))))
     m = os.path.splitext(args.model)
     if len(os.path.splitext(args.model)) != 2 or os.path.splitext(args.model)[1] != '.h5':
-        print('ERROR: The model_ name must have the ".h5" extension!', file=sys.stderr)
+        print('ERROR: The model name must have the ".h5" extension!', file=sys.stderr)
         sys.exit(1)
 
+    architecture = args.architecture
+    model_path = args.model
     args.ciphers = args.ciphers.lower()
     cipher_types = args.ciphers.split(',')
     if config.MTC3 in cipher_types:
@@ -355,9 +395,9 @@ if __name__ == "__main__":
     if gpu_count > 1:
         strategy = tf.distribute.MirroredStrategy()
         with strategy.scope():
-            model = tf.keras.models.load_model(args.model)
+            model = load_model()
     else:
-        model = tf.keras.models.load_model(args.model)
+        model = load_model()
     print("Model Loaded.")
 
     # the program was started as in benchmark mode.
