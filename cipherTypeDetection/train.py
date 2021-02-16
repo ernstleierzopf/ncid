@@ -75,6 +75,8 @@ def create_model():
         model_.add(tf.keras.layers.Dense(output_layer_size, activation='softmax', name="output"))
         model_.compile(optimizer=optimizer, loss="sparse_categorical_crossentropy",
                        metrics=["accuracy", SparseTopKCategoricalAccuracy(k=3, name="k3_accuracy")])
+        # fit has to be called, so the model is built up properly
+        model_.fit(tf.convert_to_tensor([[0]*input_layer_size]), tf.convert_to_tensor([0]))
         return model_
 
     # FFNN
@@ -262,7 +264,7 @@ if __name__ == "__main__":
         if len(os.path.splitext(extend_model)) != 2 or os.path.splitext(extend_model)[1] != '.h5':
             print('ERROR: The extended model name must have the ".h5" extension!', file=sys.stderr)
             sys.exit(1)
-        extend_model = tf.keras.models.load_model(extend_model, compile=False)
+
     if config.MTC3 in cipher_types:
         del cipher_types[cipher_types.index(config.MTC3)]
         cipher_types.append(config.CIPHER_TYPES[0])
@@ -374,10 +376,12 @@ if __name__ == "__main__":
     if gpu_count > 1:
         strategy = tf.distribute.MirroredStrategy()
         with strategy.scope():
+            extend_model = tf.keras.models.load_model(extend_model, compile=False)
             model = create_model()
         if architecture in ("FFNN", "CNN", "LSTM", "Transformer"):
             model.summary()
     else:
+        extend_model = tf.keras.models.load_model(extend_model, compile=False)
         model = create_model()
         # if architecture in ("FFNN", "CNN", "LSTM", "Transformer"):
         #     model.summary()
