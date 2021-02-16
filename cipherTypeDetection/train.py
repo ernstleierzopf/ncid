@@ -69,19 +69,13 @@ def create_model():
     # extend model
     if extend_model is not None:
         # remove the last layer
-        print("Summary before pop")
-        extend_model.summary()
-        extend_model._layers.pop()
-        print("Summary after pop")
-        extend_model.summary()
-        # x = tf.keras.layers.Dense(output_layer_size, activation='softmax')(extend_model.layers[-1].output)
-        extend_model._layers.append(tf.keras.layers.Dense(output_layer_size, activation='softmax'))
-        extend_model.build(None)
-        extend_model.compile(optimizer=optimizer, loss="sparse_categorical_crossentropy",
-                             metrics=["accuracy", SparseTopKCategoricalAccuracy(k=3, name="k3_accuracy")])
-        print("Summary after compile")
-        extend_model.summary()
-        return extend_model
+        model_ = tf.keras.Sequential()
+        for layer in extend_model.layers[:-1]:
+            model_.add(layer)
+        model_.add(tf.keras.layers.Dense(output_layer_size, activation='softmax', name="output"))
+        model_.compile(optimizer=optimizer, loss="sparse_categorical_crossentropy",
+                       metrics=["accuracy", SparseTopKCategoricalAccuracy(k=3, name="k3_accuracy")])
+        return model_
 
     # FFNN
     if architecture == 'FFNN':
@@ -259,6 +253,7 @@ if __name__ == "__main__":
     args.ciphers = args.ciphers.lower()
     architecture = args.architecture
     cipher_types = args.ciphers.split(',')
+    config.CIPHER_TYPES = cipher_types
     extend_model = args.extend_model
     if extend_model is not None:
         if architecture not in ('FFNN', 'CNN', 'LSTM'):
