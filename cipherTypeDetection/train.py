@@ -376,12 +376,14 @@ if __name__ == "__main__":
     if gpu_count > 1:
         strategy = tf.distribute.MirroredStrategy()
         with strategy.scope():
-            extend_model = tf.keras.models.load_model(extend_model, compile=False)
+            if extend_model is not None:
+                extend_model = tf.keras.models.load_model(extend_model, compile=False)
             model = create_model()
         if architecture in ("FFNN", "CNN", "LSTM", "Transformer"):
             model.summary()
     else:
-        extend_model = tf.keras.models.load_model(extend_model, compile=False)
+        if extend_model is not None:
+            extend_model = tf.keras.models.load_model(extend_model, compile=False)
         model = create_model()
         # if architecture in ("FFNN", "CNN", "LSTM", "Transformer"):
         #     model.summary()
