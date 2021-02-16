@@ -3,6 +3,8 @@ import argparse
 import sys
 import os
 import pickle
+import ast
+import functools
 from datetime import datetime
 # This environ variable must be set before all tensorflow imports!
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
@@ -15,6 +17,8 @@ import cipherTypeDetection.config as config
 from cipherTypeDetection.textLine2CipherStatisticsDataset import TextLine2CipherStatisticsDataset, calculate_statistics
 from cipherImplementations.cipher import OUTPUT_ALPHABET, UNKNOWN_SYMBOL_NUMBER
 tf.debugging.set_log_device_placement(enabled=False)
+# always flush after print as some architectures like RF need very long time before printing anything.
+print = functools.partial(print, flush=True)
 
 
 architecture = None
@@ -25,7 +29,7 @@ def str2bool(v):
     return v.lower() in ("yes", "true", "t", "1")
 
 
-def benchmark(args_, model):
+def benchmark(args_, model_):
     args_.plaintext_folder = os.path.abspath(args_.plaintext_folder)
     if args_.dataset_size * args_.dataset_workers > args_.max_iter:
         print("ERROR: --dataset_size * --dataset_workers must not be bigger than --max_iter. In this case it was %d > %d" % (
@@ -51,7 +55,6 @@ def benchmark(args_, model):
 
     print("Loading Datasets...")
     plaintext_files = []
-    print(args_.plaintext_folder)
     dir_nam = os.listdir(args_.plaintext_folder)
     for name in dir_nam:
         path = os.path.join(args_.plaintext_folder, name)
@@ -63,10 +66,6 @@ def benchmark(args_, model):
         print("WARNING: the --dataset_size parameter must be dividable by the amount of --ciphers  and the length configured KEY_LENGTHS in"
               " config.py. The current key_lengths_count is %d" % dataset.key_lengths_count, file=sys.stderr)
     print("Datasets loaded.\n")
-
-    print("Shuffling data...")
-    dataset = dataset.shuffle(50000, seed=42, reshuffle_each_iteration=False)
-    print("Data shuffled.\n")
 
     print('Evaluating model...')
     import time
@@ -92,9 +91,10 @@ def benchmark(args_, model):
                 processes, run1 = dataset.__next__()
         for batch, labels in run:
             if architecture in ("FFNN", "CNN", "LSTM", "Transformer"):
-                results.append(model.evaluate(batch, labels, batch_size=args_.batch_size))
+                results.append(model_.evaluate(batch, labels, batch_size=args_.batch_size))
             elif architecture in ("DT", "NB", "RF", "ET"):
-                results.append(model.score(batch, labels))
+                results.append(model_.score(batch, labels))
+                print("accuracy: %f" % (results[-1]))
             cntr += 1
             iteration = args_.dataset_size * cntr
             epoch = dataset.epoch
@@ -103,6 +103,7 @@ def benchmark(args_, model):
             print("Epoch: %d, Iteration: %d" % (epoch, iteration))
             if iteration >= args_.max_iter:
                 break
+        run = None
         if dataset.iteration >= args_.max_iter:
             break
     elapsed_evaluation_time = datetime.fromtimestamp(time.time()) - datetime.fromtimestamp(start_time)
@@ -112,66 +113,80 @@ def benchmark(args_, model):
 
     avg_loss = 0
     avg_acc = 0
-    for loss, acc in results:
+    avg_k3_acc = 0
+    for loss, acc_pred, k3_acc in results:
         avg_loss += loss
-        avg_acc += acc
+        avg_acc += acc_pred
+        avg_k3_acc += k3_acc
     avg_loss = avg_loss / len(results)
     avg_acc = avg_acc / len(results)
+    avg_k3_acc = avg_k3_acc / len(results)
 
-    print("Average evaluation results: loss: %f, accuracy: %f\n" % (avg_loss, avg_acc))
+    print("Average evaluation results: loss: %f, accuracy: %f, k3_accuracy: %f\n" % (avg_loss, avg_acc, avg_k3_acc))
 
 
 def evaluate(args_, model_):
     results_list = []
-    dir_name = os.listdir(args_.ciphertext_folder)
+    dir_name = os.listdir(args_.data_folder)
     dir_name.sort()
     cntr = 0
     iterations = 0
-    basename = ''
     for name in dir_name:
         if iterations > args_.max_iter:
             break
-        path = os.path.join(args_.ciphertext_folder, name)
+        path = os.path.join(args_.data_folder, name)
         if os.path.isfile(path):
             if iterations > args_.max_iter:
                 break
             batch = []
-            label = config.CIPHER_TYPES.index(os.path.basename(path).split('-')[1])
-            if os.path.basename(path).split('-')[0] != basename:
-                print()
-            basename = os.path.basename(path).split('-')[0]
+            labels = []
             with open(path, "rb") as fd:
-                for line in fd.readlines():
+                for line in fd:
                     # remove newline
-                    line = line[:-1]
-                    ciphertext = map_text_into_numberspace(line, OUTPUT_ALPHABET, UNKNOWN_SYMBOL_NUMBER)
-                    statistics = calculate_statistics(ciphertext)
+                    split_line = line.split(b' ')
+                    labels.append(int(split_line[0].decode()))
+                    statistics = ast.literal_eval(split_line[1].decode())
                     batch.append(statistics)
                     iterations += 1
                     if iterations == args_.max_iter:
                         break
             if architecture in ("FFNN", "CNN", "LSTM", "Transformer"):
-                result = model_.evaluate(tf.convert_to_tensor(batch), tf.convert_to_tensor([label] * len(batch)), args_.batch_size, verbose=0)
+                result = model_.evaluate(tf.convert_to_tensor(batch), tf.convert_to_tensor(labels), args_.batch_size, verbose=0)
             elif architecture in ("DT", "NB", "RF", "ET"):
-                result = model.score(batch, tf.convert_to_tensor([label] * len(batch)))
+                result = model.score(batch, tf.convert_to_tensor(labels))
             results_list.append(result)
             cntr += 1
             if args_.evaluation_mode == 'per_file':
-                print("%s (%d lines) test_loss: %f, test_accuracy: %f (progress: %d%%)" % (
-                    os.path.basename(path), len(batch), result[0], result[1], max(
-                        int(cntr / len(dir_name) * 100), int(iterations / args_.max_iter) * 100)))
+                if architecture in ("FFNN", "CNN", "LSTM", "Transformer"):
+                    print("%s (%d lines) test_loss: %f, test_accuracy: %f, test_k3_accuracy: %f (progress: %d%%)" % (
+                        os.path.basename(path), len(batch), result[0], result[1], result[2], max(
+                            int(cntr / len(dir_name) * 100), int(iterations / args_.max_iter) * 100)))
+                elif architecture in ("DT", "NB", "RF", "ET"):
+                    print("%s (%d lines) test_accuracy: %f (progress: %d%%)" % (
+                        os.path.basename(path), len(batch), result,
+                        max(int(cntr / len(dir_name) * 100), int(iterations / args_.max_iter) * 100)))
             else:
-                print_progress("Evaluating files", cntr, len(dir_name), factor=5)
+                print_progress("Evaluating files: ", cntr, len(dir_name), factor=5)
 
-    avg_test_loss = 0
-    avg_test_acc = 0
-    for loss, acc in results_list:
-        avg_test_loss += loss
-        avg_test_acc += acc
-    avg_test_loss = avg_test_loss / len(results_list)
-    avg_test_acc = avg_test_acc / len(results_list)
-    print("\n\nAverage evaluation results from %d iterations: avg_test_loss=%f, avg_test_acc=%f" % (
-        iterations, avg_test_loss, avg_test_acc))
+    if architecture in ("FFNN", "CNN", "LSTM", "Transformer"):
+        avg_test_loss = 0
+        avg_test_acc = 0
+        avg_test_acc_k3 = 0
+        for loss, acc, acc_k3 in results_list:
+            avg_test_loss += loss
+            avg_test_acc += acc
+            avg_test_acc_k3 += acc_k3
+        avg_test_loss = avg_test_loss / len(results_list)
+        avg_test_acc = avg_test_acc / len(results_list)
+        avg_test_acc_k3 = avg_test_acc_k3 / len(results_list)
+        print("\n\nAverage evaluation results from %d iterations: avg_test_loss=%f, avg_test_acc=%f, avg_test_acc_k3=%f" % (
+            iterations, avg_test_loss, avg_test_acc, avg_test_acc_k3))
+    elif architecture in ("DT", "NB", "RF", "ET"):
+        avg_test_acc = 0
+        for acc in results_list:
+            avg_test_acc += acc
+        avg_test_acc = avg_test_acc / len(results_list)
+        print("\n\nAverage evaluation results from %d iterations: avg_test_acc=%f" % (iterations, avg_test_acc))
 
 
 def predict_single_line(args_, model_):
@@ -215,7 +230,14 @@ def load_model():
     global architecture
     global model_path
     if architecture in ("FFNN", "CNN", "LSTM", "Transformer"):
-        return tf.keras.models.load_model(args.model)
+        model_ = tf.keras.models.load_model(args.model)
+        from tensorflow.keras.optimizers import Adam
+        from tensorflow.keras.metrics import SparseTopKCategoricalAccuracy
+        optimizer = Adam(learning_rate=config.learning_rate, beta_1=config.beta_1, beta_2=config.beta_2, epsilon=config.epsilon,
+                         amsgrad=config.amsgrad)
+        model_.compile(optimizer=optimizer, loss="sparse_categorical_crossentropy",
+                       metrics=["accuracy", SparseTopKCategoricalAccuracy(k=3, name="k3_accuracy")])
+        return model_
     elif architecture in ("DT", "NB", "RF", "ET"):
         with open(model_path, "rb") as f:
             return pickle.load(f)
@@ -286,11 +308,11 @@ if __name__ == "__main__":
                              'If this argument is set to -1 no upper limit is used.')
 
     eval_parser.add_argument('--evaluation_mode', nargs='?', choices=('summarized', 'per_file'), default='summarized', type=str)
-    eval_parser.add_argument('--ciphertext_folder', default='../data/gutenberg_en', type=str)
+    eval_parser.add_argument('--data_folder', default='../data/gutenberg_en', type=str)
 
     eval_group = parser.add_argument_group('evaluate')
     eval_group.add_argument('--evaluation_mode',
-                            help='- To create an single evaluation result over all iterated ciphertext files use the \'summarized\' option.'
+                            help='- To create an single evaluation result over all iterated data files use the \'summarized\' option.'
                                  '\n  This option is to be preferred over the benchmark option, if the tests should be reproducable.\n'
                                  '- To create an evaluation for every file use \'per_file\' option. This mode allows the \n'
                                  '  calculation of the \n  - average value of the prediction \n'
@@ -298,7 +320,7 @@ if __name__ == "__main__":
                                  '  - median - value at the position of 50 percent of the sorted predictions\n'
                                  '  - upper quartile - value at the position of 75 percent of the sorted predictions\n'
                                  '  With these statistics an expert can classify a ciphertext document to a specific cipher.')
-    eval_group.add_argument('--ciphertext_folder', help='Input folder of the ciphertext files.')
+    eval_group.add_argument('--data_folder', help='Input folder of the data files with labels and calculated features.')
 
     single_line_parser.add_argument('--verbose', default=True, type=str2bool)
     data = single_line_parser.add_mutually_exclusive_group(required=True)
