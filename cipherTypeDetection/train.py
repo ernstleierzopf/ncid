@@ -75,8 +75,6 @@ def create_model():
         model_.add(tf.keras.layers.Dense(output_layer_size, activation='softmax', name="output"))
         model_.compile(optimizer=optimizer, loss="sparse_categorical_crossentropy",
                        metrics=["accuracy", SparseTopKCategoricalAccuracy(k=3, name="k3_accuracy")])
-        # fit has to be called, so the model is built up properly
-        model_.fit(tf.convert_to_tensor([[0]*input_layer_size]), tf.convert_to_tensor([0]))
         return model_
 
     # FFNN
@@ -379,13 +377,13 @@ if __name__ == "__main__":
             if extend_model is not None:
                 extend_model = tf.keras.models.load_model(extend_model, compile=False)
             model = create_model()
-        if architecture in ("FFNN", "CNN", "LSTM", "Transformer"):
+        if architecture in ("FFNN", "CNN", "LSTM", "Transformer") and extend_model is None:
             model.summary()
     else:
         if extend_model is not None:
             extend_model = tf.keras.models.load_model(extend_model, compile=False)
         model = create_model()
-        # if architecture in ("FFNN", "CNN", "LSTM", "Transformer"):
+        # if architecture in ("FFNN", "CNN", "LSTM", "Transformer") and extend_model is None:
         #     model.summary()
 
     print('Model created.\n')
