@@ -10,11 +10,14 @@ from datetime import datetime
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 import tensorflow as tf
 import tensorflow_datasets as tfds
+from tensorflow.keras.optimizers import Adam
+from tensorflow.keras.metrics import SparseTopKCategoricalAccuracy
 sys.path.append("../")
 from util.textUtils import map_text_into_numberspace
 from util.fileUtils import print_progress
 import cipherTypeDetection.config as config
 from cipherTypeDetection.textLine2CipherStatisticsDataset import TextLine2CipherStatisticsDataset, calculate_statistics
+from cipherTypeDetection.EnsembleModel import EnsembleModel
 from cipherImplementations.cipher import OUTPUT_ALPHABET, UNKNOWN_SYMBOL_NUMBER
 tf.debugging.set_log_device_placement(enabled=False)
 # always flush after print as some architectures like RF need very long time before printing anything.
@@ -23,6 +26,9 @@ print = functools.partial(print, flush=True)
 
 architecture = None
 model_path = None
+model_list = None
+architecture_list = None
+strategy = None
 
 
 def str2bool(v):
@@ -90,7 +96,7 @@ def benchmark(args_, model_):
                 epoch = dataset.epoch
                 processes, run1 = dataset.__next__()
         for batch, labels in run:
-            if architecture in ("FFNN", "CNN", "LSTM", "Transformer"):
+            if architecture in ("FFNN", "CNN", "LSTM", "Transformer", "Ensemble"):
                 results.append(model_.evaluate(batch, labels, batch_size=args_.batch_size))
             elif architecture in ("DT", "NB", "RF", "ET"):
                 results.append(model_.score(batch, labels))
@@ -111,18 +117,24 @@ def benchmark(args_, model_):
         elapsed_evaluation_time.days, elapsed_evaluation_time.seconds // 3600, (elapsed_evaluation_time.seconds // 60) % 60,
         elapsed_evaluation_time.seconds % 60, iteration, epoch))
 
-    avg_loss = 0
-    avg_acc = 0
-    avg_k3_acc = 0
-    for loss, acc_pred, k3_acc in results:
-        avg_loss += loss
-        avg_acc += acc_pred
-        avg_k3_acc += k3_acc
-    avg_loss = avg_loss / len(results)
-    avg_acc = avg_acc / len(results)
-    avg_k3_acc = avg_k3_acc / len(results)
-
-    print("Average evaluation results: loss: %f, accuracy: %f, k3_accuracy: %f\n" % (avg_loss, avg_acc, avg_k3_acc))
+    if architecture in ("FFNN", "CNN", "LSTM", "Transformer"):
+        avg_loss = 0
+        avg_acc = 0
+        avg_k3_acc = 0
+        for loss, acc_pred, k3_acc in results:
+            avg_loss += loss
+            avg_acc += acc_pred
+            avg_k3_acc += k3_acc
+        avg_loss = avg_loss / len(results)
+        avg_acc = avg_acc / len(results)
+        avg_k3_acc = avg_k3_acc / len(results)
+        print("Average evaluation results: loss: %f, accuracy: %f, k3_accuracy: %f\n" % (avg_loss, avg_acc, avg_k3_acc))
+    elif architecture in ("DT", "NB", "RF", "ET", "Ensemble"):
+        avg_test_acc = 0
+        for acc in results:
+            avg_test_acc += acc
+        avg_test_acc = avg_test_acc / len(results)
+        print("Average evaluation results from %d iterations: avg_test_acc=%f" % (iteration, avg_test_acc))
 
 
 def evaluate(args_, model_):
@@ -150,7 +162,7 @@ def evaluate(args_, model_):
                     iterations += 1
                     if iterations == args_.max_iter:
                         break
-            if architecture in ("FFNN", "CNN", "LSTM", "Transformer"):
+            if architecture in ("FFNN", "CNN", "LSTM", "Transformer", "Ensemble"):
                 result = model_.evaluate(tf.convert_to_tensor(batch), tf.convert_to_tensor(labels), args_.batch_size, verbose=0)
             elif architecture in ("DT", "NB", "RF", "ET"):
                 result = model.score(batch, tf.convert_to_tensor(labels))
@@ -161,7 +173,7 @@ def evaluate(args_, model_):
                     print("%s (%d lines) test_loss: %f, test_accuracy: %f, test_k3_accuracy: %f (progress: %d%%)" % (
                         os.path.basename(path), len(batch), result[0], result[1], result[2], max(
                             int(cntr / len(dir_name) * 100), int(iterations / args_.max_iter) * 100)))
-                elif architecture in ("DT", "NB", "RF", "ET"):
+                elif architecture in ("DT", "NB", "RF", "ET", "Ensemble"):
                     print("%s (%d lines) test_accuracy: %f (progress: %d%%)" % (
                         os.path.basename(path), len(batch), result,
                         max(int(cntr / len(dir_name) * 100), int(iterations / args_.max_iter) * 100)))
@@ -181,7 +193,7 @@ def evaluate(args_, model_):
         avg_test_acc_k3 = avg_test_acc_k3 / len(results_list)
         print("\n\nAverage evaluation results from %d iterations: avg_test_loss=%f, avg_test_acc=%f, avg_test_acc_k3=%f" % (
             iterations, avg_test_loss, avg_test_acc, avg_test_acc_k3))
-    elif architecture in ("DT", "NB", "RF", "ET"):
+    elif architecture in ("DT", "NB", "RF", "ET", "Ensemble"):
         avg_test_acc = 0
         for acc in results_list:
             avg_test_acc += acc
@@ -204,7 +216,7 @@ def predict_single_line(args_, model_):
         print(line)
         ciphertext = map_text_into_numberspace(line, OUTPUT_ALPHABET, UNKNOWN_SYMBOL_NUMBER)
         statistics = calculate_statistics(ciphertext)
-        if architecture in ("FFNN", "CNN", "LSTM", "Transformer"):
+        if architecture in ("FFNN", "CNN", "LSTM", "Transformer", "Ensemble"):
             result = model_.predict(tf.convert_to_tensor([statistics]), args_.batch_size, verbose=0)
         elif architecture in ("DT", "NB", "RF", "ET"):
             result = model_.predict(tf.convert_to_tensor([statistics]))
@@ -228,19 +240,24 @@ def predict_single_line(args_, model_):
 
 def load_model():
     global architecture
-    global model_path
     if architecture in ("FFNN", "CNN", "LSTM", "Transformer"):
         model_ = tf.keras.models.load_model(args.model)
-        from tensorflow.keras.optimizers import Adam
-        from tensorflow.keras.metrics import SparseTopKCategoricalAccuracy
         optimizer = Adam(learning_rate=config.learning_rate, beta_1=config.beta_1, beta_2=config.beta_2, epsilon=config.epsilon,
                          amsgrad=config.amsgrad)
         model_.compile(optimizer=optimizer, loss="sparse_categorical_crossentropy",
                        metrics=["accuracy", SparseTopKCategoricalAccuracy(k=3, name="k3_accuracy")])
         return model_
     elif architecture in ("DT", "NB", "RF", "ET"):
+        global model_path
         with open(model_path, "rb") as f:
             return pickle.load(f)
+    elif architecture == 'Ensemble':
+        global model_list
+        global architecture_list
+        global strategy
+        return EnsembleModel(model_list, architecture_list, strategy)
+    else:
+        raise ValueError("Unknown architecture: %s" % architecture)
 
 
 if __name__ == "__main__":
@@ -285,6 +302,17 @@ if __name__ == "__main__":
                              '- columnar_transposition\n'
                              '- playfair\n'
                              '- hill\n')
+
+    parser.add_argument('--models', nargs='+', default=None,
+                        help='A list of models to be used in the ensemble model. The length of the list must be the same like the one in '
+                             'the --architectures argument.')
+    parser.add_argument('--architectures', nargs='+', default=None,
+                        help='A list of the architectures to be used in the ensemble model. The length of the list must be the same like '
+                             'the one in the --models argument.')
+    parser.add_argument('--strategy', default='weighted', type=str, choices=['mean', 'weighted'],
+                        help='The algorithm used for decisions.\n- Mean voting adds the probabilities from every class and returns the mean'
+                             ' value of it. The highest value wins.\n- Weighted voting uses pre-calculated statistics, like for example '
+                             'precision, to weight the output of a specific model for a specific class.')
 
     bench_parser.add_argument('--download_dataset', default=True, type=str2bool)
     bench_parser.add_argument('--dataset_size', default=16000, type=int)
@@ -411,12 +439,30 @@ if __name__ == "__main__":
         cipher_types.append(config.CIPHER_TYPES[54])
         cipher_types.append(config.CIPHER_TYPES[55])
     args.ciphers = cipher_types
+    if architecture == 'Ensemble':
+        if not hasattr(args, 'models') or not hasattr(args, 'architectures'):
+            raise ValueError("Please use the 'ensemble' subroutine if specifying the ensemble architecture.")
+        if len(args.models) != len(args.architectures):
+            raise ValueError("The length of --models must be the same like the length of --architectures.")
+        models = []
+        for i in range(len(args.models)):
+            model = args.models[i]
+            arch = args.architectures[i]
+            if not os.path.exists(os.path.abspath(model)):
+                raise ValueError("Model in %s does not exist." % os.path.abspath(model))
+            if arch not in ('FFNN', 'CNN', 'LSTM', 'DT', 'NB', 'RF', 'ET', 'Transformer'):
+                raise ValueError("Unallowed architecture %s" % arch)
+            if arch in ('FFNN', 'CNN', 'LSTM', 'Transformer') and not os.path.abspath(model).endswith('.h5'):
+                raise ValueError("Model names of the types %s must have the .h5 extension." % ['FFNN', 'CNN', 'LSTM', 'Transformer'])
+        strategy = args.strategy
+    elif args.models is not None or args.architectures is not None:
+        raise ValueError("It is only allowed to use the --models and --architectures with the Ensemble architecture.")
 
     print("Loading Model...")
     gpu_count = len(tf.config.list_physical_devices('GPU'))
     if gpu_count > 1:
-        strategy = tf.distribute.MirroredStrategy()
-        with strategy.scope():
+        strat = tf.distribute.MirroredStrategy()
+        with strat.scope():
             model = load_model()
     else:
         model = load_model()

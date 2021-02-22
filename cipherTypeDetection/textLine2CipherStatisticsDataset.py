@@ -1246,7 +1246,7 @@ def calculate_statistics(datum):
     # dbl = is_dbl(numbers)
     nic = calculate_nic(numbers)
     sdd = calculate_sdd(numbers)
-    # ldi_stats = calculate_ldi_stats(numbers)
+    #ldi_stats = calculate_ldi_stats(numbers)
     ptx = calculate_ptx(numbers)
     phic = calculate_phic(datum)
     bdi = calculate_bdi(numbers)
@@ -1274,7 +1274,7 @@ def calculate_statistics(datum):
     #     ldi] + [rod] + [lr] + [nomor] + [dbl] + [sdd] + frequencies
 
     return [unigram_ioc] + [digraphic_ioc] + frequencies + [has_0] + [has_h] + [has_j] + [has_x] + [has_sp] + [rod] + [lr] + [sdd] +\
-           [ldi] + [nomor] + [phic] + [bdi] + [ptx] + [nic] + [mka] + [mic]  # + ldi_stats
+           [ldi] + [nomor] + [phic] + [bdi] + [ptx] + [nic] + [mka] + [mic] #+ ldi_stats
 
     # all features
     # return [unigram_ioc] + [digraphic_ioc] + [has_j] + [entropy] + [chi_square] + [has_h] + [has_sp] + [has_x] + [has_0] + [mic] +\

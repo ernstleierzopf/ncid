@@ -253,7 +253,6 @@ if __name__ == "__main__":
     args.ciphers = args.ciphers.lower()
     architecture = args.architecture
     cipher_types = args.ciphers.split(',')
-    config.CIPHER_TYPES = cipher_types
     extend_model = args.extend_model
     if extend_model is not None:
         if architecture not in ('FFNN', 'CNN', 'LSTM'):
@@ -270,7 +269,7 @@ if __name__ == "__main__":
         cipher_types.append(config.CIPHER_TYPES[2])
         cipher_types.append(config.CIPHER_TYPES[3])
         cipher_types.append(config.CIPHER_TYPES[4])
-    if config.ACA in cipher_types:
+    elif config.ACA in cipher_types:
         del cipher_types[cipher_types.index(config.ACA)]
         cipher_types.append(config.CIPHER_TYPES[0])
         cipher_types.append(config.CIPHER_TYPES[1])
@@ -328,6 +327,7 @@ if __name__ == "__main__":
         cipher_types.append(config.CIPHER_TYPES[53])
         cipher_types.append(config.CIPHER_TYPES[54])
         cipher_types.append(config.CIPHER_TYPES[55])
+    config.CIPHER_TYPES = cipher_types
     if args.train_dataset_size * args.dataset_workers > args.max_iter:
         print("ERROR: --train_dataset_size * --dataset_workers must not be bigger than --max_iter. "
               "In this case it was %d > %d" % (args.train_dataset_size * args.dataset_workers, args.max_iter), file=sys.stderr)

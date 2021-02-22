@@ -206,11 +206,9 @@ if __name__ == "__main__":
                 processes, run1 = ds.__next__()
         for batch, labels in run:
             cntr += 1
-            iterations = args.dataset_size * cntr
+            iterations = args.dataset_size * cntr * args.dataset_workers
 
             for i in range(len(labels)):
-                #print(np.array2string(batch[i].numpy()))
-                #print(labels[i].numpy())
                 os.write(fd, b"%d %s\n" % (labels[i].numpy(), re.sub(r'\s+', '', np.array2string(batch[i].numpy(), separator=',',
                                                                      max_line_width=np.inf)).encode()))
 
