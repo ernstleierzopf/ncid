@@ -1246,12 +1246,12 @@ def calculate_statistics(datum):
     # dbl = is_dbl(numbers)
     nic = calculate_nic(numbers)
     sdd = calculate_sdd(numbers)
-    #ldi_stats = calculate_ldi_stats(numbers)
     ptx = calculate_ptx(numbers)
     phic = calculate_phic(datum)
     bdi = calculate_bdi(numbers)
     # cdd = calculate_cdd(numbers)
     # sstd = calculate_sstd(numbers)
+    ldi_stats = calculate_ldi_stats(numbers)
 
     # ny_gram_frequencies = []
     # for i in range(2, 8):
@@ -1274,7 +1274,7 @@ def calculate_statistics(datum):
     #     ldi] + [rod] + [lr] + [nomor] + [dbl] + [sdd] + frequencies
 
     return [unigram_ioc] + [digraphic_ioc] + frequencies + [has_0] + [has_h] + [has_j] + [has_x] + [has_sp] + [rod] + [lr] + [sdd] +\
-           [ldi] + [nomor] + [phic] + [bdi] + [ptx] + [nic] + [mka] + [mic] #+ ldi_stats
+           [ldi] + [nomor] + [phic] + [bdi] + [ptx] + [nic] + [mka] + [mic] + ldi_stats
 
     # all features
     # return [unigram_ioc] + [digraphic_ioc] + [has_j] + [entropy] + [chi_square] + [has_h] + [has_sp] + [has_x] + [has_0] + [mic] +\
@@ -1288,7 +1288,8 @@ def calculate_statistics(datum):
 
 
 class TextLine2CipherStatisticsDataset:
-    def __init__(self, paths, cipher_types, batch_size, min_text_len, max_text_len, keep_unknown_symbols=False, dataset_workers=None):
+    def __init__(self, paths, cipher_types, batch_size, min_text_len, max_text_len, keep_unknown_symbols=False, dataset_workers=None,
+                 generate_test_data=False):
         self.keep_unknown_symbols = keep_unknown_symbols
         self.dataset_workers = dataset_workers
         self.cipher_types = cipher_types
@@ -1312,6 +1313,7 @@ class TextLine2CipherStatisticsDataset:
             else:
                 count += 1
         self.key_lengths_count = count
+        self.generate_test_data=generate_test_data
 
     def shuffle(self, buffer_size, seed=None, reshuffle_each_iteration=None):
         new_dataset = copy.copy(self)
@@ -1328,6 +1330,8 @@ class TextLine2CipherStatisticsDataset:
         c = SimpleSubstitution(config.INPUT_ALPHABET, config.UNKNOWN_SYMBOL, config.UNKNOWN_SYMBOL_NUMBER)
         # debugging does not work here!
         result_list = manager.list()
+        if self.generate_test_data:
+            ciphertext_list = manager.list()
         for _ in range(self.dataset_workers):
             d = []
             for _ in range(self.batch_size // self.key_lengths_count):
@@ -1351,14 +1355,20 @@ class TextLine2CipherStatisticsDataset:
                         d.append(data[:self.max_text_len-(self.max_text_len % 2)])
                     else:
                         d.append(data[:len(data)-(len(data) % 2)])
-            process = multiprocessing.Process(target=self._worker, args=(d, result_list))
+            if self.generate_test_data:
+                process = multiprocessing.Process(target=self._worker, args=(d, result_list, ciphertext_list))
+            else:
+                process = multiprocessing.Process(target=self._worker, args=(d, result_list))
             process.start()
             processes.append(process)
+        if self.generate_test_data:
+            return processes, result_list, ciphertext_list
         return processes, result_list
 
-    def _worker(self, data, result):
+    def _worker(self, data, result, ciphertext_list=None):
         batch = []
         labels = []
+        ciphertexts = []
         for d in data:
             for cipher_t in self.cipher_types:
                 index = config.CIPHER_TYPES.index(cipher_t)
@@ -1373,6 +1383,8 @@ class TextLine2CipherStatisticsDataset:
                         batch.append(statistics)
                     else:
                         batch.append(list(ciphertext))
+                    if self.generate_test_data:
+                        ciphertexts.append(list(ciphertext))
                     labels.append(index)
         if config.PAD_INPUT:
             batch = pad_sequences(batch, maxlen=self.max_text_len, padding='post', value=len(OUTPUT_ALPHABET))
@@ -1380,3 +1392,6 @@ class TextLine2CipherStatisticsDataset:
             result.append((tf.convert_to_tensor(batch), tf.convert_to_tensor(labels)))
         else:
             result.append((tf.convert_to_tensor(batch), tf.convert_to_tensor(labels)))
+        if self.generate_test_data:
+            ciphertexts = pad_sequences(ciphertexts, maxlen=self.max_text_len, padding='post', value=len(OUTPUT_ALPHABET))
+            ciphertext_list.append(tf.convert_to_tensor(ciphertexts))

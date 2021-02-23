@@ -18,6 +18,7 @@ from util.fileUtils import print_progress
 import cipherTypeDetection.config as config
 from cipherTypeDetection.textLine2CipherStatisticsDataset import TextLine2CipherStatisticsDataset, calculate_statistics
 from cipherTypeDetection.EnsembleModel import EnsembleModel
+from cipherTypeDetection.transformer import MultiHeadSelfAttention, TransformerBlock, TokenAndPositionEmbedding
 from cipherImplementations.cipher import OUTPUT_ALPHABET, UNKNOWN_SYMBOL_NUMBER
 tf.debugging.set_log_device_placement(enabled=False)
 # always flush after print as some architectures like RF need very long time before printing anything.
@@ -67,7 +68,7 @@ def benchmark(args_, model_):
         if os.path.isfile(path):
             plaintext_files.append(path)
     dataset = TextLine2CipherStatisticsDataset(plaintext_files, cipher_types, args_.dataset_size, args_.min_text_len, args_.max_text_len,
-                                               args_.keep_unknown_symbols, args_.dataset_workers)
+                                               args_.keep_unknown_symbols, args_.dataset_workers, generate_test_data=True)
     if args_.dataset_size % dataset.key_lengths_count != 0:
         print("WARNING: the --dataset_size parameter must be dividable by the amount of --ciphers  and the length configured KEY_LENGTHS in"
               " config.py. The current key_lengths_count is %d" % dataset.key_lengths_count, file=sys.stderr)
@@ -82,25 +83,34 @@ def benchmark(args_, model_):
     results = []
     run = None
     run1 = None
+    ciphertexts = None
+    ciphertexts1 = None
     processes = []
     while dataset.iteration < args_.max_iter:
         if run1 is None:
             epoch = 0
-            processes, run1 = dataset.__next__()
+            processes, run1, ciphertexts1 = dataset.__next__()
         if run is None:
             for process in processes:
                 process.join()
             run = run1
+            ciphertexts = ciphertexts1
             dataset.iteration += dataset.batch_size * dataset.dataset_workers
             if dataset.iteration < args_.max_iter:
                 epoch = dataset.epoch
-                processes, run1 = dataset.__next__()
-        for batch, labels in run:
-            if architecture in ("FFNN", "CNN", "LSTM", "Transformer", "Ensemble"):
-                results.append(model_.evaluate(batch, labels, batch_size=args_.batch_size))
+                processes, run1, ciphertexts1 = dataset.__next__()
+        for j in range(len(run)):
+            batch, labels = run[j]
+            batch_ciphertexts = ciphertexts[j]
+            if architecture == "FFNN":
+                results.append(model_.evaluate(batch, labels, batch_size=args_.batch_size, verbose=1))
+            if architecture in ("CNN", "LSTM", "Transformer"):
+                results.append(model_.evaluate(batch_ciphertexts, labels, batch_size=args_.batch_size, verbose=1))
             elif architecture in ("DT", "NB", "RF", "ET"):
                 results.append(model_.score(batch, labels))
                 print("accuracy: %f" % (results[-1]))
+            elif architecture == "Ensemble":
+                results.append(model_.evaluate(batch, batch_ciphertexts, labels, args_.batch_size, verbose=1))
             cntr += 1
             iteration = args_.dataset_size * cntr
             epoch = dataset.epoch
@@ -151,6 +161,7 @@ def evaluate(args_, model_):
             if iterations > args_.max_iter:
                 break
             batch = []
+            batch_ciphertexts = []
             labels = []
             with open(path, "rb") as fd:
                 for line in fd:
@@ -159,11 +170,17 @@ def evaluate(args_, model_):
                     labels.append(int(split_line[0].decode()))
                     statistics = ast.literal_eval(split_line[1].decode())
                     batch.append(statistics)
+                    batch_ciphertexts.append(ast.literal_eval(split_line[2].decode()))
                     iterations += 1
                     if iterations == args_.max_iter:
                         break
-            if architecture in ("FFNN", "CNN", "LSTM", "Transformer", "Ensemble"):
+            if architecture == "FFNN":
                 result = model_.evaluate(tf.convert_to_tensor(batch), tf.convert_to_tensor(labels), args_.batch_size, verbose=0)
+            elif architecture in ("CNN", "LSTM", "Transformer"):
+                result = model_.evaluate(tf.convert_to_tensor(batch_ciphertexts), tf.convert_to_tensor(labels), args_.batch_size, verbose=0)
+            elif architecture == "Ensemble":
+                result = model_.evaluate(tf.convert_to_tensor(batch), tf.convert_to_tensor(batch_ciphertexts), tf.convert_to_tensor(labels),
+                                         args_.batch_size, verbose=0)
             elif architecture in ("DT", "NB", "RF", "ET"):
                 result = model.score(batch, tf.convert_to_tensor(labels))
             results_list.append(result)
@@ -205,21 +222,25 @@ def predict_single_line(args_, model_):
     cipher_id_result = ''
     ciphertexts = []
     if args_.ciphertext is not None:
-        ciphertexts.append(bytes(args_.ciphertext, 'ascii'))
+        ciphertexts.append(args_.ciphertext.encode())
     else:
         ciphertexts = open(args_.file, 'rb')
 
     print()
     for line in ciphertexts:
         # remove newline
-        line = line[:-1]
+        line = line.strip(b'\n')
         print(line)
         ciphertext = map_text_into_numberspace(line, OUTPUT_ALPHABET, UNKNOWN_SYMBOL_NUMBER)
         statistics = calculate_statistics(ciphertext)
-        if architecture in ("FFNN", "CNN", "LSTM", "Transformer", "Ensemble"):
+        if architecture == "FFNN":
             result = model_.predict(tf.convert_to_tensor([statistics]), args_.batch_size, verbose=0)
+        elif architecture in ("CNN", "LSTM", "Transformer"):
+            result = model_.predict(tf.convert_to_tensor(tf.convert_to_tensor([ciphertext])), args_.batch_size, verbose=0)
         elif architecture in ("DT", "NB", "RF", "ET"):
-            result = model_.predict(tf.convert_to_tensor([statistics]))
+            result = model_.predict_proba(tf.convert_to_tensor([statistics]))
+        elif architecture == "Ensemble":
+            result = model_.predict(tf.convert_to_tensor([statistics]), tf.convert_to_tensor([ciphertext]), args_.batch_size, verbose=0)
         if args_.verbose:
             for cipher in args_.ciphers:
                 print("{:23s} {:f}%".format(cipher, result[0].tolist()[config.CIPHER_TYPES.index(cipher)]*100))
@@ -241,13 +262,26 @@ def predict_single_line(args_, model_):
 def load_model():
     global architecture
     if architecture in ("FFNN", "CNN", "LSTM", "Transformer"):
-        model_ = tf.keras.models.load_model(args.model)
+        if architecture == 'Transformer':
+            model_ = tf.keras.models.load_model(args.model, custom_objects={
+                'TokenAndPositionEmbedding': TokenAndPositionEmbedding, 'MultiHeadSelfAttention': MultiHeadSelfAttention,
+                'TransformerBlock': TransformerBlock})
+        else:
+            model_ = tf.keras.models.load_model(args.model)
+        if architecture in ("CNN", "LSTM", "Transformer"):
+            config.FEATURE_ENGINEERING = False
+            config.PAD_INPUT = True
+        else:
+            config.FEATURE_ENGINEERING = True
+            config.PAD_INPUT = False
         optimizer = Adam(learning_rate=config.learning_rate, beta_1=config.beta_1, beta_2=config.beta_2, epsilon=config.epsilon,
                          amsgrad=config.amsgrad)
         model_.compile(optimizer=optimizer, loss="sparse_categorical_crossentropy",
                        metrics=["accuracy", SparseTopKCategoricalAccuracy(k=3, name="k3_accuracy")])
         return model_
     elif architecture in ("DT", "NB", "RF", "ET"):
+        config.FEATURE_ENGINEERING = True
+        config.PAD_INPUT = False
         global model_path
         with open(model_path, "rb") as f:
             return pickle.load(f)
@@ -455,6 +489,8 @@ if __name__ == "__main__":
             if arch in ('FFNN', 'CNN', 'LSTM', 'Transformer') and not os.path.abspath(model).endswith('.h5'):
                 raise ValueError("Model names of the types %s must have the .h5 extension." % ['FFNN', 'CNN', 'LSTM', 'Transformer'])
         strategy = args.strategy
+        model_list = args.models
+        architecture_list = args.architectures
     elif args.models is not None or args.architectures is not None:
         raise ValueError("It is only allowed to use the --models and --architectures with the Ensemble architecture.")
 

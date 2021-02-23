@@ -3,7 +3,7 @@ import tensorflow as tf
 
 # implementation from https://keras.io/examples/nlp/text_classification_with_transformer/
 class MultiHeadSelfAttention(tf.keras.layers.Layer):
-    def __init__(self, embed_dim, num_heads=8):
+    def __init__(self, embed_dim=128, num_heads=8, name=None, trainable=None, dtype=None):
         super(MultiHeadSelfAttention, self).__init__()
         self.embed_dim = embed_dim
         self.num_heads = num_heads
@@ -58,7 +58,7 @@ class MultiHeadSelfAttention(tf.keras.layers.Layer):
 
 
 class TransformerBlock(tf.keras.layers.Layer):
-    def __init__(self, embed_dim, num_heads, ff_dim, rate=0.1):
+    def __init__(self, embed_dim=128, num_heads=8, ff_dim=1024, rate=0.1, name=None, trainable=None, dtype=None):
         super(TransformerBlock, self).__init__()
         self.att = MultiHeadSelfAttention(embed_dim, num_heads)
         self.ffn = tf.keras.Sequential(
@@ -83,7 +83,7 @@ class TransformerBlock(tf.keras.layers.Layer):
 
 
 class TokenAndPositionEmbedding(tf.keras.layers.Layer):
-    def __init__(self, maxlen, vocab_size, embed_dim):
+    def __init__(self, maxlen=100, vocab_size=20000, embed_dim=128, name=None, trainable=None, dtype=None):
         super(TokenAndPositionEmbedding, self).__init__()
         self.token_emb = tf.keras.layers.Embedding(input_dim=vocab_size, output_dim=embed_dim)
         self.pos_emb = tf.keras.layers.Embedding(input_dim=maxlen, output_dim=embed_dim)

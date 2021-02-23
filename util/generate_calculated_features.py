@@ -170,7 +170,7 @@ if __name__ == "__main__":
             plaintext_files.append(path)
 
     ds = TextLine2CipherStatisticsDataset(plaintext_files, cipher_types, args.dataset_size, args.min_len, args.max_len,
-                                          args.keep_unknown_symbols, args.dataset_workers)
+                                          args.keep_unknown_symbols, args.dataset_workers, generate_test_data=True)
     if args.dataset_size % ds.key_lengths_count != 0:
         print("WARNING: the --dataset_size parameter must be dividable by the amount of --ciphers  and the length configured "
               "KEY_LENGTHS in config.py. The current key_lengths_count is %d" % ds.key_lengths_count, file=sys.stderr)
@@ -185,6 +185,8 @@ if __name__ == "__main__":
     val_labels = None
     run = None
     run1 = None
+    ciphertexts = None
+    ciphertexts1 = None
     processes = []
     classes = list(range(len(config.CIPHER_TYPES)))
     new_run = [[], []]
@@ -194,27 +196,32 @@ if __name__ == "__main__":
     while ds.iteration < args.max_iter:
         if run1 is None:
             epoch = 0
-            processes, run1 = ds.__next__()
+            processes, run1, ciphertexts1 = ds.__next__()
         if run is None:
             fd = os.open(os.path.join(args.save_directory, str(file_name_cntr) + '.txt'), os.O_WRONLY | os.O_CREAT)
             for process in processes:
                 process.join()
             run = run1
+            ciphertexts = ciphertexts1
             ds.iteration += ds.batch_size * ds.dataset_workers
             if ds.iteration < args.max_iter:
                 epoch = ds.epoch
-                processes, run1 = ds.__next__()
-        for batch, labels in run:
+                processes, run1, ciphertexts1 = ds.__next__()
+        for i in range(len(run)):
+            batch, labels = run[i]
+            batch_ciphertexts = ciphertexts[i]
             cntr += 1
-            iterations = args.dataset_size * cntr * args.dataset_workers
+            iterations = args.dataset_size * cntr
 
-            for i in range(len(labels)):
-                os.write(fd, b"%d %s\n" % (labels[i].numpy(), re.sub(r'\s+', '', np.array2string(batch[i].numpy(), separator=',',
-                                                                     max_line_width=np.inf)).encode()))
+            for j in range(len(labels)):
+                os.write(fd, b"%d %s %s\n" % (labels[j].numpy(), re.sub(r'\s+', '', np.array2string(
+                    batch[j].numpy(), separator=',', max_line_width=np.inf)).encode(), re.sub(r'\s+', '', np.array2string(
+                        batch_ciphertexts[j].numpy(), separator=',', max_line_width=np.inf)).encode()))
 
             if epoch > 0:
                 epoch = iterations // ((ds.iteration + ds.batch_size * ds.dataset_workers) // ds.epoch)
             print("Epoch: %d, Iteration: %d" % (epoch, iterations))
+            print(ds.iteration)
             if iterations >= args.max_iter:
                 break
         if ds.iteration >= args.max_iter:

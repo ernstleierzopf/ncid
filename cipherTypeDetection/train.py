@@ -568,7 +568,7 @@ if __name__ == "__main__":
                 prediction = model[0].predict(batch, batch_size=args.batch_size, verbose=1)
             else:
                 prediction = model.predict(batch, batch_size=args.batch_size, verbose=1)
-            for i in range(0, len(prediction)):
+            for i in range(len(prediction)):
                 if labels[i] == np.argmax(prediction[i]):
                     correct_all += 1
                     correct[labels[i]] += 1
