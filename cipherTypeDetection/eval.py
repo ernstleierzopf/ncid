@@ -101,7 +101,9 @@ def benchmark(args_, model_):
                 processes, run1, ciphertexts1 = dataset.__next__()
         for j in range(len(run)):
             batch, labels = run[j]
-            batch_ciphertexts = ciphertexts[j]
+            batch = tf.convert_to_tensor(batch)
+            labels = tf.convert_to_tensor(labels)
+            batch_ciphertexts = tf.convert_to_tensor(ciphertexts[j])
             if architecture == "FFNN":
                 results.append(model_.evaluate(batch, labels, batch_size=args_.batch_size, verbose=1))
             if architecture in ("CNN", "LSTM", "Transformer"):

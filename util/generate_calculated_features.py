@@ -214,9 +214,15 @@ if __name__ == "__main__":
             iterations = args.dataset_size * cntr
 
             for j in range(len(labels)):
-                os.write(fd, b"%d %s %s\n" % (labels[j].numpy(), re.sub(r'\s+', '', np.array2string(
-                    batch[j].numpy(), separator=',', max_line_width=np.inf)).encode(), re.sub(r'\s+', '', np.array2string(
-                        batch_ciphertexts[j].numpy(), separator=',', max_line_width=np.inf)).encode()))
+                batch_arr = bytearray()
+                for b in batch[j]:
+                    batch_arr += b'%f,' % b
+                batch_arr = bytes(batch_arr)[:-1]
+                batch_ciphers = bytearray()
+                for c in batch_ciphertexts[j]:
+                    batch_ciphers += b'%d,' % c
+                batch_ciphers = bytes(batch_ciphers)[:-1]
+                os.write(fd, b"%d %s %s\n" % (labels[j], batch_arr, batch_ciphers))
 
             if epoch > 0:
                 epoch = iterations // ((ds.iteration + ds.batch_size * ds.dataset_workers) // ds.epoch)

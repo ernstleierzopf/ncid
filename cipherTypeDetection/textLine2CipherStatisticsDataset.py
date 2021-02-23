@@ -1313,7 +1313,7 @@ class TextLine2CipherStatisticsDataset:
             else:
                 count += 1
         self.key_lengths_count = count
-        self.generate_test_data=generate_test_data
+        self.generate_test_data = generate_test_data
 
     def shuffle(self, buffer_size, seed=None, reshuffle_each_iteration=None):
         new_dataset = copy.copy(self)
@@ -1389,9 +1389,9 @@ class TextLine2CipherStatisticsDataset:
         if config.PAD_INPUT:
             batch = pad_sequences(batch, maxlen=self.max_text_len, padding='post', value=len(OUTPUT_ALPHABET))
             batch = batch.reshape(batch.shape[0], batch.shape[1], 1)
-            result.append((tf.convert_to_tensor(batch), tf.convert_to_tensor(labels)))
-        else:
-            result.append((tf.convert_to_tensor(batch), tf.convert_to_tensor(labels)))
         if self.generate_test_data:
             ciphertexts = pad_sequences(ciphertexts, maxlen=self.max_text_len, padding='post', value=len(OUTPUT_ALPHABET))
-            ciphertext_list.append(tf.convert_to_tensor(ciphertexts))
+            ciphertext_list.append(ciphertexts)
+            result.append((batch, labels))
+        else:
+            result.append((tf.convert_to_tensor(batch), tf.convert_to_tensor(labels)))
