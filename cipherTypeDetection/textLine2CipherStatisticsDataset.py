@@ -1307,7 +1307,7 @@ class TextLine2CipherStatisticsDataset:
             self.dataset = self.dataset.zip(dataset)
         count = 0
         for cipher_t in self.cipher_types:
-            index = config.CIPHER_TYPES.index(cipher_t)
+            index = self.cipher_types.index(cipher_t)
             if isinstance(config.KEY_LENGTHS[index], list):
                 count += len(config.KEY_LENGTHS[index])
             else:
@@ -1372,10 +1372,11 @@ class TextLine2CipherStatisticsDataset:
         for d in data:
             for cipher_t in self.cipher_types:
                 index = config.CIPHER_TYPES.index(cipher_t)
-                if isinstance(config.KEY_LENGTHS[index], list):
-                    key_lengths = config.KEY_LENGTHS[index]
+                label = self.cipher_types.index(cipher_t)
+                if isinstance(config.KEY_LENGTHS[label], list):
+                    key_lengths = config.KEY_LENGTHS[label]
                 else:
-                    key_lengths = [config.KEY_LENGTHS[index]]
+                    key_lengths = [config.KEY_LENGTHS[label]]
                 for key_length in key_lengths:
                     ciphertext = encrypt(d, index, key_length, self.keep_unknown_symbols)
                     if config.FEATURE_ENGINEERING:
@@ -1385,7 +1386,7 @@ class TextLine2CipherStatisticsDataset:
                         batch.append(list(ciphertext))
                     if self.generate_test_data:
                         ciphertexts.append(list(ciphertext))
-                    labels.append(index)
+                    labels.append(label)
         if config.PAD_INPUT:
             batch = pad_sequences(batch, maxlen=self.max_text_len, padding='post', value=len(OUTPUT_ALPHABET))
             batch = batch.reshape(batch.shape[0], batch.shape[1], 1)

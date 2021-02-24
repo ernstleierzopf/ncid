@@ -30,6 +30,7 @@ model_path = None
 model_list = None
 architecture_list = None
 strategy = None
+cipher_types = None
 
 
 def str2bool(v):
@@ -291,7 +292,11 @@ def load_model():
         global model_list
         global architecture_list
         global strategy
-        return EnsembleModel(model_list, architecture_list, strategy)
+        global cipher_types
+        cipher_indices = []
+        for cipher_type in cipher_types:
+            cipher_indices.append(config.CIPHER_TYPES.index(cipher_type))
+        return EnsembleModel(model_list, architecture_list, strategy, cipher_indices)
     else:
         raise ValueError("Unknown architecture: %s" % architecture)
 

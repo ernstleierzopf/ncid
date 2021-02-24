@@ -188,7 +188,6 @@ if __name__ == "__main__":
     ciphertexts = None
     ciphertexts1 = None
     processes = []
-    classes = list(range(len(config.CIPHER_TYPES)))
     new_run = [[], []]
     np.set_printoptions(threshold=np.inf)
     file_name_cntr = 1
