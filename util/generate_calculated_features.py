@@ -5,7 +5,6 @@ import argparse
 import sys
 import time
 import os
-import re
 import functools
 from datetime import datetime
 # This environ variable must be set before all tensorflow imports!
