@@ -226,7 +226,6 @@ if __name__ == "__main__":
             if epoch > 0:
                 epoch = iterations // ((ds.iteration + ds.batch_size * ds.dataset_workers) // ds.epoch)
             print("Epoch: %d, Iteration: %d" % (epoch, iterations))
-            print(ds.iteration)
             if iterations >= args.max_iter:
                 break
         if ds.iteration >= args.max_iter:
