@@ -53,3 +53,14 @@ def decrypt_morse(ciphertext, key_morse, key):
         morse_code += key_morse[np.where(key == c)[0][0]]
     morse_code += 'x'
     return morse_code
+
+
+def get_model_input_length(model_, arch):
+    input_length = None
+    if arch == "LSTM":
+        input_length = model_.layers[0].input_length
+    elif arch == "CNN":
+        input_length = model_.layers[0].input_shape[1]
+    elif arch == "Transformer":
+        input_length = model_.layers[0].input_shape[0][1]
+    return input_length

@@ -5,6 +5,7 @@ import os
 import pickle
 import ast
 import functools
+import numpy as np
 from datetime import datetime
 # This environ variable must be set before all tensorflow imports!
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
@@ -12,6 +13,7 @@ import tensorflow as tf
 import tensorflow_datasets as tfds
 from tensorflow.keras.optimizers import Adam
 from tensorflow.keras.metrics import SparseTopKCategoricalAccuracy
+from tensorflow.keras.preprocessing.sequence import pad_sequences
 sys.path.append("../")
 from util.textUtils import map_text_into_numberspace
 from util.fileUtils import print_progress
@@ -19,6 +21,7 @@ import cipherTypeDetection.config as config
 from cipherTypeDetection.textLine2CipherStatisticsDataset import TextLine2CipherStatisticsDataset, calculate_statistics
 from cipherTypeDetection.EnsembleModel import EnsembleModel
 from cipherTypeDetection.transformer import MultiHeadSelfAttention, TransformerBlock, TokenAndPositionEmbedding
+from util.textUtils import get_model_input_length
 from cipherImplementations.cipher import OUTPUT_ALPHABET, UNKNOWN_SYMBOL_NUMBER
 tf.debugging.set_log_device_placement(enabled=False)
 # always flush after print as some architectures like RF need very long time before printing anything.
@@ -166,6 +169,7 @@ def evaluate(args_, model_):
             batch = []
             batch_ciphertexts = []
             labels = []
+            input_length = get_model_input_length(model_, args_.architecture)
             with open(path, "rb") as fd:
                 for line in fd:
                     # remove newline
@@ -173,7 +177,14 @@ def evaluate(args_, model_):
                     labels.append(int(split_line[0].decode()))
                     statistics = ast.literal_eval(split_line[1].decode())
                     batch.append(statistics)
-                    batch_ciphertexts.append(ast.literal_eval(split_line[2].decode()))
+                    ciphertext = ast.literal_eval(split_line[2].decode())
+                    if input_length is not None:
+                        if len(ciphertext) < input_length:
+                            ciphertext = pad_sequences([ciphertext], maxlen=input_length, padding='post', value=len(OUTPUT_ALPHABET))[0]
+                        # if the length its too high, we need to strip it..
+                        elif len(ciphertext) > input_length:
+                            ciphertext = ciphertext[:input_length]
+                    batch_ciphertexts.append(ciphertext)
                     iterations += 1
                     if iterations == args_.max_iter:
                         break
@@ -182,7 +193,7 @@ def evaluate(args_, model_):
             elif architecture in ("CNN", "LSTM", "Transformer"):
                 result = model_.evaluate(tf.convert_to_tensor(batch_ciphertexts), tf.convert_to_tensor(labels), args_.batch_size, verbose=0)
             elif architecture == "Ensemble":
-                result = model_.evaluate(tf.convert_to_tensor(batch), tf.convert_to_tensor(batch_ciphertexts), tf.convert_to_tensor(labels),
+                result = model_.evaluate(tf.convert_to_tensor(batch), batch_ciphertexts, tf.convert_to_tensor(labels),
                                          args_.batch_size, verbose=0)
             elif architecture in ("DT", "NB", "RF", "ET"):
                 result = model.score(batch, tf.convert_to_tensor(labels))
@@ -236,22 +247,44 @@ def predict_single_line(args_, model_):
         print(line)
         ciphertext = map_text_into_numberspace(line, OUTPUT_ALPHABET, UNKNOWN_SYMBOL_NUMBER)
         statistics = calculate_statistics(ciphertext)
+        results = None
         if architecture == "FFNN":
             result = model_.predict(tf.convert_to_tensor([statistics]), args_.batch_size, verbose=0)
         elif architecture in ("CNN", "LSTM", "Transformer"):
-            result = model_.predict(tf.convert_to_tensor(tf.convert_to_tensor([ciphertext])), args_.batch_size, verbose=0)
+            input_length = get_model_input_length(model_, architecture)
+            if len(ciphertext) < input_length:
+                ciphertext = pad_sequences([ciphertext], maxlen=input_length, padding='post', value=len(OUTPUT_ALPHABET))
+                ciphertext = ciphertext[0]
+            split_ciphertext = [ciphertext[input_length*j:input_length*(j+1)] for j in range(len(ciphertext) // input_length)]
+            results = []
+            if architecture in ("LSTM", "Transformer"):
+                for ct in split_ciphertext:
+                    results.append(model_.predict(tf.convert_to_tensor([ct]), args_.batch_size, verbose=0))
+            elif architecture == "CNN":
+                for ct in split_ciphertext:
+                    results.append(
+                        model_.predict(tf.reshape(tf.convert_to_tensor([ct]), (1, input_length, 1)), args_.batch_size, verbose=0))
+            result = results[0]
+            for res in results[1:]:
+                result = np.add(result, res)
         elif architecture in ("DT", "NB", "RF", "ET"):
             result = model_.predict_proba(tf.convert_to_tensor([statistics]))
         elif architecture == "Ensemble":
             result = model_.predict(tf.convert_to_tensor([statistics]), tf.convert_to_tensor([ciphertext]), args_.batch_size, verbose=0)
+
+        if isinstance(result, list):
+            result_list = result[0]
+        else:
+            result_list = result[0].tolist()
+        if results is not None and architecture != 'Ensemble':
+            for j in range(len(result_list)):
+                result_list[j] /= len(results)
         if args_.verbose:
             for cipher in args_.ciphers:
-                print("{:23s} {:f}%".format(cipher, result[0].tolist()[config.CIPHER_TYPES.index(cipher)]*100))
-            result_list = result[0].tolist()
+                print("{:23s} {:f}%".format(cipher, result_list[config.CIPHER_TYPES.index(cipher)]*100))
             max_val = max(result_list)
             cipher = config.CIPHER_TYPES[result_list.index(max_val)]
         else:
-            result_list = result[0].tolist()
             max_val = max(result_list)
             cipher = config.CIPHER_TYPES[result_list.index(max_val)]
             print("{:s} {:f}%".format(cipher, max_val * 100))

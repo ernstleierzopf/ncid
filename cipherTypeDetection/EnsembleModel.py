@@ -3,8 +3,11 @@ import pickle
 import numpy as np
 from tensorflow.keras.optimizers import Adam
 from tensorflow.keras.metrics import SparseTopKCategoricalAccuracy
+from tensorflow.keras.preprocessing.sequence import pad_sequences
 import cipherTypeDetection.config as config
 from cipherTypeDetection.transformer import MultiHeadSelfAttention, TransformerBlock, TokenAndPositionEmbedding
+from cipherImplementations.cipher import OUTPUT_ALPHABET
+from util.textUtils import get_model_input_length
 
 
 f1_ffnn = [0.45677661403783026, 0.6785499002923047, 1.0, 0.993867867812318, 0.8442286424167134, 0.5859076061595894, 0.30304328628519256, 0.9999799875923071, 0.26127273287396924, 0.4356883869292373, 0.5628798503973819, 0.6365134538251727, 0.8085363984906851, 0.9979876611449238, 0.9999815267523414, 0.9373136806630701, 0.999351508551307, 0.8604875305036136, 0.975091061571391, 1.0, 0.9947203345530581, 0.9999568946937368, 0.9999368882198014, 0.2855991819640417, 0.6042709689898346, 1.0, 0.2903793343132898, 1.0, 1.0, 0.9993523086887558, 0.6686556020372472, 0.6280907431733375, 0.9829106652600341, 0.7705406903091276, 1.0, 0.9798411160627786, 0.9590404556960498, 0.46540219383538745, 0.17843291311024606, 0.22803008293473345, 0.17494245437019557, 0.1342144970538898, 0.9908008574794165, 0.10341683374632446, 0.1758700204857212, 1.0, 1.0, 0.6083905937622659, 0.8171821406584385, 0.5708910436767174, 0.9999984605887633, 0.6361915536398225, 0.9999799879003768, 0.7745224829365815, 0.43112259993459673, 0.408220433274429, 0.7241931848170303, 0.7178278933865777]
@@ -103,16 +106,37 @@ class EnsembleModel:
 
     def predict(self, batch, ciphertexts, batch_size, verbose=0):
         results = []
-        res = None
         for i in range(len(self.models)):
             if self.architectures[i] == "FFNN":
                 results.append(self.models[i].predict(batch, batch_size=batch_size, verbose=verbose))
             elif self.architectures[i] in ("CNN", "LSTM", "Transformer"):
-                results.append(self.models[i].predict(ciphertexts, batch_size=batch_size, verbose=verbose))
+                input_length = get_model_input_length(self.models[i], self.architectures[i])
+                split_ciphertexts = []
+                for ciphertext in ciphertexts:
+                    if len(ciphertext) < input_length:
+                        ciphertext = pad_sequences([ciphertext], maxlen=input_length, padding='post', value=len(OUTPUT_ALPHABET))[0]
+                    split_ciphertexts.append([ciphertext[input_length*j:input_length*(j+1)] for j in range(
+                        len(ciphertext) // input_length)])
+                split_results = []
+                if self.architectures[i] in ("LSTM", "Transformer"):
+                    for split_ciphertext in split_ciphertexts:
+                        for ct in split_ciphertext:
+                            split_results.append(self.models[i].predict(tf.convert_to_tensor([ct]), batch_size=batch_size, verbose=verbose))
+                elif self.architectures[i] == "CNN":
+                    for split_ciphertext in split_ciphertexts:
+                        for ct in split_ciphertext:
+                            split_results.append(self.models[i].predict(tf.reshape(tf.convert_to_tensor([ct]), (1, input_length, 1)),
+                                                 batch_size=batch_size, verbose=0))
+                res = split_results[0]
+                for split_result in split_results[1:]:
+                    res = np.add(res, split_result)
+                for j in range(len(res)):
+                    res[j] /= len(split_results)
+                results.append(res)
             elif self.architectures[i] in ("DT", "NB", "RF", "ET"):
                 results.append(self.models[i].predict_proba(batch))
+        res = [[0.] * len(results[0][0]) for _ in range(len(results[0]))]
         if self.strategy == 'mean':
-            res = [[0.]*len(results[0][0]) for _ in range(len(results[0]))]
             for result in results:
                 for i in range(len(result)):
                     for j in range(len(result[i])):
@@ -121,7 +145,6 @@ class EnsembleModel:
                 for j in range(len(results[0][0])):
                     res[i][j] = res[i][j] / len(results)
         elif self.strategy == 'weighted':
-            res = [[0.]*len(results[0][0]) for _ in range(len(results[0]))]
             for i in range(len(results)):
                 statistics = statistics_dict[self.architectures[i]]
                 for j in range(len(results[i])):
@@ -130,4 +153,6 @@ class EnsembleModel:
             for i in range(len(results[0])):
                 for j in range(len(results[0][i])):
                     res[i][j] = res[i][j] / len(results)
+        else:
+            raise ValueError("Unknown strategy %s", self.strategy)
         return res
