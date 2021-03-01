@@ -159,6 +159,7 @@ def evaluate(args_, model_):
     dir_name.sort()
     cntr = 0
     iterations = 0
+    all_results = []
     for name in dir_name:
         if iterations > args_.max_iter:
             break
@@ -169,44 +170,79 @@ def evaluate(args_, model_):
             batch = []
             batch_ciphertexts = []
             labels = []
+            results = []
+            dataset_cnt = 0
             input_length = get_model_input_length(model_, args_.architecture)
             with open(path, "rb") as fd:
-                for line in fd:
-                    # remove newline
-                    split_line = line.split(b' ')
-                    labels.append(int(split_line[0].decode()))
-                    statistics = ast.literal_eval(split_line[1].decode())
-                    batch.append(statistics)
-                    ciphertext = ast.literal_eval(split_line[2].decode())
-                    if input_length is not None:
-                        if len(ciphertext) < input_length:
-                            ciphertext = pad_sequences([ciphertext], maxlen=input_length, padding='post', value=len(OUTPUT_ALPHABET))[0]
-                        # if the length its too high, we need to strip it..
-                        elif len(ciphertext) > input_length:
-                            ciphertext = ciphertext[:input_length]
-                    batch_ciphertexts.append(ciphertext)
-                    iterations += 1
-                    if iterations == args_.max_iter:
-                        break
-            if architecture == "FFNN":
-                result = model_.evaluate(tf.convert_to_tensor(batch), tf.convert_to_tensor(labels), args_.batch_size, verbose=0)
-            elif architecture in ("CNN", "LSTM", "Transformer"):
-                result = model_.evaluate(tf.convert_to_tensor(batch_ciphertexts), tf.convert_to_tensor(labels), args_.batch_size, verbose=0)
-            elif architecture == "Ensemble":
-                result = model_.evaluate(tf.convert_to_tensor(batch), batch_ciphertexts, tf.convert_to_tensor(labels),
-                                         args_.batch_size, verbose=0)
-            elif architecture in ("DT", "NB", "RF", "ET"):
-                result = model.score(batch, tf.convert_to_tensor(labels))
+                lines = fd.readlines()
+            for line in lines:
+                # remove newline
+                line = line.strip(b'\n').decode()
+                split_line = line.split(' ')
+                labels.append(int(split_line[0]))
+                statistics = [float(f) for f in split_line[1].split(',')]
+                batch.append(statistics)
+                ciphertext = [int(j) for j in split_line[2].split(',')]
+                if input_length is not None:
+                    if len(ciphertext) < input_length:
+                        ciphertext = pad_sequences([ciphertext], maxlen=input_length, padding='post', value=len(OUTPUT_ALPHABET))[0]
+                    # if the length its too high, we need to strip it..
+                    elif len(ciphertext) > input_length:
+                        ciphertext = ciphertext[:input_length]
+                batch_ciphertexts.append(ciphertext)
+                iterations += 1
+                if iterations == args_.max_iter:
+                    break
+                if len(labels) == args_.dataset_size:
+                    if architecture == "FFNN":
+                        results.append(model_.evaluate(tf.convert_to_tensor(batch), tf.convert_to_tensor(labels), args_.batch_size, verbose=0))
+                    elif architecture in ("CNN", "LSTM", "Transformer"):
+                        results.append(model_.evaluate(tf.convert_to_tensor(batch_ciphertexts), tf.convert_to_tensor(labels), args_.batch_size, verbose=0))
+                    elif architecture == "Ensemble":
+                        results.append(model_.evaluate(tf.convert_to_tensor(batch), batch_ciphertexts, tf.convert_to_tensor(labels),
+                                                 args_.batch_size, verbose=0))
+                    elif architecture in ("DT", "NB", "RF", "ET"):
+                        results.append(model.score(batch, tf.convert_to_tensor(labels)))
+                    batch = []
+                    batch_ciphertexts = []
+                    labels = []
+                    dataset_cnt += 1
+            if len(labels) > 0:
+                if architecture == "FFNN":
+                    results.append(model_.evaluate(tf.convert_to_tensor(batch), tf.convert_to_tensor(labels), args_.batch_size, verbose=0))
+                elif architecture in ("CNN", "LSTM", "Transformer"):
+                    results.append(
+                        model_.evaluate(tf.convert_to_tensor(batch_ciphertexts), tf.convert_to_tensor(labels), args_.batch_size, verbose=0))
+                elif architecture == "Ensemble":
+                    results.append(
+                        model_.evaluate(tf.convert_to_tensor(batch), batch_ciphertexts, tf.convert_to_tensor(labels), args_.batch_size,
+                                        verbose=0))
+                elif architecture in ("DT", "NB", "RF", "ET"):
+                    results.append(model.score(batch, tf.convert_to_tensor(labels)))
+            if architecture in ("FFNN", "CNN", "LSTM", "Transformer"):
+                avg_loss = 0
+                avg_acc = 0
+                avg_k3_acc = 0
+                for loss, acc_pred, k3_acc in results:
+                    avg_loss += loss
+                    avg_acc += acc_pred
+                    avg_k3_acc += k3_acc
+                result = [avg_loss / len(results), avg_acc / len(results), avg_k3_acc / len(results)]
+            elif architecture in ("DT", "NB", "RF", "ET", "Ensemble"):
+                avg_test_acc = 0
+                for acc in results:
+                    avg_test_acc += acc
+                result = avg_test_acc / len(results)
             results_list.append(result)
             cntr += 1
             if args_.evaluation_mode == 'per_file':
                 if architecture in ("FFNN", "CNN", "LSTM", "Transformer"):
                     print("%s (%d lines) test_loss: %f, test_accuracy: %f, test_k3_accuracy: %f (progress: %d%%)" % (
-                        os.path.basename(path), len(batch), result[0], result[1], result[2], max(
+                        os.path.basename(path), len(batch) + dataset_cnt * args_.dataset_size, result[0], result[1], result[2], max(
                             int(cntr / len(dir_name) * 100), int(iterations / args_.max_iter) * 100)))
                 elif architecture in ("DT", "NB", "RF", "ET", "Ensemble"):
                     print("%s (%d lines) test_accuracy: %f (progress: %d%%)" % (
-                        os.path.basename(path), len(batch), result,
+                        os.path.basename(path), len(batch) + dataset_cnt * args_.dataset_size, result,
                         max(int(cntr / len(dir_name) * 100), int(iterations / args_.max_iter) * 100)))
             else:
                 print_progress("Evaluating files: ", cntr, len(dir_name), factor=5)
@@ -244,9 +280,15 @@ def predict_single_line(args_, model_):
     for line in ciphertexts:
         # remove newline
         line = line.strip(b'\n')
-        print(line)
-        ciphertext = map_text_into_numberspace(line, OUTPUT_ALPHABET, UNKNOWN_SYMBOL_NUMBER)
-        statistics = calculate_statistics(ciphertext)
+        # evaluate aca features file
+        label = line.split(b' ')[0]
+        statistics = ast.literal_eval(line.split(b' ')[1].decode())
+        ciphertext = ast.literal_eval(line.split(b' ')[2].decode())
+        print(config.CIPHER_TYPES[int(label.decode())], "length: %d" % len(ciphertext))
+
+        # print(line)
+        # ciphertext = map_text_into_numberspace(line, OUTPUT_ALPHABET, UNKNOWN_SYMBOL_NUMBER)
+        # statistics = calculate_statistics(ciphertext)
         results = None
         if architecture == "FFNN":
             result = model_.predict(tf.convert_to_tensor([statistics]), args_.batch_size, verbose=0)
@@ -346,7 +388,7 @@ if __name__ == "__main__":
 
     parser.add_argument('--batch_size', default=128, type=int,
                         help='Batch size for training.')
-    parser.add_argument('--max_iter', default=1000000, type=int,
+    parser.add_argument('--max_iter', default=1000000000, type=int,
                         help='the maximal number of iterations before stopping evaluation.')
     parser.add_argument('--model', default='./weights/model.h5', type=str,
                         help='Name of the model file. The file must have the .h5 extension.')
@@ -387,9 +429,10 @@ if __name__ == "__main__":
                         help='The algorithm used for decisions.\n- Mean voting adds the probabilities from every class and returns the mean'
                              ' value of it. The highest value wins.\n- Weighted voting uses pre-calculated statistics, like for example '
                              'precision, to weight the output of a specific model for a specific class.')
+    parser.add_argument('--dataset_size', default=16000, type=int,
+                        help='Dataset size per evaluation. This argument should be dividable \nby the amount of --ciphers.')
 
     bench_parser.add_argument('--download_dataset', default=True, type=str2bool)
-    bench_parser.add_argument('--dataset_size', default=16000, type=int)
     bench_parser.add_argument('--dataset_workers', default=1, type=int)
     bench_parser.add_argument('--plaintext_folder', default='../data/gutenberg_en', type=str)
     bench_parser.add_argument('--keep_unknown_symbols', default=False, type=str2bool)
@@ -398,8 +441,6 @@ if __name__ == "__main__":
 
     bench_group = parser.add_argument_group('benchmark')
     bench_group.add_argument('--download_dataset', help='Download the dataset automatically.')
-    bench_group.add_argument('--dataset_size', help='Dataset size per evaluation. This argument should be dividable \n'
-                             'by the amount of --ciphers.')
     bench_group.add_argument('--dataset_workers', help='The number of parallel workers for reading the input files.')
     bench_group.add_argument('--plaintext_folder', help='Input folder of the plaintexts.')
     bench_group.add_argument('--keep_unknown_symbols', help='Keep unknown symbols in the plaintexts. Known \n'
