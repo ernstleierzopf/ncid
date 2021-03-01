@@ -246,6 +246,8 @@ def evaluate(args_, model_):
                         max(int(cntr / len(dir_name) * 100), int(iterations / args_.max_iter) * 100)))
             else:
                 print_progress("Evaluating files: ", cntr, len(dir_name), factor=5)
+            if iterations == args_.max_iter:
+                break
 
     if architecture in ("FFNN", "CNN", "LSTM", "Transformer"):
         avg_test_loss = 0
