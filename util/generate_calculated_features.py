@@ -138,6 +138,7 @@ if __name__ == "__main__":
         cipher_types.append(config.CIPHER_TYPES[53])
         cipher_types.append(config.CIPHER_TYPES[54])
         cipher_types.append(config.CIPHER_TYPES[55])
+    config.CIPHER_TYPES = cipher_types
     if args.dataset_size * args.dataset_workers > args.max_iter:
         print("ERROR: --dataset_size * --dataset_workers must not be bigger than --max_iter. "
               "In this case it was %d > %d" % (args.dataset_size * args.dataset_workers, args.max_iter), file=sys.stderr)

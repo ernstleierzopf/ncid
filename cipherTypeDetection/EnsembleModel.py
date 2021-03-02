@@ -111,28 +111,36 @@ class EnsembleModel:
                 results.append(self.models[i].predict(batch, batch_size=batch_size, verbose=verbose))
             elif self.architectures[i] in ("CNN", "LSTM", "Transformer"):
                 input_length = get_model_input_length(self.models[i], self.architectures[i])
-                split_ciphertexts = []
-                for ciphertext in ciphertexts:
-                    if len(ciphertext) < input_length:
-                        ciphertext = pad_sequences([ciphertext], maxlen=input_length, padding='post', value=len(OUTPUT_ALPHABET))[0]
-                    split_ciphertexts.append([ciphertext[input_length*j:input_length*(j+1)] for j in range(
-                        len(ciphertext) // input_length)])
-                split_results = []
-                if self.architectures[i] in ("LSTM", "Transformer"):
-                    for split_ciphertext in split_ciphertexts:
-                        for ct in split_ciphertext:
-                            split_results.append(self.models[i].predict(tf.convert_to_tensor([ct]), batch_size=batch_size, verbose=verbose))
-                elif self.architectures[i] == "CNN":
-                    for split_ciphertext in split_ciphertexts:
-                        for ct in split_ciphertext:
-                            split_results.append(self.models[i].predict(tf.reshape(tf.convert_to_tensor([ct]), (1, input_length, 1)),
-                                                 batch_size=batch_size, verbose=0))
-                res = split_results[0]
-                for split_result in split_results[1:]:
-                    res = np.add(res, split_result)
-                for j in range(len(res)):
-                    res[j] /= len(split_results)
-                results.append(res)
+                if isinstance(ciphertexts, list):
+                    split_ciphertexts = []
+                    for ciphertext in ciphertexts:
+                        if len(ciphertext) < input_length:
+                            ciphertext = pad_sequences([ciphertext], maxlen=input_length, padding='post', value=len(OUTPUT_ALPHABET))[0]
+                        split_ciphertexts.append([ciphertext[input_length*j:input_length*(j+1)] for j in range(
+                            len(ciphertext) // input_length)])
+                    split_results = []
+                    if self.architectures[i] in ("LSTM", "Transformer"):
+                        for split_ciphertext in split_ciphertexts:
+                            for ct in split_ciphertext:
+                                split_results.append(self.models[i].predict(tf.convert_to_tensor([ct]), batch_size=batch_size, verbose=verbose))
+                    elif self.architectures[i] == "CNN":
+                        for split_ciphertext in split_ciphertexts:
+                            for ct in split_ciphertext:
+                                split_results.append(self.models[i].predict(tf.reshape(tf.convert_to_tensor([ct]), (1, input_length, 1)),
+                                                     batch_size=batch_size, verbose=0))
+                    res = split_results[0]
+                    for split_result in split_results[1:]:
+                        res = np.add(res, split_result)
+                    for j in range(len(res)):
+                        res[j] /= len(split_results)
+                    results.append(res)
+                else:
+                    if self.architectures[i] in ("LSTM", "Transformer"):
+                        res = self.models[i].predict(ciphertexts, batch_size=batch_size, verbose=verbose)
+                    elif self.architectures[i] == "CNN":
+                        res = self.models[i].predict(tf.reshape(
+                            ciphertexts, (len(ciphertexts), input_length, 1)), batch_size=batch_size, verbose=verbose)
+                    results.append(res)
             elif self.architectures[i] in ("DT", "NB", "RF", "ET"):
                 results.append(self.models[i].predict_proba(batch))
         res = [[0.] * len(results[0][0]) for _ in range(len(results[0]))]

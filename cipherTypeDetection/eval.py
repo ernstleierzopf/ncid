@@ -178,6 +178,8 @@ def evaluate(args_, model_):
             for line in lines:
                 # remove newline
                 line = line.strip(b'\n').decode()
+                if line == '':
+                    continue
                 split_line = line.split(' ')
                 labels.append(int(split_line[0]))
                 statistics = [float(f) for f in split_line[1].split(',')]
@@ -197,10 +199,11 @@ def evaluate(args_, model_):
                     if architecture == "FFNN":
                         results.append(model_.evaluate(tf.convert_to_tensor(batch), tf.convert_to_tensor(labels), args_.batch_size, verbose=0))
                     elif architecture in ("CNN", "LSTM", "Transformer"):
-                        results.append(model_.evaluate(tf.convert_to_tensor(batch_ciphertexts), tf.convert_to_tensor(labels), args_.batch_size, verbose=0))
+                        results.append(model_.evaluate(tf.convert_to_tensor(batch_ciphertexts), tf.convert_to_tensor(labels),
+                                       args_.batch_size, verbose=0))
                     elif architecture == "Ensemble":
-                        results.append(model_.evaluate(tf.convert_to_tensor(batch), batch_ciphertexts, tf.convert_to_tensor(labels),
-                                                 args_.batch_size, verbose=0))
+                        results.append(model_.evaluate(tf.convert_to_tensor(batch), tf.convert_to_tensor(batch_ciphertexts), tf.convert_to_tensor(labels),
+                                       args_.batch_size, verbose=0))
                     elif architecture in ("DT", "NB", "RF", "ET"):
                         results.append(model.score(batch, tf.convert_to_tensor(labels)))
                     batch = []
@@ -215,8 +218,8 @@ def evaluate(args_, model_):
                         model_.evaluate(tf.convert_to_tensor(batch_ciphertexts), tf.convert_to_tensor(labels), args_.batch_size, verbose=0))
                 elif architecture == "Ensemble":
                     results.append(
-                        model_.evaluate(tf.convert_to_tensor(batch), batch_ciphertexts, tf.convert_to_tensor(labels), args_.batch_size,
-                                        verbose=0))
+                        model_.evaluate(tf.convert_to_tensor(batch), tf.convert_to_tensor(batch_ciphertexts), tf.convert_to_tensor(labels),
+                                        args_.batch_size, verbose=0))
                 elif architecture in ("DT", "NB", "RF", "ET"):
                     results.append(model.score(batch, tf.convert_to_tensor(labels)))
             if architecture in ("FFNN", "CNN", "LSTM", "Transformer"):
@@ -578,13 +581,14 @@ if __name__ == "__main__":
         raise ValueError("It is only allowed to use the --models and --architectures with the Ensemble architecture.")
 
     print("Loading Model...")
-    gpu_count = len(tf.config.list_physical_devices('GPU'))
-    if gpu_count > 1:
-        strat = tf.distribute.MirroredStrategy()
-        with strat.scope():
-            model = load_model()
-    else:
-        model = load_model()
+    # gpu_count = len(tf.config.list_physical_devices('GPU'))
+    # if gpu_count > 1:
+    #     strat = tf.distribute.MirroredStrategy()
+    #     with strat.scope():
+    #         model = load_model()
+    # else:
+    #     model = load_model()
+    model = load_model()
     print("Model Loaded.")
 
     # the program was started as in benchmark mode.

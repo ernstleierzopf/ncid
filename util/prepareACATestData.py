@@ -7,7 +7,7 @@ from cipherTypeDetection.textLine2CipherStatisticsDataset import calculate_stati
 from cipherImplementations.cipher import OUTPUT_ALPHABET
 types = CIPHER_TYPES
 
-specialized_model = False
+specialized_model = True
 if specialized_model:
     types = ['amsco', 'bazeries', 'beaufort', 'bifid', 'cmbifid', 'digrafid', 'foursquare', 'fractionated_morse', 'gromark', 'gronsfeld',
              'homophonic', 'monome_dinome', 'morbit', 'myszkowski', 'nicodemus', 'nihilist_substitution', 'periodic_gromark', 'phillips',

@@ -108,7 +108,7 @@ def create_model():
         config.FEATURE_ENGINEERING = False
         config.PAD_INPUT = True
         model_ = tf.keras.Sequential()
-        model_.add(tf.keras.layers.Embedding(len(config.CIPHER_TYPES), 64, input_length=args.max_train_len))
+        model_.add(tf.keras.layers.Embedding(56, 64, input_length=args.max_train_len))
         # model_.add(tf.keras.layers.Dropout(0.2))
         model_.add(tf.keras.layers.LSTM(config.lstm_units))
         # model_.add(tf.keras.layers.Dropout(0.2))
