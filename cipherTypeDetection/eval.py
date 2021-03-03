@@ -159,7 +159,6 @@ def evaluate(args_, model_):
     dir_name.sort()
     cntr = 0
     iterations = 0
-    all_results = []
     for name in dir_name:
         if iterations > args_.max_iter:
             break
@@ -285,6 +284,8 @@ def predict_single_line(args_, model_):
     for line in ciphertexts:
         # remove newline
         line = line.strip(b'\n')
+        if line == b'':
+            continue
         # evaluate aca features file
         label = line.split(b' ')[0]
         statistics = ast.literal_eval(line.split(b' ')[1].decode())
@@ -317,7 +318,7 @@ def predict_single_line(args_, model_):
         elif architecture in ("DT", "NB", "RF", "ET"):
             result = model_.predict_proba(tf.convert_to_tensor([statistics]))
         elif architecture == "Ensemble":
-            result = model_.predict(tf.convert_to_tensor([statistics]), tf.convert_to_tensor([ciphertext]), args_.batch_size, verbose=0)
+            result = model_.predict(tf.convert_to_tensor([statistics]), [ciphertext], args_.batch_size, verbose=0)
 
         if isinstance(result, list):
             result_list = result[0]

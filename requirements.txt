@@ -3,5 +3,5 @@ py_mini_racer==0.4.0
 matplotlib==3.3.2
 numpy==1.17.4
 tensorflow_datasets==4.1.0
-scikit_learn==0.24.1
+scikit_learn==0.23.2 # do not change this to be able to load old models!
 h5py==2.10.0

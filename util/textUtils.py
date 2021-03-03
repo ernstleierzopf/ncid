@@ -63,4 +63,10 @@ def get_model_input_length(model_, arch):
         input_length = model_.layers[0].input_shape[1]
     elif arch == "Transformer":
         input_length = model_.layers[0].input_shape[0][1]
+    elif arch == "Ensemble":
+        for i in range(len(model_.architectures)):
+            if model_.architectures[i] in ("LSTM", "CNN", "Transformer"):
+                return get_model_input_length(model_.models[i], model_.architectures[i])
+        return None
+
     return input_length
