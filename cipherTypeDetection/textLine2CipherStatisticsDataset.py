@@ -1,5 +1,4 @@
 import tensorflow as tf
-from tensorflow.keras.preprocessing.sequence import pad_sequences
 import cipherTypeDetection.config as config
 from cipherImplementations.cipher import OUTPUT_ALPHABET
 from cipherImplementations.simpleSubstitution import SimpleSubstitution
@@ -1287,6 +1286,16 @@ def calculate_statistics(datum):
     #        [sstd] + autocorrelation + frequencies
 
 
+def pad_sequences(sequences, maxlen):
+    """Pad sequences with data from itself."""
+    ret_sequences = []
+    for sequence in sequences:
+        length = len(sequence)
+        sequence = sequence * (maxlen // length) + sequence[:maxlen % length]
+        ret_sequences.append(sequence)
+    return np.array(ret_sequences)
+
+
 class TextLine2CipherStatisticsDataset:
     def __init__(self, paths, cipher_types, batch_size, min_text_len, max_text_len, keep_unknown_symbols=False, dataset_workers=None,
                  generate_test_data=False):
@@ -1388,10 +1397,10 @@ class TextLine2CipherStatisticsDataset:
                         ciphertexts.append(list(ciphertext))
                     labels.append(label)
         if config.PAD_INPUT:
-            batch = pad_sequences(batch, maxlen=self.max_text_len, padding='post', value=len(OUTPUT_ALPHABET))
+            batch = pad_sequences(batch, maxlen=self.max_text_len)
             batch = batch.reshape(batch.shape[0], batch.shape[1], 1)
         if self.generate_test_data:
-            ciphertexts = pad_sequences(ciphertexts, maxlen=self.max_text_len, padding='post', value=len(OUTPUT_ALPHABET))
+            ciphertexts = pad_sequences(ciphertexts, maxlen=self.max_text_len)
             ciphertext_list.append(ciphertexts)
             result.append((batch, labels))
         else:
