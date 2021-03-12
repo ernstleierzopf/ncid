@@ -13,12 +13,11 @@ import tensorflow as tf
 import tensorflow_datasets as tfds
 from tensorflow.keras.optimizers import Adam
 from tensorflow.keras.metrics import SparseTopKCategoricalAccuracy
-from tensorflow.keras.preprocessing.sequence import pad_sequences
 sys.path.append("../")
 from util.textUtils import map_text_into_numberspace
 from util.fileUtils import print_progress
 import cipherTypeDetection.config as config
-from cipherTypeDetection.textLine2CipherStatisticsDataset import TextLine2CipherStatisticsDataset, calculate_statistics
+from cipherTypeDetection.textLine2CipherStatisticsDataset import TextLine2CipherStatisticsDataset, calculate_statistics, pad_sequences
 from cipherTypeDetection.EnsembleModel import EnsembleModel
 from cipherTypeDetection.transformer import MultiHeadSelfAttention, TransformerBlock, TokenAndPositionEmbedding
 from util.textUtils import get_model_input_length
@@ -186,7 +185,7 @@ def evaluate(args_, model_):
                 ciphertext = [int(j) for j in split_line[2].split(',')]
                 if input_length is not None:
                     if len(ciphertext) < input_length:
-                        ciphertext = pad_sequences([ciphertext], maxlen=input_length, padding='post', value=len(OUTPUT_ALPHABET))[0]
+                        ciphertext = pad_sequences([ciphertext], maxlen=input_length)[0]
                     # if the length its too high, we need to strip it..
                     elif len(ciphertext) > input_length:
                         ciphertext = ciphertext[:input_length]
@@ -301,8 +300,7 @@ def predict_single_line(args_, model_):
         elif architecture in ("CNN", "LSTM", "Transformer"):
             input_length = get_model_input_length(model_, architecture)
             if len(ciphertext) < input_length:
-                ciphertext = pad_sequences([ciphertext], maxlen=input_length, padding='post', value=len(OUTPUT_ALPHABET))
-                ciphertext = ciphertext[0]
+                ciphertext = pad_sequences([ciphertext], maxlen=input_length)[0]
             split_ciphertext = [ciphertext[input_length*j:input_length*(j+1)] for j in range(len(ciphertext) // input_length)]
             results = []
             if architecture in ("LSTM", "Transformer"):
@@ -347,6 +345,8 @@ def load_model():
     global architecture
     if architecture in ("FFNN", "CNN", "LSTM", "Transformer"):
         if architecture == 'Transformer':
+            if not hasattr(config, "maxlen"):
+                raise ValueError("maxlen must be defined in the config when loading a Transformer model!")
             model_ = tf.keras.models.load_model(args.model, custom_objects={
                 'TokenAndPositionEmbedding': TokenAndPositionEmbedding, 'MultiHeadSelfAttention': MultiHeadSelfAttention,
                 'TransformerBlock': TransformerBlock})
