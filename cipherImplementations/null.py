@@ -1,6 +1,6 @@
 from cipherImplementations.cipher import Cipher, generate_random_keyword
 import numpy as np
-from util.textUtils import map_text_into_numberspace
+from util.utils import map_text_into_numberspace
 
 
 class Null(Cipher):

@@ -1,5 +1,5 @@
 from cipherImplementations.cipher import Cipher, generate_keyword_alphabet, generate_random_keyword
-from util.textUtils import remove_unknown_symbols, encrypt_morse, morse_codes
+from util.utils import remove_unknown_symbols, encrypt_morse, morse_codes
 import numpy as np
 
 

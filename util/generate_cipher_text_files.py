@@ -3,7 +3,8 @@ import os
 from pathlib import Path
 import sys
 import cipherTypeDetection.config as config
-from util import fileUtils, textUtils
+from util.utils import read_txt_list_from_file, write_ciphertexts_with_keys_to_file, map_text_into_numberspace, map_numbers_into_textspace,\
+    write_txt_list_to_file, print_progress
 
 
 def str2bool(v):
@@ -11,7 +12,7 @@ def str2bool(v):
 
 
 def encrypt_file_with_all_cipher_types(filename, save_folder, cipher_types_, append_key, keep_unknown_symbols, min_text_len, max_text_len):
-    plaintexts = fileUtils.read_txt_list_from_file(filename)
+    plaintexts = read_txt_list_from_file(filename)
     for cipher_type in cipher_types_:
         index = config.Cipher = config.CIPHER_TYPES.index(cipher_type)
         if index > -1:
@@ -28,12 +29,12 @@ def encrypt_file_with_all_cipher_types(filename, save_folder, cipher_types_, app
 
                 key = cipher.generate_random_key(key_length)
                 keys.append(key)
-                plaintext_numberspace = textUtils.map_text_into_numberspace(plaintext[:max_text_len], config.INPUT_ALPHABET,
+                plaintext_numberspace = map_text_into_numberspace(plaintext[:max_text_len], config.INPUT_ALPHABET,
                                                                             config.UNKNOWN_SYMBOL_NUMBER)
                 if isinstance(key, bytes):
-                    key = textUtils.map_text_into_numberspace(key, cipher.alphabet, cipher.unknown_symbol_number)
+                    key = map_text_into_numberspace(key, cipher.alphabet, cipher.unknown_symbol_number)
 
-                ciphertexts.append(textUtils.map_numbers_into_textspace(cipher.encrypt(plaintext_numberspace, key),
+                ciphertexts.append(map_numbers_into_textspace(cipher.encrypt(plaintext_numberspace, key),
                                                                         config.INPUT_ALPHABET, config.UNKNOWN_SYMBOL))
                 plaintext = b''
 
@@ -48,9 +49,9 @@ def encrypt_file_with_all_cipher_types(filename, save_folder, cipher_types_, app
             path = os.path.join(save_folder, os.path.basename(filename).split('.txt')[0] + '-' + cipher_type + '-minLen' +
                                 str(min_text_len) + '-maxLen' + str(max_text_len) + '-keyLen' + str(key_length) + '.txt')
             if append_key:
-                fileUtils.write_ciphertext_with_keys_to_file(path, ciphertexts, keys)
+                write_ciphertexts_with_keys_to_file(path, ciphertexts, keys)
             else:
-                fileUtils.write_txt_list_to_file(path, ciphertexts)
+                write_txt_list_to_file(path, ciphertexts)
         else:
             print('Cipher \'%s\' does not exist!' % cipher_type, sys.stderr)
             continue
@@ -183,6 +184,6 @@ if __name__ == "__main__":
             file_counter += 1
             encrypt_file_with_all_cipher_types(os.path.join(args.input_folder, name), args.save_folder, cipher_types, args.append_key,
                                                args.keep_unknown_symbols, args.min_text_len, args.max_text_len)
-            fileUtils.print_progress('Encrypting files: [', file_counter, total_file_count)
+            print_progress('Encrypting files: [', file_counter, total_file_count)
             if file_counter == total_file_count:
                 break

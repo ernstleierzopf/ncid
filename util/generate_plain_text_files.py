@@ -1,6 +1,6 @@
 import argparse
 import os
-from util import fileUtils
+from utils import unpack_zip_folders, remove_disclaimer_from_file, print_progress
 
 
 def str2bool(v):
@@ -13,7 +13,7 @@ def find_textfiles(path, restructure_folder_flag, total_fc):
     file_counter = 0
     found_files = []
     if restructure_folder_flag:
-        fileUtils.unpack_zip_folders(path)
+        unpack_zip_folders(path)
     dir_name = os.listdir(path)
     for name in dir_name:
         if os.path.isdir(os.path.join(path, name)):
@@ -22,13 +22,13 @@ def find_textfiles(path, restructure_folder_flag, total_fc):
         elif name.lower().endswith('.txt') and '-' not in name and 'robots.txt' not in name:
             if os.path.join(path, name) not in found_files:
                 found_files.append(os.path.join(path, name))
-                fileUtils.remove_disclaimer_from_file(os.path.join(path, name))
+                remove_disclaimer_from_file(os.path.join(path, name))
                 file_counter += 1
         elif restructure_folder_flag:
             if os.path.exists(os.path.join(path, name)):
                 os.remove(os.path.join(path, name))
                 total_fc -= 1
-        fileUtils.print_progress('Collecting files: [', file_counter, total_fc)
+        print_progress('Collecting files: [', file_counter, total_fc)
     if os.path.exists(path) and len(os.listdir(path)) == 0 and restructure_folder_flag:
         os.removedirs(path)
     return found_files
@@ -43,7 +43,7 @@ def restructure_folder(restructure_folder_flag, found_files, path):
                 print('Path \'%s\' already exists!' % restructured_path)
             if file != restructured_path:
                 os.rename(file, restructured_path)
-            fileUtils.print_progress('Restructuring files: [', found_files.index(file), total_file_count)
+            print_progress('Restructuring files: [', found_files.index(file), total_file_count)
             restructured_txt_files.append(restructured_path)
             dir_name = os.path.dirname(file)
             while len(os.listdir(dir_name)) == 0:

@@ -1,7 +1,7 @@
 import random
 import numpy as np
 from cipherImplementations.cipher import Cipher, generate_random_keyword, generate_keyword_alphabet, OUTPUT_ALPHABET
-from util.textUtils import map_text_into_numberspace
+from util.utils import map_text_into_numberspace
 
 
 class PeriodicGromark(Cipher):

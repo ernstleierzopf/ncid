@@ -14,13 +14,13 @@ import tensorflow_datasets as tfds
 from tensorflow.keras.optimizers import Adam
 from tensorflow.keras.metrics import SparseTopKCategoricalAccuracy
 sys.path.append("../")
-from util.textUtils import map_text_into_numberspace
-from util.fileUtils import print_progress
+from util.utils import map_text_into_numberspace
+from util.utils import print_progress
 import cipherTypeDetection.config as config
 from cipherTypeDetection.textLine2CipherStatisticsDataset import TextLine2CipherStatisticsDataset, calculate_statistics, pad_sequences
 from cipherTypeDetection.ensembleModel import EnsembleModel
 from cipherTypeDetection.transformer import MultiHeadSelfAttention, TransformerBlock, TokenAndPositionEmbedding
-from util.textUtils import get_model_input_length
+from util.utils import get_model_input_length
 from cipherImplementations.cipher import OUTPUT_ALPHABET, UNKNOWN_SYMBOL_NUMBER
 tf.debugging.set_log_device_placement(enabled=False)
 # always flush after print as some architectures like RF need very long time before printing anything.
@@ -287,14 +287,14 @@ def predict_single_line(args_, model_):
         if line == b'':
             continue
         # evaluate aca features file
-        label = line.split(b' ')[0]
-        statistics = ast.literal_eval(line.split(b' ')[1].decode())
-        ciphertext = ast.literal_eval(line.split(b' ')[2].decode())
-        print(config.CIPHER_TYPES[int(label.decode())], "length: %d" % len(ciphertext))
+        # label = line.split(b' ')[0]
+        # statistics = ast.literal_eval(line.split(b' ')[1].decode())
+        # ciphertext = ast.literal_eval(line.split(b' ')[2].decode())
+        # print(config.CIPHER_TYPES[int(label.decode())], "length: %d" % len(ciphertext))
 
-        # print(line)
-        # ciphertext = map_text_into_numberspace(line, OUTPUT_ALPHABET, UNKNOWN_SYMBOL_NUMBER)
-        # statistics = calculate_statistics(ciphertext)
+        print(line)
+        ciphertext = map_text_into_numberspace(line, OUTPUT_ALPHABET, UNKNOWN_SYMBOL_NUMBER)
+        statistics = calculate_statistics(ciphertext)
         results = None
         if architecture == "FFNN":
             result = model_.predict(tf.convert_to_tensor([statistics]), args_.batch_size, verbose=0)
@@ -397,7 +397,7 @@ if __name__ == "__main__":
                         help='Batch size for training.')
     parser.add_argument('--max_iter', default=1000000000, type=int,
                         help='the maximal number of iterations before stopping evaluation.')
-    parser.add_argument('--model', default='../data/models/model.h5', type=str,
+    parser.add_argument('--model', default='../data/models/m1.h5', type=str,
                         help='Name of the model file. The file must have the .h5 extension.')
     parser.add_argument('--architecture', default='FFNN', type=str, choices=[
         'FFNN', 'CNN', 'LSTM', 'DT', 'NB', 'RF', 'ET', 'Transformer', 'Ensemble'],
@@ -583,6 +583,7 @@ if __name__ == "__main__":
         raise ValueError("It is only allowed to use the --models and --architectures with the Ensemble architecture.")
 
     print("Loading Model...")
+    # There are some problems regarding the loading of models on multiple GPU's.
     # gpu_count = len(tf.config.list_physical_devices('GPU'))
     # if gpu_count > 1:
     #     strat = tf.distribute.MirroredStrategy()

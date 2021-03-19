@@ -183,6 +183,7 @@ vocab_size = 20000
 embed_dim = 128
 num_heads = 8
 ff_dim = 1024
+maxlen = 100
 
 # LearningRateSchedulers
 decay = 1e-8

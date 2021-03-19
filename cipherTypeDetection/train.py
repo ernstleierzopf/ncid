@@ -522,7 +522,7 @@ if __name__ == "__main__":
         for arg in vars(args):
             f.write("{:23s}= {:s}\n".format(arg, str(getattr(args, arg))))
     if architecture in ("FFNN", "CNN", "LSTM", "Transformer"):
-        shutil.move('../data/logs', model_name.split('.')[0] + '_tensorboard_logs')
+        shutil.move('../data/logs', '../data/' + model_name.split('.')[0] + '_tensorboard_logs')
     print('Model saved.\n')
 
     print('Predicting test data...\n')

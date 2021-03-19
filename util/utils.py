@@ -1,4 +1,76 @@
+import numpy as np
 import os
+
+
+def map_text_into_numberspace(text, alphabet, unknown_symbol_number):
+    array = []
+    for c in text:
+        if bytes([c]) in alphabet:
+            array.append(alphabet.index(bytes([c])))
+        else:
+            array.append(unknown_symbol_number)
+    return np.array(array)
+
+
+def map_numbers_into_textspace(numbers, alphabet, unknown_symbol):
+    output = b''
+    for n in numbers:
+        if n >= len(alphabet):
+            output = output + unknown_symbol
+        else:
+            output = output + bytes([alphabet[n]])
+    return output
+
+
+def remove_unknown_symbols(text, alphabet):
+    i = 0
+    while i < len(text):
+        if text[i] not in alphabet:
+            text = text.replace(bytes([text[i]]), b'')
+        else:
+            i += 1
+    return text
+
+
+# morse code in alphabetical order
+morse_codes = ['.-', '-...', '-.-.', '-..', '.', '..-.', '--.', '....', '..', '.---', '-.-', '.-..', '--', '-.', '---', '.--.',
+               '--.-', '.-.', '...', '-', '..-', '...-', '.--', '-..-', '-.--', '--..']
+
+
+def encrypt_morse(plaintext):
+    morse_code = ''
+    for c in plaintext:
+        if c == 26:
+            morse_code += 'x'
+            continue
+        morse_code += morse_codes[c] + 'x'
+    morse_code += 'x'
+    return morse_code
+
+
+def decrypt_morse(ciphertext, key_morse, key):
+    morse_code = ''
+    for c in ciphertext:
+        morse_code += key_morse[np.where(key == c)[0][0]]
+    morse_code += 'x'
+    return morse_code
+
+
+def get_model_input_length(model_, arch):
+    input_length = None
+    if arch == "LSTM":
+        input_length = model_.layers[0].input_length
+    elif arch == "CNN":
+        input_length = model_.layers[0].input_shape[1]
+    elif arch == "Transformer":
+        input_length = model_.layers[0].input_shape[0][1]
+    elif arch == "Ensemble":
+        for i in range(len(model_.architectures)):
+            if model_.architectures[i] in ("LSTM", "CNN", "Transformer"):
+                return get_model_input_length(model_.models[i], model_.architectures[i])
+        return None
+
+    return input_length
 
 
 def write_ciphertexts_with_keys_to_file(filename, ciphertexts, keys):

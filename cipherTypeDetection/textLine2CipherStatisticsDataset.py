@@ -3,7 +3,7 @@ import cipherTypeDetection.config as config
 from cipherImplementations.cipher import OUTPUT_ALPHABET
 from cipherImplementations.simpleSubstitution import SimpleSubstitution
 import sys
-from util.textUtils import map_text_into_numberspace
+from util.utils import map_text_into_numberspace
 import copy
 import math
 import multiprocessing
@@ -1250,7 +1250,7 @@ def calculate_statistics(datum):
     bdi = calculate_bdi(numbers)
     # cdd = calculate_cdd(numbers)
     # sstd = calculate_sstd(numbers)
-    ldi_stats = calculate_ldi_stats(numbers)
+    # ldi_stats = calculate_ldi_stats(numbers)
 
     # ny_gram_frequencies = []
     # for i in range(2, 8):
@@ -1273,7 +1273,7 @@ def calculate_statistics(datum):
     #     ldi] + [rod] + [lr] + [nomor] + [dbl] + [sdd] + frequencies
 
     return [unigram_ioc] + [digraphic_ioc] + frequencies + [has_0] + [has_h] + [has_j] + [has_x] + [has_sp] + [rod] + [lr] + [sdd] +\
-           [ldi] + [nomor] + [phic] + [bdi] + [ptx] + [nic] + [mka] + [mic] + ldi_stats
+           [ldi] + [nomor] + [phic] + [bdi] + [ptx] + [nic] + [mka] + [mic] #+ ldi_stats
 
     # all features
     # return [unigram_ioc] + [digraphic_ioc] + [has_j] + [entropy] + [chi_square] + [has_h] + [has_sp] + [has_x] + [has_0] + [mic] +\
