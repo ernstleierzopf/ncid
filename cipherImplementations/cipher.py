@@ -1,10 +1,11 @@
+import abc
 import random
 import sys
 import numpy as np
-from cipherTypeDetection.dictionary import USE_DICTIONARY, GENERATE_RANDOM_ALPHABETS, WORD_DICT, UNIQUE_WORD_DICT
 from collections import OrderedDict
 sys.path.append("../../../")
 from util.utils import remove_unknown_symbols, map_text_into_numberspace
+from cipherTypeDetection.dictionary import USE_DICTIONARY, GENERATE_RANDOM_ALPHABETS, WORD_DICT, UNIQUE_WORD_DICT
 
 
 INPUT_ALPHABET = b'abcdefghijklmnopqrstuvwxyz'
@@ -123,15 +124,18 @@ def generate_keyword_alphabet(
     return alph_out
 
 
-class Cipher:
+class Cipher(metaclass=abc.ABCMeta):
     """This is the interface of the cipher implementations."""
 
+    @abc.abstractmethod
     def generate_random_key(self, length):
         raise Exception('Interface method called')
 
+    @abc.abstractmethod
     def encrypt(self, plaintext, key):
         raise Exception('Interface method called')
 
+    @abc.abstractmethod
     def decrypt(self, ciphertext, key):
         raise Exception('Interface method called')
 

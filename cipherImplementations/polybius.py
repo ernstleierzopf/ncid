@@ -10,6 +10,9 @@ class Polybius(Cipher):
         self.unknown_symbol = unknown_symbol
         self.unknown_symbol_number = unknown_symbol_number
 
+    def generate_random_key(self, length):
+        raise Exception('This method is not allowed in this class!')
+
     def __enc_dec(self, alphabet, text, key, is_encrypt=True):
         square = PolybiusSquare(alphabet, key)
         res = ''
