@@ -1,5 +1,5 @@
 from cipherImplementations.trifid import Trifid
-from util.textUtils import map_text_into_numberspace
+from util.utils import map_text_into_numberspace
 from unit.cipherImplementations.CipherTestBase import CipherTestBase
 
 

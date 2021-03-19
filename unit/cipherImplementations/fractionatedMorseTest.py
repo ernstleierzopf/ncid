@@ -1,5 +1,5 @@
 from cipherImplementations.fractionatedMorse import FractionatedMorse
-from util.textUtils import map_text_into_numberspace
+from util.utils import map_text_into_numberspace
 from unit.cipherImplementations.CipherTestBase import CipherTestBase
 
 

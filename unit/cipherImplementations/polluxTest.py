@@ -1,7 +1,7 @@
 from cipherImplementations.pollux import Pollux
 from cipherImplementations.cipher import OUTPUT_ALPHABET
 from unit.cipherImplementations.CipherTestBase import CipherTestBase
-from util.textUtils import map_text_into_numberspace
+from util.utils import map_text_into_numberspace
 import numpy as np
 
 

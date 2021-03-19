@@ -1,6 +1,6 @@
 from cipherImplementations.foursquare import Foursquare
 from unit.cipherImplementations.CipherTestBase import CipherTestBase
-from util.textUtils import map_text_into_numberspace
+from util.utils import map_text_into_numberspace
 
 
 class FoursquareTest(CipherTestBase):

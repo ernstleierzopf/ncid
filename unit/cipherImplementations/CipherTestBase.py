@@ -1,5 +1,5 @@
 import unittest
-from util.textUtils import map_text_into_numberspace, map_numbers_into_textspace
+from util.utils import map_text_into_numberspace, map_numbers_into_textspace
 import random
 import numpy as np
 from cipherImplementations.cipher import OUTPUT_ALPHABET

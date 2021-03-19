@@ -2,7 +2,7 @@ import unittest
 from collections import Counter
 from cipherTypeDetection import textLine2CipherStatisticsDataset as ds
 import unit.cipherImplementations.cipherTest as cipherTest
-from util.textUtils import map_text_into_numberspace
+from util.utils import map_text_into_numberspace
 import math
 import numpy as np
 from cipherImplementations.cipher import OUTPUT_ALPHABET

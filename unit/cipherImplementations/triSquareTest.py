@@ -1,5 +1,5 @@
 from cipherImplementations.triSquare import TriSquare
-from util.textUtils import map_text_into_numberspace, map_numbers_into_textspace
+from util.utils import map_text_into_numberspace, map_numbers_into_textspace
 from unit.cipherImplementations.CipherTestBase import CipherTestBase
 import numpy as np
 
