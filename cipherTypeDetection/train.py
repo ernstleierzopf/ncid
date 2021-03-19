@@ -189,7 +189,7 @@ if __name__ == "__main__":
                         help='Input directory of the plaintexts.')
     parser.add_argument('--download_dataset', default=True, type=str2bool,
                         help='Download the dataset automatically.')
-    parser.add_argument('--save_directory', default='weights/',
+    parser.add_argument('--save_directory', default='../data/models/',
                         help='Directory for saving generated models. \n'
                              'When interrupting, the current model is \n'
                              'saved as interrupted_...')
@@ -389,7 +389,7 @@ if __name__ == "__main__":
     print('Model created.\n')
 
     print('Training model...')
-    tensorboard_callback = tf.keras.callbacks.TensorBoard(log_dir='./logs', update_freq='epoch')
+    tensorboard_callback = tf.keras.callbacks.TensorBoard(log_dir='../data/logs', update_freq='epoch')
     early_stopping_callback = MiniBatchEarlyStopping(
         min_delta=1e-5, patience=250, monitor='accuracy', mode='max', restore_best_weights=True)
     # time_based_decay_lrate_callback = TimeBasedDecayLearningRateScheduler(args.train_dataset_size)
@@ -522,7 +522,7 @@ if __name__ == "__main__":
         for arg in vars(args):
             f.write("{:23s}= {:s}\n".format(arg, str(getattr(args, arg))))
     if architecture in ("FFNN", "CNN", "LSTM", "Transformer"):
-        shutil.move('./logs', model_name.split('.')[0] + '_tensorboard_logs')
+        shutil.move('../data/logs', model_name.split('.')[0] + '_tensorboard_logs')
     print('Model saved.\n')
 
     print('Predicting test data...\n')

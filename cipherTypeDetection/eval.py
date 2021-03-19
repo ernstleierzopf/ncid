@@ -18,7 +18,7 @@ from util.textUtils import map_text_into_numberspace
 from util.fileUtils import print_progress
 import cipherTypeDetection.config as config
 from cipherTypeDetection.textLine2CipherStatisticsDataset import TextLine2CipherStatisticsDataset, calculate_statistics, pad_sequences
-from cipherTypeDetection.EnsembleModel import EnsembleModel
+from cipherTypeDetection.ensembleModel import EnsembleModel
 from cipherTypeDetection.transformer import MultiHeadSelfAttention, TransformerBlock, TokenAndPositionEmbedding
 from util.textUtils import get_model_input_length
 from cipherImplementations.cipher import OUTPUT_ALPHABET, UNKNOWN_SYMBOL_NUMBER
@@ -272,6 +272,7 @@ def evaluate(args_, model_):
 
 
 def predict_single_line(args_, model_):
+    config.CIPHER_TYPES = args_.ciphers
     cipher_id_result = ''
     ciphertexts = []
     if args_.ciphertext is not None:
@@ -396,7 +397,7 @@ if __name__ == "__main__":
                         help='Batch size for training.')
     parser.add_argument('--max_iter', default=1000000000, type=int,
                         help='the maximal number of iterations before stopping evaluation.')
-    parser.add_argument('--model', default='./weights/model.h5', type=str,
+    parser.add_argument('--model', default='../data/models/model.h5', type=str,
                         help='Name of the model file. The file must have the .h5 extension.')
     parser.add_argument('--architecture', default='FFNN', type=str, choices=[
         'FFNN', 'CNN', 'LSTM', 'DT', 'NB', 'RF', 'ET', 'Transformer', 'Ensemble'],
