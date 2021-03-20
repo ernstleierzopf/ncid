@@ -19,11 +19,10 @@ def find_textfiles(path, restructure_folder_flag, total_fc):
         if os.path.isdir(os.path.join(path, name)):
             file_counter += 1
             found_files += find_textfiles(os.path.join(path, name), restructure_folder_flag, total_fc)
-        elif name.lower().endswith('.txt') and '-' not in name and 'robots.txt' not in name:
-            if os.path.join(path, name) not in found_files:
-                found_files.append(os.path.join(path, name))
-                remove_disclaimer_from_file(os.path.join(path, name))
-                file_counter += 1
+        elif name.lower().endswith('.txt') and '-' not in name and 'robots.txt' not in name and os.path.join(path, name) not in found_files:
+            found_files.append(os.path.join(path, name))
+            remove_disclaimer_from_file(os.path.join(path, name))
+            file_counter += 1
         elif restructure_folder_flag:
             if os.path.exists(os.path.join(path, name)):
                 os.remove(os.path.join(path, name))

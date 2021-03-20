@@ -514,11 +514,11 @@ if __name__ == "__main__":
             # this gets very large
             pickle.dump(model, f)
     elif architecture == "[FFNN,NB]":
-        model[0].save(model_path.split('.')[0] + "_ffnn.h5")
-        with open(model_path.split('.')[0] + "_nb.h5", "wb") as f:
+        model[0].save('../data/models/' + model_path.split('.')[0] + "_ffnn.h5")
+        with open('../data/models/' + model_path.split('.')[0] + "_nb.h5", "wb") as f:
             # this gets very large
             pickle.dump(model[1], f)
-    with open(model_path.split('.')[0] + '_parameters.txt', 'w') as f:
+    with open('../data/' + model_path.split('.')[0] + '_parameters.txt', 'w') as f:
         for arg in vars(args):
             f.write("{:23s}= {:s}\n".format(arg, str(getattr(args, arg))))
     if architecture in ("FFNN", "CNN", "LSTM", "Transformer"):

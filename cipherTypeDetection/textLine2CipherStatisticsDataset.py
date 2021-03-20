@@ -1250,30 +1250,13 @@ def calculate_statistics(datum):
     bdi = calculate_bdi(numbers)
     # cdd = calculate_cdd(numbers)
     # sstd = calculate_sstd(numbers)
-    # ldi_stats = calculate_ldi_stats(numbers)
-
-    # ny_gram_frequencies = []
-    # for i in range(2, 8):
-    #     ny_gram_frequencies += calculate_ny_gram_frequencies(numbers, 2, interval=i, recursive=False)
-
-    # ny_gram_frequencies = []
-    # ny_gram_frequencies += calculate_ny_gram_frequencies(numbers, 2, interval=5, recursive=False)
-    # ny_gram_frequencies += calculate_ny_gram_frequencies(numbers, 2, interval=10, recursive=False)
-    # ny_gram_frequencies += calculate_ny_gram_frequencies(numbers, 2, interval=20, recursive=False)
-    # ny_gram_frequencies += calculate_ny_gram_frequencies(numbers, 2, interval=25, recursive=False)
+    ldi_stats = calculate_ldi_stats(numbers)
 
     # baseline model
     # return [unigram_ioc] + [digraphic_ioc] + [has_j] + [entropy] + [chi_square] + [has_h] + [has_sp] + [has_x] + frequencies
 
-    # t18 without has features
-    # return [unigram_ioc] + [digraphic_ioc] + frequencies + [rod] + [lr] + [sdd] + [ldi] + [nomor]
-
-    # correlation test
-    # return [unigram_ioc] + [digraphic_ioc] + [has_j] + [entropy] + [chi_square] + [has_h] + [has_sp] + [has_x] + [has_0] + [rep] + [
-    #     ldi] + [rod] + [lr] + [nomor] + [dbl] + [sdd] + frequencies
-
     return [unigram_ioc] + [digraphic_ioc] + frequencies + [has_0] + [has_h] + [has_j] + [has_x] + [has_sp] + [rod] + [lr] + [sdd] +\
-           [ldi] + [nomor] + [phic] + [bdi] + [ptx] + [nic] + [mka] + [mic] #+ ldi_stats
+           [ldi] + [nomor] + [phic] + [bdi] + [ptx] + [nic] + [mka] + [mic] + ldi_stats
 
     # all features
     # return [unigram_ioc] + [digraphic_ioc] + [has_j] + [entropy] + [chi_square] + [has_h] + [has_sp] + [has_x] + [has_0] + [mic] +\

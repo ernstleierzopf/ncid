@@ -364,13 +364,13 @@ def load_model():
         model_.compile(optimizer=optimizer, loss="sparse_categorical_crossentropy",
                        metrics=["accuracy", SparseTopKCategoricalAccuracy(k=3, name="k3_accuracy")])
         return model_
-    elif architecture in ("DT", "NB", "RF", "ET"):
+    if architecture in ("DT", "NB", "RF", "ET"):
         config.FEATURE_ENGINEERING = True
         config.PAD_INPUT = False
         global model_path
         with open(model_path, "rb") as f:
             return pickle.load(f)
-    elif architecture == 'Ensemble':
+    if architecture == 'Ensemble':
         global model_list
         global architecture_list
         global strategy

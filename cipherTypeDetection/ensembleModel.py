@@ -57,7 +57,7 @@ class EnsembleModel:
         self.architectures = architectures
         self.strategy = strategy
         self.load_model()
-        for key in statistics_dict.keys():
+        for key in statistics_dict:
             statistics = statistics_dict[key]
             for i in range(4):
                 new_list = []
@@ -65,7 +65,7 @@ class EnsembleModel:
                     new_list.append(statistics[i][index])
                 statistics[i] = new_list
         self.total_votes = [0]*len(cipher_indices)
-        for key in statistics_dict.keys():
+        for key in statistics_dict:
             statistics = statistics_dict[key]
             network_total_votes = [0]*len(cipher_indices)
             for statistic in statistics[:-1]:
@@ -162,5 +162,5 @@ class EnsembleModel:
                 for j in range(len(results[0][i])):
                     res[i][j] = res[i][j] / len(results)
         else:
-            raise ValueError("Unknown strategy %s", self.strategy)
+            raise ValueError("Unknown strategy %s" % self.strategy)
         return res
