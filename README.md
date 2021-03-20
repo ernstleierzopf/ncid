@@ -1,8 +1,8 @@
-# cann
+# ncid
 
 A neural network to detect and analyze ciphers from historical texts.
 
-# CANN - CryptAnalysis with Neural Networks
+# NCID- Neural Cipher IDentifier
 
 This project contains code for the detection and classification of ciphers to classical algorithms by using a neuronal network. In Future other parts of the cryptanalysis will be implemented.
 
@@ -10,24 +10,17 @@ This project contains code for the detection and classification of ciphers to cl
 
 - Clone this repository and enter it:
   ```Shell
-  git clone https://github.com/dITySoftware/cann
-  cd cann
+  git clone https://github.com/dITySoftware/ncid
+  cd ncid
   ```
-
-- Set up the environment with the following method:
-   - Set up a Python3.7 or higher environment (e.g., using virtenv (see https://gist.github.com/Geoyi/d9fab4f609e9f75941946be45000632b)).
-   
-   - Install all needed packages:
-     
-     ```Shell
-     pip3 install tensorflow tensorflow_datasets numpy scikit_learn
-     ```
 
 - Install the recommended and tested versions by using requirements.txt:
 
   ```
   pip3 install -r requirements.txt
   ```
+
+# Data Preparation
 
 ## Generate Plaintexts (Optional)
 
@@ -42,27 +35,41 @@ wget -m -H -nd "http://www.gutenberg.org/robot/harvest?filetypes[]=txt&langs[]=e
 The `generatePlainTextFiles.py` script automatically unpacks the zips, with the parameter `--restructure_directory`.  Every line in a plaintext is seperated by a '\n', so be sure to save it in the right format or use the `generatePlainTextFiles.py` script to reformat all files from '\r\n' to '\n'. For further description read the help by using the `--help` parameter. Example usage:
 
 ```
-python3 generate_plain_text_files.py --directory=../gutenberg_en --restructure_directory=true
+python3 generatePlainTextFiles.py --directory=../gutenberg_en --restructure_directory=true
 ```
 
 ## Generate Ciphertexts (Optional)
 
-You might want to evaluate one or more models by using the same ciphertext files. This evaluation type is practical for most comparable evaluation of models. The `generate_cipher_text_files.py` script encrypts plaintext files to multiple ciphertext files. The naming convention is *fileName-cipherType-minLenXXX-maxLenXXX-keyLenXX.txt*. This script generates ciphertexts out of plaintexts. If a line is not long enough it is concatenated with the next line. If a line is too long it is sliced into max_text_len length. For further description read the help by using the `--help` parameter. Example usage:
+You might want to predict with one or more models by using the same ciphertext files. The `generateCipherTextFiles.py` script encrypts plaintext files to multiple ciphertext files. The naming convention is *fileName-cipherType-minLenXXX-maxLenXXX-keyLenXX.txt*. This script generates ciphertexts out of plaintexts. If a line is not long enough it is concatenated with the next line. If a line is too long it is sliced into max_text_len length. For further description read the help by using the `--help` parameter. Example usage:
 
 ```
-python3 generate_cipher_text_files.py --min_text_len=100 --max_text_len=100 --max_files_count=100
+python3 generateCipherTextFiles.py --min_text_len=100 --max_text_len=100 --max_files_count=100
+```
+
+## Generate Calculated Features (Optional)
+
+To evaluate multiple models in the most comparable way, the features and ciphertexts are precalculated and saved into files using the `generateCalculatedFeatures.py` script.
+
+```
+python3 generateCalculatedFeatures.py --dataset_workers=50 --min_len=100 --max_len=100 --save_directory=../data/generated_data --batch_size=512 --dataset_size=64960 --max_iter=10000000 > ../data/generate_data.txt 2> ../data/err_generate_data.txt
 ```
 
 # Evaluation
 
-Here is our CANN model (released on April 22nd, 2020): [M24.h5](https://drive.google.com/open?id=1VZQ1eiJSV9Z3mfDIhvRTWHmaMcYjSRZb)
+Here are our NCID models for all ACA ciphers and texts with exact length of 100. (released on March 20th, 2021): [models100.zip](https://drive.google.com/file/d/1mOzo_g997oQf367vt6rNjmwvQ3cB8dsc/view?usp=sharing)
 
-There are multiple ways to evaluate the model. First of all it is needed to put the corresponding weights file in the `./weights` directory and run one of the following commands:
+Here are our NCID models for the ACA ciphers amsco, bazeries, beaufort, bifid, cmbifid, digrafid, foursquare, fractionated_morse, gromark, gronsfeld, homophonic, monome_dinome, morbit, myszkowski, nicodemus, nihilist_substitution, periodic_gromark, phillips, playfair, pollux, porta, portax, progressive_key, quagmire2, quagmire3, quagmire4, ragbaby, redefence, seriated_playfair, slidefair, swagman, tridigital, trifid, tri_square, two_square, vigenere and texts with the lengths of 51-428. (released on March 20th, 2021): [aca_models428.zip](https://drive.google.com/file/d/1nApGcUfx0T0Q6qIDw2YgiPdMHVGD3Npd/view?usp=sharing)
 
-- **benchmark** - Use this argument to create ciphertexts on the fly, like in training mode, and evaluate them with the model. This option is optimized for large throughput to test the model. Example usage:
+There are multiple ways to evaluate the model. First of all it is needed to put the corresponding model file in the `../data/models` directory and run one of the following commands:
+
+- **benchmark** - Use this argument to create ciphertexts on the fly, like in training mode, and evaluate them with the model. This option is optimized for large throughput to test the model. Example usages:
 
   ```
-  python3 eval.py --model=./weights/model.h5 --max_iter=1000000 benchmark --dataset_size=1040 --dataset_workers=10 --min_text_len=100 --max_text_len=100
+  python3 eval.py --model=../data/models/t128_ffnn_final_100.h5 --max_iter=1000000 --dataset_size=1120 benchmark --dataset_workers=10 --min_text_len=100 --max_text_len=100
+  ```
+
+  ```
+  python3 eval.py --architecture=Ensemble --models ../data/models/t128_ffnn_final_100.h5 ../data/models/t129_lstm_final_100.h5 ../data/models/t128_nb_final_100.h5 ../data/models/t99_rf_final_100.h5 ../data/models/t96_transformer_final_100.h5 --architectures FFNN LSTM NB RF Transformer --strategy=weighted --batch_size=512 --max_iter=1000000 --dataset_size=64960 benchmark --dataset_workers=10 --min_text_len=100 --max_text_len=100 > ../data/benchmark.txt 2> ../data/err_benchmark.txt
   ```
 
 - **evaluate** - Use this argument to evaluate cipher types for directories with ciphertext files in it. There are two *evaluation_modes*: 
@@ -71,24 +78,32 @@ There are multiple ways to evaluate the model. First of all it is needed to put 
 
   - *summarized* - all files are evaluated and the average is printed at the end of the script. This mode is like *benchmark*, but is more reproducible and comparable, because the inputs are consistent.
 
-  Example usage:
+  Example usages:
 
   ```
-  python3 eval.py --model=./weights/model.h5 --max_iter=100000 evaluate --evaluation_mode=per_file --ciphertext_folder=../data/mtc3_cipher_id
+  python3 eval.py --model=../data/models/t128_ffnn_final_100.h5 --max_iter=100000 evaluate --evaluation_mode=per_file --ciphertext_folder=../data/generated_data
+  ```
+
+  ```
+  python3 eval.py --architecture=Ensemble --models ../data/models/t128_ffnn_final_100.h5 ../data/models/t129_lstm_final_100.h5 ../data/models/t128_nb_final_100.h5 ../data/models/t99_rf_final_100.h5 ../data/models/t96_transformer_final_100.h5 --architectures FFNN LSTM NB RF Transformer --strategy=weighted --batch_size=512 --dataset_size=64960 --max_iter=10000000 evaluate --data_folder=../data/generated_data --evaluation_mode=per_file > ../data/eval.txt 2> ../data/err_eval.txt
   ```
 
 - **single_line** - Use this argument to predict a single line of ciphertext. The difference of this command is, that in contrast to the other modes, the results are predicted without knowledge of the real cipher type. There are two types of data this command can process:
 
-  - *ciphertext* - A single line of ciphertext to be predicted by the model. Example usage:
+  - *ciphertext* - A single line of ciphertext to be predicted by the model. Example usages:
 
   ```
-  python3 eval.py --model=./weights/model.h5 single_line --ciphertext=yingraobhoarhthosortmkicwhaslcbpirpocuedcfthcezvoryyrsrdyaffcleaetiaaeuhtyegeadsneanmatedbtrdndres
+  python3 eval.py --model=../data/models/t128_ffnn_final_100.h5 single_line --ciphertext=yingraobhoarhthosortmkicwhaslcbpirpocuedcfthcezvoryyrsrdyaffcleaetiaaeuhtyegeadsneanmatedbtrdndres
   ```
 
-  - *file* - A file with mixed lines of ciphertext to be predicted line by line by the model. Example usage:
+  ```
+  python3 eval.py --architecture=Ensemble --models ../data/models/t128_ffnn_final_100.h5 ../data/models/t129_lstm_final_100.h5 ../data/models/t128_nb_final_100.h5 ../data/models/t99_rf_final_100.h5 ../data/models/t96_transformer_final_100.h5 --architectures FFNN LSTM NB RF Transformer --strategy=weighted --batch_size=512 single_line --file=../data/generated_data/aca_features.txt --verbose=False > weights/../data/predict.txt 2> weights/err_predict.txt
+  ```
+
+  - *file* - A file with mixed lines of ciphertext to be predicted line by line by the model. Example usages:
 
   ```
-  python3 eval.py --model=./weights/model.h5 single_line --verbose=false --file=../data/mixed_ciphertexts_alphabetic_5lines_per_cipher.txt
+  python3 eval.py --model=../data/models/t128_ffnn_final_100.h5 single_line --verbose=false --file=../data/cipherstexts.txt
   ```
 
 To see all options of `eval.py`, run the `--help` or `-h` command.
@@ -99,7 +114,7 @@ python3 eval.py --help
 
 # Training
 
-By default we train ciphers of the MysteryTwister C3 Challenge "Cipher ID". The plaintexts I used are already filtered and automatically downloaded in the train.py or eval.py scripts.  You can turn off this behavior by setting `--download_dataset=False`. 
+By default we train the ACA ciphers listed [here](https://www.cryptogram.org/resource-area/cipher-types/). The plaintexts I used are already filtered and automatically downloaded in the train.py or eval.py scripts.  You can turn off this behavior by setting `--download_dataset=False`. 
 
 To see all options of `train.py`, run the `--help` or `-h` command.
 
@@ -110,24 +125,21 @@ python3 train.py --help
 ## Example Commands
 
 - ```
-  python3 train.py --batch_size=32
+  python3 train.py --dataset_workers=50 --train_dataset_size=64960 --batch_size=512 --max_iter=1000000000 --min_train_len=100 --max_train_len=100 --min_test_len=100 --max_test_len=100 --model_name=t30.h5 > weights/t30.txt 2> weights/err_t30.txt &
   ```
 
 - ```
-  python3 train.py --model_name=mtc3_model.h5 --ciphers=mtc3
+  python3 train.py --model_name=mtc3_model.h5 --ciphers=mtc3  # first config.py must be adapted
   ```
 
 - ```
-  python3 train.py --model_name=custom_model_200k.h5 --ciphers=vigenere,hill --max_iter=200000 
+  python3 train.py --architecture=FFNN --dataset_workers=50 --train_dataset_size=64960 --batch_size=512 --max_iter=1000000000 --min_train_len=100 --max_train_len=100 --min_test_len=100 --max_test_len=100 --model_name=t30.h5 > weights/t30.txt 2> weights/err_t30.txt &
   ```
 
-- ```
-  python3 train.py --min_train_len=100 --max_train_len=100 --min_test_len=100 --max_test_len=100
-  ```
 
 ## Multi-GPU Support
 
-CANN now supports multiple GPUs seamlessly during training:
+NCID now supports multiple GPUs seamlessly during training:
 
 - Before running any of the scripts, run: `export CUDA_VISIBLE_DEVICES=[gpus]`
 
@@ -163,37 +175,23 @@ for example:
 python3 -m unittest unit/cipherTypeDetection/textLine2CipherStatisticsDataset.py
   ```
 
-# Quantitative Results
+# Qualitative Results
 
-Following are our training results from a DGX-1 with 2 GPUs. Model M0 is trained with a Logistic Regression Model to set a simple baseline. Models M1-M20 are trained with a 5 Hidden Layers Model. From Model M20 and further on other filter functions, where no padding is added (playfair, hill), were used. M1 through M23 were trained and tested with wrong filtering of the playfair data. Instead of adding an x between double characters the second character was replaced with it. M24 trained and tested with the right filter function.
+Following are our training results from a DGX-1 with 2 GPUs on the models with length 100 and 6 GPUs on models with length 51-428. Models are differentiated into feature-engineering (FFNN, RF and NB) and feature-extracting (LSTM and Transformer) models. Models are evaluated with a dataset of 10 million self generated records.
 
-| Model                           | M0           | M1                          | M2                          | M3                          | M4                          | M5                          | M6                          | M7                          | M8                          | M9                          | M10                         | M11                         |
-| ------------------------------- | ------------ | --------------------------- | --------------------------- | --------------------------- | --------------------------- | --------------------------- | --------------------------- | --------------------------- | --------------------------- | --------------------------- | --------------------------- | --------------------------- |
-| Total accuracy                  | 0.675771     | 0.863456                    | 0.874496                    | 0.863978                    | 0.864356                    | 0.860269                    | 0.867630                    | 0.854944                    | 0.864138                    | 0.855068                    | 0.863595                    | 0.869381                    |
-| Columnar Transposition accuracy | 1.0          | 0.998963                    | 0.998537                    | 0.998824                    | 0.996024                    | 0.998976                    | 0.998226                    | 0.998108                    | 0.999247                    | 0.999578                    | 0.999311                    | 0.999135                    |
-| Hill accuracy                   | 0.456083     | 0.740203                    | 0.816435                    | 0.856772                    | 0.755070                    | 0.681300                    | 0.672694                    | 0.766543                    | 0.749240                    | 0.769820                    | 0.796152                    | 0.717530                    |
-| Playfair accuracy               | 0.934648     | 0.977118                    | 0.970606                    | 0.970552                    | 0.981339                    | 0.974251                    | 0.989121                    | 0.950802                    | 0.972833                    | 0.981176                    | 0.981056                    | 0.989141                    |
-| Simple Substitution accuracy    | 0.631038     | 0.981564                    | 0.989968                    | 0.981133                    | 0.976279                    | 0.986623                    | 0.989388                    | 0.986896                    | 0.980652                    | 0.978494                    | 0.978950                    | 0.982225                    |
-| Vigenere accuracy               | 0.357090     | 0.619435                    | 0.596935                    | 0.512612                    | 0.613072                    | 0.660195                    | 0.688722                    | 0.572376                    | 0.618722                    | 0.546277                    | 0.562507                    | 0.658876                    |
-| Model Architecture              | Log. Regress | 5-Hidden-Layer Crossentropy | 5-Hidden-Layer Crossentropy | 5-Hidden-Layer Crossentropy | 5-Hidden-Layer Crossentropy | 5-Hidden-Layer Crossentropy | 5-Hidden-Layer Crossentropy | 5-Hidden-Layer Crossentropy | 5-Hidden-Layer Crossentropy | 5-Hidden-Layer Crossentropy | 5-Hidden-Layer Crossentropy | 5-Hidden-Layer Crossentropy |
-| batch_size                      | 16           | 16                          | 16                          | 16                          | 16                          | 16                          | 16                          | 16                          | 16                          | 16                          | 16                          | 16                          |
-| iterations (in Mio)             | 10           | 10                          | 50                          | 10                          | 10                          | 10                          | 10                          | 10                          | 10                          | 10                          | 10                          | 10                          |
-| epochs                          | 1            | 1                           | 1                           | 3                           | 1                           | 1                           | 1                           | 1                           | 1                           | 1                           | 1                           | 1                           |
-| keep_unknown_symbols            | False        | False                       | False                       | False                       | False                       | False                       | False                       | False                       | False                       | False                       | False                       | False                       |
-| train text length               | 100 \| 100   | 100 \| 100                  | 100 \| 100                  | 100 \| 100                  | 100 \| 100                  | 100 \| 100                  | 100 \| 100                  | 100 \| 100                  | 100 \| 100                  | 100 \| 100                  | 100 \| 100                  | 100 \| 100                  |
-| test text length                | 100 \| 100   | 100 \| 100                  | 100 \| 100                  | 100 \| 100                  | 100 \| 100                  | 100 \| 100                  | 100 \| 100                  | 100 \| 100                  | 100 \| 100                  | 100 \| 100                  | 100 \| 100                  | 100 \| 100                  |
-| key lengths                     | 4 - 16       | 4 - 16                      | 4 - 16                      | 4 - 16                      | 4 - 16                      | 4 - 16                      | 4 - 16                      | 4 - 16                      | 4 - 16                      | 4 - 16                      | 4 - 16                      | 4 - 16                      |
-| dataset size                    | 65000        | 65000                       | 65000                       | 65000                       | 10010                       | 65000                       | 65000                       | 65000                       | 65000                       | 65000                       | 65000                       | 65000                       |
-| workers                         | 50           | 50                          | 50                          | 50                          | 50                          | 50                          | 50                          | 50                          | 50                          | 50                          | 50                          | 50                          |
-| training time                   | 25m 36s      | 36m 37s                     | 2h 41m 28s                  | 1h 23m 51s                  | 11h 59m 49s                 | 39m 27s                     | 39m 11s                     | 39m 11s                     | 59m 3s                      | 39m 52s                     | 40m 26s                     | 1h 1m 20s                   |
-| Unigrams                        | ✔            | ✔                           | ✔                           | ✔                           | ✔                           | ✔                           | ✔                           | ✔                           | ✔                           | ✔                           | ✔                           | ✔                           |
-| Bigrams                         | ✔            | ✔                           | ✔                           | ✔                           | ✔                           | ✔                           | ✔                           | ✔                           | ✔                           | ✔                           | ✔                           | ✔                           |
-| Ny-Bigrams (range intervals)    | **X**        | **X**                       | **X**                       | **X**                       | ✔ 2-7                       | **X**                       | **X**                       | **X**                       | **X**                       | **X**                       | **X**                       | **X**                       |
-| Index of Coincidence Unigrams   | ✔            | ✔                           | ✔                           | ✔                           | ✔                           | ✔                           | ✔                           | ✔                           | ✔                           | ✔                           | ✔                           | ✔                           |
-| Index of Coincidence Bigrams    | ✔            | ✔                           | ✔                           | ✔                           | ✔                           | ✔                           | ✔                           | ✔                           | ✔                           | ✔                           | ✔                           | ✔                           |
-| Has Letter J Check              | **X**        | **X**                       | **X**                       | **X**                       | **X**                       | ✔                           | **X**                       | **X**                       | **X**                       | **X**                       | **X**                       | ✔                           |
-| Has Doubles Check               | **X**        | **X**                       | **X**                       | **X**                       | **X**                       | **X**                       | ✔                           | **X**                       | **X**                       | **X**                       | **X**                       | ✔                           |
-| Chi Square                      | **X**        | **X**                       | **X**                       | **X**                       | **X**                       | **X**                       | **X**                       | ✔                           | **X**                       | **X**                       | **X**                       | **X**                       |
-| Pattern Repititions Count       | **X**        | **X**                       | **X**                       | **X**                       | **X**                       | **X**                       | **X**                       | **X**                       | ✔                           | **X**                       | **X**                       | ✔                           |
-| Shannon's Entropy               | **X**        | **X**                       | **X**                       | **X**                       | **X**                       | **X**                       | **X**                       | **X**                       | **X**                       | ✔                           | **X**                       | **X**                       |
-| Autocorrelation Average         | **X**        | **X**                       | **X**                       | **X**                       | **X**                       | **X**                       | **X**                       | **X**                       | **X**                       | **X**                       | ✔                           | ✔                           |
+| Model Name                    | Accuracy in % | Iterations in Mio. | Training Time |
+| :---------------------------- | :-----------: | :----------------: | :-----------: |
+| t128_ffnn_final_100           |     78.31     |        181         |  7d 11h 14m   |
+| t96_transformer_final_100     |     72.33     |        303         |   5d 8h 58m   |
+| t99_rf_final_100              |     73.50     |        2.5         |    3h 24m     |
+| t128_nb_final_100             |     52.79     |        181         |  7d 11h 14m   |
+| t129_lstm_final_100           |     72.16     |        162         |  2d 21h 31m   |
+| ensemble_mean_100             |     82.67     |         -          |       -       |
+| ensemble_weighted_10          |     82.78     |         -          |       -       |
+| t142_final_aca428_ffnn        |     67.43     |        100         |   4d 5h 17m   |
+| t145_transformer_final_aca428 |     59.54     |        114         |     8h 8m     |
+| t144_rf_final_aca428          |     59.15     |        2.5         |    3h 18m     |
+| t142_final_aca428_nb          |     50.71     |        100         |   4d 5h 17m   |
+| t143_lstm_final_aca428        |     63.41     |        89m         |     9h 6m     |
+| ensemble_mean428              |     70.79     |         -          |       -       |
+| ensemble_weighted428          |     70.78     |         -          |       -       |
