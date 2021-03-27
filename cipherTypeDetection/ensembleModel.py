@@ -158,9 +158,15 @@ class EnsembleModel:
                 for j in range(len(results[i])):
                     for k in range(len(results[i][j])):
                         res[j][k] += results[i][j][k] * statistics[-1][k] / self.total_votes[k]
+            factor = 0
             for i in range(len(results[0])):
                 for j in range(len(results[0][i])):
                     res[i][j] = res[i][j] / len(results)
+                    factor += res[i][j]
+            factor = 1 / factor
+            for i in range(len(results[0])):
+                for j in range(len(results[0][i])):
+                    res[i][j] *= factor
         else:
             raise ValueError("Unknown strategy %s" % self.strategy)
         return res
