@@ -4,7 +4,7 @@ A neural network to detect and analyze ciphers from historical texts.
 
 # NCID- Neural Cipher IDentifier
 
-This project contains code for the detection and classification of ciphers to classical algorithms by using a neuronal network. In Future other parts of the cryptanalysis will be implemented.
+This project contains code for the detection and classification of ciphers to classical algorithms by using a neural network. In Future other parts of the cryptanalysis will be implemented.
 
 # Installation
 
