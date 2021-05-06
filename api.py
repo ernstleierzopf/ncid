@@ -31,7 +31,7 @@ app.add_middleware(
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
-) # todo: remove later
+)  # todo: remove later
 
 
 @app.on_event("startup")
@@ -45,7 +45,7 @@ async def startup_event():
     models["LSTM"] = (tf.keras.models.load_model(os.path.join(model_path, "t129_lstm_final_100.h5")), False, True)
     optimizer = Adam(learning_rate=config.learning_rate, beta_1=config.beta_1, beta_2=config.beta_2, epsilon=config.epsilon,
                      amsgrad=config.amsgrad)
-    for item in models.items():
+    for _, item in models.items():
         item[0].compile(optimizer=optimizer, loss="sparse_categorical_crossentropy", metrics=[
             "accuracy", SparseTopKCategoricalAccuracy(k=3, name="k3_accuracy")])
     # TODO add this in production when having at least 32 GB RAM
@@ -61,9 +61,10 @@ class APIResponse(BaseModel):
     payload: Optional[Any] = {}
     error_msg: Optional[str] = None
 
-# define exception response format
+
 @app.exception_handler(Exception)
 async def exception_handler(request, exc):
+    """Define exception response format."""
     return JSONResponse({"success": False, "payload": None, "error_msg": str(exc)}, status_code=status.HTTP_400_BAD_REQUEST)
 # TODO: does not work (exceptions are still thrown), specific exceptions work -- todo: FIX ;D
 
@@ -73,7 +74,8 @@ async def exception_handler(request, exc):
 
 @app.get("/get_available_architectures", response_model=APIResponse)
 async def get_available_architectures():
-    return { "success": True, "payload": models.keys() }
+    return {"success": True, "payload": models.keys()}
+
 
 @app.get("/evaluate/single_line/ciphertext", response_model=APIResponse)
 async def evaluate_single_line_ciphertext(ciphertext: str, architecture: List[str] = Query(None)):
@@ -122,7 +124,7 @@ async def evaluate_single_line_ciphertext(ciphertext: str, architecture: List[st
         traceback.print_exc()
         return JSONResponse({"success": False, "payload": None, "error_msg": repr(e)}, status_code=500)
         # return JSONResponse(None, status_code=500)
-    return {"success": True, "payload": str(result)}
+    return {"success": True, "payload": result}
 
 
 ###########################################################
