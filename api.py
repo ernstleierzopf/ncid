@@ -1,22 +1,27 @@
 #!/usr/bin/env python
+import os
+import tensorflow as tf
+import pickle
+from tensorflow.keras.optimizers import Adam
+from tensorflow.keras.metrics import SparseTopKCategoricalAccuracy
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Query, status
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 
 from pydantic import BaseModel
-from typing import Optional, Any
-
-from io import StringIO
-from contextlib import redirect_stdout
+from typing import Optional, Any, List
 from types import SimpleNamespace
 
 import cipherTypeDetection.eval as cipherEval
 import cipherTypeDetection.config as config
+from cipherTypeDetection.transformer import MultiHeadSelfAttention, TransformerBlock, TokenAndPositionEmbedding
+from cipherTypeDetection.ensembleModel import EnsembleModel
 
 
 # init fast api
 app = FastAPI()
+models = {}
 
 # allow cors
 origins = ["*"]
@@ -29,13 +34,29 @@ app.add_middleware(
 ) # todo: remove later
 
 
-# init ncid models
-# to use for Ensemble
-# todo ^^
+@app.on_event("startup")
+async def startup_event():
+    """The models are loaded with hardcoded names. Change in future if multiple models are available."""
+    model_path = "data/models"
+    models["Transformer"] = (tf.keras.models.load_model(os.path.join(model_path, "t96_transformer_final_100.h5"), custom_objects={
+        'TokenAndPositionEmbedding': TokenAndPositionEmbedding, 'MultiHeadSelfAttention': MultiHeadSelfAttention,
+        'TransformerBlock': TransformerBlock}), False, True)
+    models["FFNN"] = (tf.keras.models.load_model(os.path.join(model_path, "t128_ffnn_final_100.h5")), True, False)
+    models["LSTM"] = (tf.keras.models.load_model(os.path.join(model_path, "t129_lstm_final_100.h5")), False, True)
+    optimizer = Adam(learning_rate=config.learning_rate, beta_1=config.beta_1, beta_2=config.beta_2, epsilon=config.epsilon,
+                     amsgrad=config.amsgrad)
+    for k in models:
+        models[k][0].compile(optimizer=optimizer, loss="sparse_categorical_crossentropy", metrics=[
+            "accuracy", SparseTopKCategoricalAccuracy(k=3, name="k3_accuracy")])
+    # TODO add this in production when having at least 32 GB RAM
+    # with open(os.path.join(model_path, "t99_rf_final_100.h5"), "rb") as f:
+    #     models["RF"] = (pickle.load(f), True, False)
+    with open(os.path.join(model_path, "t128_nb_final_100.h5"), "rb") as f:
+        models["NB"] = (pickle.load(f), True, False)
 
 
-# define api response model
 class APIResponse(BaseModel):
+    """Define api response model."""
     success: bool = True
     payload: Optional[Any] = {}
     error_msg: Optional[str] = None
@@ -43,7 +64,7 @@ class APIResponse(BaseModel):
 # define exception response format
 @app.exception_handler(Exception)
 async def exception_handler(request, exc):
-    return JSONResponse({"success": False, "payload": None, "error_msg": str(exc)}, status_code=400)
+    return JSONResponse({"success": False, "payload": None, "error_msg": str(exc)}, status_code=status.HTTP_400_BAD_REQUEST)
 # TODO: does not work (exceptions are still thrown), specific exceptions work -- todo: FIX ;D
 
 # todo: custom error handling for unified error responses and no closing on error
@@ -52,34 +73,56 @@ async def exception_handler(request, exc):
 
 @app.get("/get_available_architectures", response_model=APIResponse)
 async def get_available_architectures():
-    return { "success": True, "payload": architecture_models }
+    return { "success": True, "payload": models.keys() }
 
 @app.get("/evaluate/single_line/ciphertext", response_model=APIResponse)
-async def evaluate_single_line_ciphertext(ciphertext: str, architecture: str):
-
-    # todo?: if architecture == 'Ensemble': (eval.py line 564)
-
-    # catch std output from function cuz
-    # it's just cli printed (not returned)
+async def evaluate_single_line_ciphertext(ciphertext: str, architecture: List[str] = Query(None)):
+    if not 0 < len(architecture) < 5:
+        return JSONResponse({"success": False, "payload": None, "error_msg": "The number of architectures must be between 1 and 5."},
+                            status_code=status.HTTP_400_BAD_REQUEST)
+    cipher_types = get_cipher_types_to_use(["aca"])  # aca stands for all implemented ciphers
+    if len(architecture) == 1:
+        if architecture[0] not in models.keys():
+            return JSONResponse({"success": False, "payload": None, "error_msg": "The architecture '%s' does not exist!" % architecture[0]},
+                                status_code=status.HTTP_400_BAD_REQUEST)
+        model, feature_engineering, pad_input = models[architecture[0]]
+        cipherEval.architecture = architecture[0]
+        config.FEATURE_ENGINEERING = feature_engineering
+        config.PAD_INPUT = pad_input
+    else:
+        cipher_indices = []
+        for cipher_type in cipher_types:
+            cipher_indices.append(config.CIPHER_TYPES.index(cipher_type))
+        model_list = []
+        architecture_list = []
+        for val in architecture:
+            if val not in models.keys():
+                return JSONResponse({"success": False, "payload": None, "error_msg": "The architecture '%s' does not exist!" % val},
+                                    status_code=status.HTTP_400_BAD_REQUEST)
+            if len(set(models.keys())) != len(models.keys()):
+                return JSONResponse({"success": False, "payload": None, "error_msg": "Multiple architectures of the same type are not "
+                                                                                     "allowed!"}, status_code=status.HTTP_400_BAD_REQUEST)
+            model_list.append(models[val][0])
+            architecture_list.append(val)
+        cipherEval.architecture = "Ensemble"
+        model = EnsembleModel(model_list, architecture_list, "weighted", cipher_indices)
 
     try:
-        f = StringIO()
-        with redirect_stdout(f):
-
-            # call prediction method
-            result = cipherEval.predict_single_line(SimpleNamespace(
-                ciphertext = ciphertext,
-                file = None, # todo: needs fileupload first (either set ciphertext OR file, never both)
-                ciphers = get_cipher_types_to_use(["aca"]), # aca stands for all implemented ciphers
-                batch_size = 128,
-                verbose = True
-            ), load_model(architecture))
-
-        out = f.getvalue()
+        # call prediction method
+        result = cipherEval.predict_single_line(SimpleNamespace(
+            ciphertext = ciphertext,
+            file = None, # todo: needs fileupload first (either set ciphertext OR file, never both)
+            ciphers = cipher_types,
+            batch_size = 128,
+            verbose = False
+        ), model)
     except BaseException as e:
-        return build_answer(False, None, repr(e))
-
-    return { "success": True, "payload": out } # result }
+        # only use these lines for debugging. Never in production environment due to security reasons!
+        import traceback
+        traceback.print_exc()
+        return JSONResponse({"success": False, "payload": None, "error_msg": repr(e)}, status_code=500)
+        # return JSONResponse(None, status_code=500)
+    return {"success": True, "payload": str(result)}
 
 
 ###########################################################
@@ -151,28 +194,3 @@ def get_cipher_types_to_use(cipher_types):
         cipher_types.append(config.CIPHER_TYPES[54])
         cipher_types.append(config.CIPHER_TYPES[55])
     return cipher_types
-
-architecture_models = {
-    "FFNN": "data/models/t128_ffnn_final_100.h5",
-    # "CNN": "", # model not available yet
-    "LSTM": "data/models/t129_lstm_final_100.h5",
-    # "DT": "", # model not available yet
-    "NB": "data/models/t128_nb_final_100.h5",
-    "RF": "data/models/t99_rf_final_100.h5",
-    # "ET": "", # model not available yet
-    "Transformer": "data/models/t96_transformer_final_100.h5",
-    # "Ensemble": # model not available yet
-}
-
-def load_model(architecture):
-    cipherEval.architecture = architecture
-    cipherEval.args = SimpleNamespace()
-
-    for arch, model_file in architecture_models.items():
-        if arch == architecture:
-            cipherEval.args.model = model_file
-
-    # if cipherEval.args.model is None:
-        # todo: raise error (architecture not available)
-
-    return cipherEval.load_model()

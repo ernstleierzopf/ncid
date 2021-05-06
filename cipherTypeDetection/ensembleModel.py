@@ -41,32 +41,33 @@ mcc_lstm = 0.6890850103646391
 mcc_rf = 0.7028231329033506
 mcc_nb = 0.5266967369780202
 # Cohen's Kappa is not used as these values are almost the same like MCC.
-statistics_dict = {
-    "FFNN": [f1_ffnn, accuracy_ffnn, recall_ffnn, precision_ffnn, mcc_ffnn],
-    "CNN": [f1_cnn, accuracy_cnn, recall_cnn, precision_cnn, mcc_cnn],
-    "Transformer": [f1_transformer, accuracy_transformer, recall_transformer, precision_transformer, mcc_transformer],
-    "LSTM": [f1_lstm, accuracy_lstm, recall_lstm, precision_lstm, mcc_lstm],
-    "RF": [f1_rf, accuracy_rf, recall_rf, precision_rf, mcc_rf],
-    "NB": [f1_nb, accuracy_nb, recall_nb, precision_nb, mcc_nb]
-}
 
 
 class EnsembleModel:
     def __init__(self, models, architectures, strategy, cipher_indices):
+        self.statistics_dict = {
+            "FFNN": [f1_ffnn, accuracy_ffnn, recall_ffnn, precision_ffnn, mcc_ffnn],
+            "CNN": [f1_cnn, accuracy_cnn, recall_cnn, precision_cnn, mcc_cnn],
+            "Transformer": [f1_transformer, accuracy_transformer, recall_transformer, precision_transformer, mcc_transformer],
+            "LSTM": [f1_lstm, accuracy_lstm, recall_lstm, precision_lstm, mcc_lstm],
+            "RF": [f1_rf, accuracy_rf, recall_rf, precision_rf, mcc_rf],
+            "NB": [f1_nb, accuracy_nb, recall_nb, precision_nb, mcc_nb]
+        }
         self.models = models
         self.architectures = architectures
         self.strategy = strategy
-        self.load_model()
-        for key in statistics_dict:
-            statistics = statistics_dict[key]
+        if isinstance(models[0], str):
+            self.load_model()
+        for key in self.statistics_dict:
+            statistics = self.statistics_dict[key]
             for i in range(4):
                 new_list = []
                 for index in cipher_indices:
                     new_list.append(statistics[i][index])
                 statistics[i] = new_list
         self.total_votes = [0]*len(cipher_indices)
-        for key in statistics_dict:
-            statistics = statistics_dict[key]
+        for key in self.statistics_dict:
+            statistics = self.statistics_dict[key]
             network_total_votes = [0]*len(cipher_indices)
             for statistic in statistics[:-1]:
                 for i in range(len(statistic)):
@@ -154,7 +155,7 @@ class EnsembleModel:
                     res[i][j] = res[i][j] / len(results)
         elif self.strategy == 'weighted':
             for i in range(len(results)):
-                statistics = statistics_dict[self.architectures[i]]
+                statistics = self.statistics_dict[self.architectures[i]]
                 for j in range(len(results[i])):
                     for k in range(len(results[i][j])):
                         res[j][k] += results[i][j][k] * statistics[-1][k] / self.total_votes[k]
