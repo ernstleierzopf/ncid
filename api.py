@@ -45,8 +45,8 @@ async def startup_event():
     models["LSTM"] = (tf.keras.models.load_model(os.path.join(model_path, "t129_lstm_final_100.h5")), False, True)
     optimizer = Adam(learning_rate=config.learning_rate, beta_1=config.beta_1, beta_2=config.beta_2, epsilon=config.epsilon,
                      amsgrad=config.amsgrad)
-    for k in models:
-        models[k][0].compile(optimizer=optimizer, loss="sparse_categorical_crossentropy", metrics=[
+    for item in models.items():
+        item[0].compile(optimizer=optimizer, loss="sparse_categorical_crossentropy", metrics=[
             "accuracy", SparseTopKCategoricalAccuracy(k=3, name="k3_accuracy")])
     # TODO add this in production when having at least 32 GB RAM
     # with open(os.path.join(model_path, "t99_rf_final_100.h5"), "rb") as f:
