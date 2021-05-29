@@ -4,7 +4,13 @@ A neural network to detect and analyze ciphers from historical texts.
 
 # NCID- Neural Cipher IDentifier
 
-This project contains code for the detection and classification of ciphers to classical algorithms by using a neural network. In Future other parts of the cryptanalysis will be implemented.
+This project contains code for the detection and classification of ciphers to classical algorithms by using a neural network. In Future other parts of the cryptanalysis will be implemented. An online version of the neural networks will be officially published on https://www.cryptool.org/ncid.
+
+# License
+
+This software and the online version on https://www.cryptool.org/ncid are licensed with the GPLv3 license. Private use of this software is allowed. Software using parts of the code from this repository must not be commercially used and also must be GPLv3 licensed.
+
+Publications on websites and the like MUST be explicitly allowed by the author. For further information contact me at e.leierzopf@gmail.com.
 
 # Installation
 
