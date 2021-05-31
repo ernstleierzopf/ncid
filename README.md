@@ -147,17 +147,11 @@ python3 train.py --help
 
 NCID now supports multiple GPUs seamlessly during training:
 
-- Before running any of the scripts, run: `export CUDA_VISIBLE_DEVICES=[gpus]`
+Before running any of the scripts, run: `export CUDA_VISIBLE_DEVICES=[gpus]`
 
-  - Where you should replace [gpus] with a comma separated list of the index of each GPU you want to use (e.g., 0,1,2,3).
-  - You should still do this if only using 1 GPU.
-  - You can check the indices of your GPUs with `nvidia-smi`.
-
-- Then, simply set the batch size to `8*num_gpus`
-
-  with the training commands above. The training script will automatically scale the hyperparameters to the right values.
-
-  - If you have memory to spare you can increase the batch size further, but keep it a multiple of the number of GPUs you're using.
+- Where you should replace [gpus] with a comma separated list of the index of each GPU you want to use (e.g., 0,1,2,3).
+- You should still do this if only using 1 GPU.
+- You can check the indices of your GPUs with `nvidia-smi`.
 
 # Unit-Tests
 
