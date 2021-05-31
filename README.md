@@ -195,3 +195,7 @@ Following are our training results from a DGX-1 with 2 GPUs on the models with l
 | t143_lstm_final_aca428        |     63.41     |        89m         |     9h 6m     |
 | ensemble_mean428              |     70.79     |         -          |       -       |
 | ensemble_weighted428          |     70.78     |         -          |       -       |
+
+# Publications
+
+Currently all papers are in publication stages. Links are coming soon.
