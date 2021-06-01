@@ -108,7 +108,10 @@ def create_model():
         config.FEATURE_ENGINEERING = False
         config.PAD_INPUT = True
         model_ = tf.keras.Sequential()
-        model_.add(tf.keras.layers.Embedding(56, 64, input_length=args.max_train_len))
+        # parameters of the embedding layer were fixed after release of the work.
+        # original parameters were following:
+        # model_.add(tf.keras.layers.Embedding(56, 64, input_length=args.max_train_len))
+        model_.add(tf.keras.layers.Embedding(20000, 56, input_length=args.max_train_len))
         # model_.add(tf.keras.layers.Dropout(0.2))
         model_.add(tf.keras.layers.LSTM(config.lstm_units))
         # model_.add(tf.keras.layers.Dropout(0.2))
@@ -384,7 +387,7 @@ if __name__ == "__main__":
             extend_model = tf.keras.models.load_model(extend_model, compile=False)
         model = create_model()
         # if architecture in ("FFNN", "CNN", "LSTM", "Transformer") and extend_model is None:
-        #     model.summary()
+        model.summary()
 
     print('Model created.\n')
 
