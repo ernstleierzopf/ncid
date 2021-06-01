@@ -275,6 +275,7 @@ def predict_single_line(args_, model_):
     config.CIPHER_TYPES = args_.ciphers
     cipher_id_result = ''
     ciphertexts = []
+    result = []
     if args_.ciphertext is not None:
         ciphertexts.append(args_.ciphertext.encode())
     else:
@@ -340,6 +341,12 @@ def predict_single_line(args_, model_):
 
     if args_.file is not None:
         ciphertexts.close()
+
+    # return a list of probabilities (does only return the last one in case a file is used)
+    res_dict = {}
+    for j, val in enumerate(result[0]):
+        res_dict[args_.ciphers[j]] = val * 100
+    return res_dict
 
 
 def load_model():

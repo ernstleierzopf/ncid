@@ -4,7 +4,13 @@ A neural network to detect and analyze ciphers from historical texts.
 
 # NCID- Neural Cipher IDentifier
 
-This project contains code for the detection and classification of ciphers to classical algorithms by using a neural network. In Future other parts of the cryptanalysis will be implemented.
+This project contains code for the detection and classification of ciphers to classical algorithms by using a neural network. In Future other parts of the cryptanalysis will be implemented. An online version of the neural networks will be officially published on https://www.cryptool.org/ncid.
+
+# License
+
+This software and the online version on https://www.cryptool.org/ncid are licensed with the GPLv3 license. Private use of this software is allowed. Software using parts of the code from this repository must not be commercially used and also must be GPLv3 licensed.
+
+Publications on websites and the like MUST be explicitly allowed by the author. For further information contact me at e.leierzopf@gmail.com.
 
 # Installation
 
@@ -141,17 +147,11 @@ python3 train.py --help
 
 NCID now supports multiple GPUs seamlessly during training:
 
-- Before running any of the scripts, run: `export CUDA_VISIBLE_DEVICES=[gpus]`
+Before running any of the scripts, run: `export CUDA_VISIBLE_DEVICES=[gpus]`
 
-  - Where you should replace [gpus] with a comma separated list of the index of each GPU you want to use (e.g., 0,1,2,3).
-  - You should still do this if only using 1 GPU.
-  - You can check the indices of your GPUs with `nvidia-smi`.
-
-- Then, simply set the batch size to `8*num_gpus`
-
-  with the training commands above. The training script will automatically scale the hyperparameters to the right values.
-
-  - If you have memory to spare you can increase the batch size further, but keep it a multiple of the number of GPUs you're using.
+- Where you should replace [gpus] with a comma separated list of the index of each GPU you want to use (e.g., 0,1,2,3).
+- You should still do this if only using 1 GPU.
+- You can check the indices of your GPUs with `nvidia-smi`.
 
 # Unit-Tests
 
@@ -195,3 +195,7 @@ Following are our training results from a DGX-1 with 2 GPUs on the models with l
 | t143_lstm_final_aca428        |     63.41     |        89m         |     9h 6m     |
 | ensemble_mean428              |     70.79     |         -          |       -       |
 | ensemble_weighted428          |     70.78     |         -          |       -       |
+
+# Publications
+
+Currently all papers are in publication stages. Links are coming soon.
