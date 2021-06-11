@@ -302,7 +302,7 @@ def predict_single_line(args_, model_):
         elif architecture in ("CNN", "LSTM", "Transformer"):
             input_length = get_model_input_length(model_, architecture)
             if len(ciphertext) < input_length:
-                ciphertext = pad_sequences([ciphertext], maxlen=input_length)[0]
+                ciphertext = pad_sequences([list(ciphertext)], maxlen=input_length)[0]
             split_ciphertext = [ciphertext[input_length*j:input_length*(j+1)] for j in range(len(ciphertext) // input_length)]
             results = []
             if architecture in ("LSTM", "Transformer"):
