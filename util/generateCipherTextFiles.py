@@ -19,7 +19,7 @@ def encrypt_file_with_all_cipher_types(filename, save_folder, cipher_types_, app
         if index > -1:
             print('Encrypting File: %s, Cipher: %s' % (filename, cipher_type))
             cipher = config.CIPHER_IMPLEMENTATIONS[index]
-            key_length = config.KEY_LENGTHS[index]
+            key_length = config.KEY_LENGTHS[index][0]
             ciphertexts = []
             keys = []
             plaintext = b''
