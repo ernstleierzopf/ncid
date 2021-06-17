@@ -4,6 +4,7 @@ from pathlib import Path
 import sys
 sys.path.append("../")
 from cipherTypeDetection import config as config
+from cipherTypeDetection.textLine2CipherStatisticsDataset import encrypt
 from util.utils import read_txt_list_from_file, write_ciphertexts_with_keys_to_file, map_text_into_numberspace, map_numbers_into_textspace,\
     write_txt_list_to_file, print_progress
 
@@ -22,22 +23,10 @@ def encrypt_file_with_all_cipher_types(filename, save_folder, cipher_types_, app
             key_length = config.KEY_LENGTHS[index][0]
             ciphertexts = []
             keys = []
-            plaintext = b''
             for p in plaintexts:
-                plaintext += cipher.filter(p, keep_unknown_symbols)
-                if len(plaintext) < min_text_len:
+                if len(cipher.filter(p, keep_unknown_symbols)) < min_text_len:
                     continue
-
-                key = cipher.generate_random_key(key_length)
-                keys.append(key)
-                plaintext_numberspace = map_text_into_numberspace(plaintext[:max_text_len], config.INPUT_ALPHABET,
-                                                                            config.UNKNOWN_SYMBOL_NUMBER)
-                if isinstance(key, bytes):
-                    key = map_text_into_numberspace(key, cipher.alphabet, cipher.unknown_symbol_number)
-
-                ciphertexts.append(map_numbers_into_textspace(cipher.encrypt(plaintext_numberspace, key),
-                                                                        config.INPUT_ALPHABET, config.UNKNOWN_SYMBOL))
-                plaintext = b''
+                ciphertexts.append(encrypt(p, index, key_length, keep_unknown_symbols))
 
                 # check if decryption works
                 # c = cipher.encrypt(plaintext_numberspace, key)
