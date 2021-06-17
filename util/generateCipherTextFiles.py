@@ -2,7 +2,8 @@ import argparse
 import os
 from pathlib import Path
 import sys
-import cipherTypeDetection.config as config
+sys.path.append("../")
+from cipherTypeDetection import config as config
 from util.utils import read_txt_list_from_file, write_ciphertexts_with_keys_to_file, map_text_into_numberspace, map_numbers_into_textspace,\
     write_txt_list_to_file, print_progress
 
