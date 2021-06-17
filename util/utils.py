@@ -84,6 +84,8 @@ def write_txt_list_to_file(filename, texts):
         for line in texts:
             if isinstance(line, str):
                 line = line.encode()
+            if not isinstance(line, bytes):
+                line = str(line).encode()
             file.write(line)
             file.write(b'\n')
 
