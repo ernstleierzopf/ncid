@@ -5,7 +5,8 @@ import sys
 sys.path.append("../")
 from cipherTypeDetection import config as config
 from cipherTypeDetection.textLine2CipherStatisticsDataset import encrypt
-from util.utils import read_txt_list_from_file, write_ciphertexts_with_keys_to_file, map_text_into_numberspace, map_numbers_into_textspace,\
+from cipherImplementations.cipher import OUTPUT_ALPHABET, UNKNOWN_SYMBOL
+from util.utils import read_txt_list_from_file, write_ciphertexts_with_keys_to_file, map_numbers_into_textspace,\
     write_txt_list_to_file, print_progress
 
 
@@ -26,7 +27,9 @@ def encrypt_file_with_all_cipher_types(filename, save_folder, cipher_types_, app
             for p in plaintexts:
                 if len(cipher.filter(p, keep_unknown_symbols)) < min_text_len:
                     continue
-                ciphertexts.append(encrypt(p, index, key_length, keep_unknown_symbols))
+                ciphertext, key = encrypt(p, index, key_length, keep_unknown_symbols, True)
+                ciphertexts.append(map_numbers_into_textspace(ciphertext, OUTPUT_ALPHABET, UNKNOWN_SYMBOL))
+                keys.append(key)
 
                 # check if decryption works
                 # c = cipher.encrypt(plaintext_numberspace, key)
@@ -38,10 +41,12 @@ def encrypt_file_with_all_cipher_types(filename, save_folder, cipher_types_, app
                 #     print("error %d"%index)
             path = os.path.join(save_folder, os.path.basename(filename).split('.txt')[0] + '-' + cipher_type + '-minLen' +
                                 str(min_text_len) + '-maxLen' + str(max_text_len) + '-keyLen' + str(key_length) + '.txt')
+            key_path = os.path.join(save_folder, 'keys', os.path.basename(filename).split('.txt')[0] + '-' + cipher_type + '.txt')
             if append_key:
                 write_ciphertexts_with_keys_to_file(path, ciphertexts, keys)
             else:
                 write_txt_list_to_file(path, ciphertexts)
+            write_txt_list_to_file(key_path, keys)
         else:
             print('Cipher \'%s\' does not exist!' % cipher_type, sys.stderr)
             continue
@@ -153,8 +158,9 @@ if __name__ == "__main__":
         cipher_types.append(config.CIPHER_TYPES[53])
         cipher_types.append(config.CIPHER_TYPES[54])
         cipher_types.append(config.CIPHER_TYPES[55])
-    if not os.path.exists(args.save_folder):
+    if not os.path.exists(args.save_folder) or not os.path.exists(args.save_folder+'/keys'):
         Path(args.save_folder).mkdir(parents=True, exist_ok=True)
+        Path(args.save_folder+'/keys').mkdir(parents=True, exist_ok=True)
 
     # print all arguments for debugging..
     for arg in vars(args):
