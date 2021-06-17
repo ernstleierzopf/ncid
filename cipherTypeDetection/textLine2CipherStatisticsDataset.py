@@ -1174,10 +1174,12 @@ def calculate_sstd(text):
     return ctx.call("get_sstd", text)
 
 
-def encrypt(plaintext, label, key_length, keep_unknown_symbols):
+def encrypt(plaintext, label, key_length, keep_unknown_symbols, return_key=False):
     cipher = config.CIPHER_IMPLEMENTATIONS[label]
     plaintext = cipher.filter(plaintext, keep_unknown_symbols)
     key = cipher.generate_random_key(key_length)
+    if return_key:
+        orig_key = copy.deepcopy(key)
     plaintext_numberspace = map_text_into_numberspace(plaintext, cipher.alphabet, cipher.unknown_symbol_number)
     if isinstance(key, bytes):
         key = map_text_into_numberspace(key, cipher.alphabet, cipher.unknown_symbol_number)
@@ -1210,6 +1212,8 @@ def encrypt(plaintext, label, key_length, keep_unknown_symbols):
         ciphertext = normalize_text(ciphertext, 9)
     if b'x' not in cipher.alphabet:
         ciphertext = normalize_text(ciphertext, 23)
+    if return_key:
+        return ciphertext, orig_key
     return ciphertext
 
 
