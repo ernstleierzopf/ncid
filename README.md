@@ -198,4 +198,4 @@ Following are our training results from a DGX-1 with 2 GPUs on the models with l
 
 # Publications
 
-[Histocrypt 2021](https://doi.org/10.3384/ecp183): A Massive Machine-Learning Approach For Classical Cipher Type Detection Using Feature Engineering
+[Histocrypt 2021: A Massive Machine-Learning Approach For Classical Cipher Type Detection Using Feature Engineering](https://doi.org/10.3384/ecp183)
