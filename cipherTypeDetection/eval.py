@@ -295,7 +295,11 @@ def predict_single_line(args_, model_):
 
         print(line)
         ciphertext = map_text_into_numberspace(line, OUTPUT_ALPHABET, UNKNOWN_SYMBOL_NUMBER)
-        statistics = calculate_statistics(ciphertext)
+        try:
+            statistics = calculate_statistics(ciphertext)
+        except ZeroDivisionError:
+            print("\n")
+            continue
         results = None
         if architecture == "FFNN":
             result = model_.predict(tf.convert_to_tensor([statistics]), args_.batch_size, verbose=0)
@@ -315,6 +319,7 @@ def predict_single_line(args_, model_):
             result = results[0]
             for res in results[1:]:
                 result = np.add(result, res)
+            result = np.divide(result, len(results))
         elif architecture in ("DT", "NB", "RF", "ET"):
             result = model_.predict_proba(tf.convert_to_tensor([statistics]))
         elif architecture == "Ensemble":
@@ -324,7 +329,7 @@ def predict_single_line(args_, model_):
             result_list = result[0]
         else:
             result_list = result[0].tolist()
-        if results is not None and architecture != 'Ensemble':
+        if results is not None and architecture not in ('Ensemble', 'LSTM', 'Transformer', 'CNN'):
             for j in range(len(result_list)):
                 result_list[j] /= len(results)
         if args_.verbose:
