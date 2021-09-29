@@ -187,12 +187,12 @@ Following are our training results from a DGX-1 with 2 GPUs on the models with l
 | t128_nb_final_100             |     52.79     |        181         |  7d 11h 14m   |
 | t129_lstm_final_100           |     72.16     |        162         |  2d 21h 31m   |
 | ensemble_mean_100             |     82.67     |         -          |       -       |
-| ensemble_weighted_10          |     82.78     |         -          |       -       |
+| ensemble_weighted_100          |     82.78     |         -          |       -       |
 | t142_final_aca428_ffnn        |     67.43     |        100         |   4d 5h 17m   |
 | t145_transformer_final_aca428 |     59.54     |        114         |     8h 8m     |
 | t144_rf_final_aca428          |     59.15     |        2.5         |    3h 18m     |
 | t142_final_aca428_nb          |     50.71     |        100         |   4d 5h 17m   |
-| t143_lstm_final_aca428        |     63.41     |        89m         |     9h 6m     |
+| t143_lstm_final_aca428        |     63.41     |        89         |     9h 6m     |
 | ensemble_mean428              |     70.79     |         -          |       -       |
 | ensemble_weighted428          |     70.78     |         -          |       -       |
 
