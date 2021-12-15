@@ -201,3 +201,8 @@ Following are our training results from a DGX-1 with 2 GPUs on the models with l
 [Masterarbeit: Systematische Evaluierung von Architekturen und Features für die Bestimmung von klassischen Chiffren-Typen mit neuronalen Netzen](https://www.cryptool.org/assets/ctp/documents/MA_Leierzopf.pdf)
 
 [Histocrypt 2021: A Massive Machine-Learning Approach For Classical Cipher Type Detection Using Feature Engineering](https://doi.org/10.3384/ecp183)
+
+AusDM 2021: Detection of Classical Cipher Types with Feature-Learning  Approaches
+
+- [Proceedings](https://link.springer.com/book/10.1007/978-981-16-8531-6)
+- [Pre-Print](https://www.cryptool.org/download/ncid/Detect-Classical-Cipher-Types-with-Feature-Learning_AusDM2021_PrePrint.pdf)
