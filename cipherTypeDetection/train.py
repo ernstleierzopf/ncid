@@ -383,7 +383,7 @@ if __name__ == "__main__":
         if extend_model is not None:
             extend_model = tf.keras.models.load_model(extend_model, compile=False)
         model = create_model()
-        # if architecture in ("FFNN", "CNN", "LSTM", "Transformer") and extend_model is None:
+        if architecture in ("FFNN", "CNN", "LSTM", "Transformer") and extend_model is None:
         model.summary()
 
     print('Model created.\n')
