@@ -49,8 +49,8 @@ async def startup_event():
         item[0].compile(optimizer=optimizer, loss="sparse_categorical_crossentropy", metrics=[
             "accuracy", SparseTopKCategoricalAccuracy(k=3, name="k3_accuracy")])
     # TODO add this in production when having at least 32 GB RAM
-    # with open(os.path.join(model_path, "t99_rf_final_100.h5"), "rb") as f:
-    #     models["RF"] = (pickle.load(f), True, False)
+    with open(os.path.join(model_path, "t99_rf_final_100.h5"), "rb") as f:
+        models["RF"] = (pickle.load(f), True, False)
     with open(os.path.join(model_path, "t128_nb_final_100.h5"), "rb") as f:
         models["NB"] = (pickle.load(f), True, False)
 
@@ -74,12 +74,12 @@ async def exception_handler(request, exc):
 
 @app.get("/get_available_architectures", response_model=APIResponse)
 async def get_available_architectures():
-    return {"success": True, "payload": models.keys()}
+    return {"success": True, "payload": list(models.keys())}
 
 
 @app.get("/evaluate/single_line/ciphertext", response_model=APIResponse)
 async def evaluate_single_line_ciphertext(ciphertext: str, architecture: List[str] = Query(None)):
-    if not 0 < len(architecture) < 5:
+    if not 0 < len(architecture) < len(models.keys())+1:
         return JSONResponse({"success": False, "payload": None, "error_msg": "The number of architectures must be between 1 and 5."},
                             status_code=status.HTTP_400_BAD_REQUEST)
     cipher_types = get_cipher_types_to_use(["aca"])  # aca stands for all implemented ciphers
