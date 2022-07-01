@@ -10,7 +10,7 @@ This project contains code for the detection and classification of ciphers to cl
 
 This software and the online version on https://www.cryptool.org/ncid are licensed with the GPLv3 license. Private use of this software is allowed. Software using parts of the code from this repository must not be commercially used and also must be GPLv3 licensed.
 
-Publications on websites and the like MUST be explicitly allowed by the author. For further information contact me at e.leierzopf@gmail.com.
+Publications on websites and the like MUST be explicitly allowed by the author. For further information contact me at leierzopf@ins.jku.at.
 
 # Installation
 
