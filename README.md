@@ -120,7 +120,7 @@ python3 eval.py --help
 
 # Training
 
-By default we train the ACA ciphers listed [here](https://www.cryptogram.org/resource-area/cipher-types/). The plaintexts I used are already filtered and automatically downloaded in the train.py or eval.py scripts.  You can turn off this behavior by setting `--download_dataset=False`. 
+By default we train the models to identify ACA ciphers listed [here](https://www.cryptogram.org/resource-area/cipher-types/). The plaintexts used are already filtered and automatically downloaded in the train.py or eval.py scripts.  You can turn off this behavior by setting `--download_dataset=False`. 
 
 To see all options of `train.py`, run the `--help` or `-h` command.
 
