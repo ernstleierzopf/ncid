@@ -206,3 +206,35 @@ AusDM 2021: Detection of Classical Cipher Types with Feature-Learning  Approache
 
 - [Proceedings](https://link.springer.com/book/10.1007/978-981-16-8531-6)
 - [Pre-Print](https://www.cryptool.org/download/ncid/Detect-Classical-Cipher-Types-with-Feature-Learning_AusDM2021_PrePrint.pdf)
+
+## BibTeX Citation
+
+If you use ncid in a scientific publication, we would appreciate using the following citations:
+
+```
+@inproceedings{leierzopf2021-2,
+author="Leierzopf, Ernst and Mikhalev, Vasily and Kopal, Nils and Esslinger, Bernhard and Lampesberger, Harald and Hermann, Eckehard",
+editor="Xu, Yue and Wang, Rosalindand Lord, Anton and Boo, Yee Ling and Nayak, Richi and Zhao, Yanchang and Williams, Graham",
+title="Detection of Classical Cipher Types with Feature-Learning Approaches",
+booktitle="Data Mining",
+year="2021",
+month="Dec",
+publisher="Springer Singapore",
+address="Singapore",
+pages="152--164",
+isbn="978-981-16-8531-6",
+url="https://link.springer.com/chapter/10.1007/978-981-16-8531-6_11",
+doi="10.1007/978-981-16-8531-6_11"
+}
+
+@inproceedings{leierzopf2021-1,
+title = "A Massive Machine-Learning Approach For Classical Cipher Type Detection Using Feature Engineering",
+author = "Ernst Leierzopf and Nils Kopal and Bernhard Esslinger and Harald Lampesberger and Eckehard Hermann",
+year = "2021",
+month = aug,
+doi = "10.3384/ecp183164",
+language = "English",
+pages = "111--120",
+booktitle = "Proceedings of the 4th International Conference on Historical Cryptology",
+}
+```
