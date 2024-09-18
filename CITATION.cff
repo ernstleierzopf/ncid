@@ -2,17 +2,17 @@ cff-version: 1.2.0
 title: A Massive Machine-Learning Approach For Classical Cipher Type Detection Using
   Feature Engineering
 message: If you use this software, please cite it as below.
-author:
-- given-name: Ernst
-  family-name: Leierzopf
-- given-name: Nils
-  family-name: Kopal
-- given-name: Bernhard
-  family-name: Esslinger
-- given-name: Harald
-  family-name: Lampesberger
-- given-name: Eckehard
-  family-name: Hermann
+authors:
+- given-names: Ernst
+  family-names: Leierzopf
+- given-names: Nils
+  family-names: Kopal
+- given-names: Bernhard
+  family-names: Esslinger
+- given-names: Harald
+  family-names: Lampesberger
+- given-names: Eckehard
+  family-names: Hermann
 doi: 10.3384/ecp183164
 url: https://ecp.ep.liu.se/index.php/histocrypt/article/view/164
 license: "CC BY 4.0"
