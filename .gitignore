@@ -8,3 +8,4 @@ weights.zip
 cipherTypeDetection/*_logs/**
 cipherTypeDetection/correlations.pickle
 cipherTypeDetection/run_trainings.sh
+cipherTypeDetection/functions.js
